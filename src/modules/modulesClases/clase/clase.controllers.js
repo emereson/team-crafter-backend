@@ -20,7 +20,7 @@ export const findOne = catchAsync(async (req, res, next) => {
   });
 });
 
-export const create = catchAsync(async (req, res, next) => {
+export const createClase = catchAsync(async (req, res, next) => {
   const {
     imagen_clase,
     titulo_clase,
@@ -31,8 +31,10 @@ export const create = catchAsync(async (req, res, next) => {
   const clase = await Clase.create({
     imagen_clase,
     titulo_clase,
+    descripcion_clase,
     tiempo_duracion_video,
     nro_reproducciones,
+    nro_likes,
   });
 
   res.status(201).json({
@@ -43,21 +45,26 @@ export const create = catchAsync(async (req, res, next) => {
   });
 });
 
-export const update = catchAsync(async (req, res) => {
+export const updateClase = catchAsync(async (req, res) => {
   const { clase } = req;
   const {
     imagen_clase,
     titulo_clase,
+    descripcion_clase,
     tiempo_duracion_video,
     nro_reproducciones,
+    nro_likes,
   } = req.body;
 
   await clase.update({
     imagen_clase,
     titulo_clase,
+    descripcion_clase,
     tiempo_duracion_video,
     nro_reproducciones,
+    nro_likes,
   });
+
   return res.status(200).json({
     status: "success",
     message: "clase information has been updated",
@@ -65,7 +72,7 @@ export const update = catchAsync(async (req, res) => {
   });
 });
 
-export const deleteUser = catchAsync(async (req, res) => {
+export const deleteClase = catchAsync(async (req, res) => {
   const { clase } = req;
 
   await clase.destroy();

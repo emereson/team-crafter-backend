@@ -10,7 +10,12 @@ import { AppError } from "./utils/AppError.js";
 import { globalErrorHandler } from "./utils/errors.js";
 
 import { usersRouter } from "./modules/user/user.routes.js";
-import { claseRouter } from "./modules/modulesClases/clase/user.routes.js";
+import { claseRouter } from "./modules/modulesClases/clase/clase.routes.js";
+import { comentarioClaseRouter } from 
+  "./modules/modulesClases/comentarioClase/comentarioClase.routes.js";
+import { recursoRouter } from "./modules/recurso/recurso.routes.js";
+import { descuentoRouter } from "./modules/descuento/descuento.routes.js";
+import { favoritoRouter } from "./modules/favoritos/favorito.routes.js";
 
 const app = express();
 
@@ -36,6 +41,10 @@ app.use(hpp());
 app.use("/api/v1", limiter);
 app.use("/api/v1/user", usersRouter);
 app.use("/api/v1/clase", claseRouter);
+app.use("/api/v1/clase", comentarioClaseRouter);
+app.use("/api/v1/recurso", recursoRouter);
+app.use("/api/v1/descuento", descuentoRouter);
+app.use("/api/v1/favorito", favoritoRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server! 💀`, 404));

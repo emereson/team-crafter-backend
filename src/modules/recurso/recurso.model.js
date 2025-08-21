@@ -1,52 +1,52 @@
 import { DataTypes } from "sequelize";
-import { db } from "../../../db/mysql.js";
+import { db } from "../../db/mysql.js";
 
-const Clase = db.define("clases", {
+const Recurso = db.define("recursos", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     allowNull: false,
     autoIncrement: true,
   },
-  imagen_clase: {
+  imagen_recurso: {
     type: DataTypes.TEXT,
     default:
       "https://team-crafter.com/wp-content/uploads/2024/11/Team-Crafter-Footer-Logo.svg",
     allowNull: false,
   },
-  titulo_clase: {
+  titulo_recurso: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  descripcion_clase: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  tiempo_duracion_video: {
+  descripcion_recurso: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  nro_reproducciones: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
-  },
-  nro_likes: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
-  },
-  recurso_id: {
-    type: DataTypes.INTEGER,
+  link_recurso: {
+    type: DataTypes.STRING,
+    default:
+      "https://team-crafter.com/wp-content/uploads/2024/11/Team-Crafter-Footer-Logo.svg",
     allowNull: false,
-    references: {
-      model: "recursos",
-      key: "id",
-    },
+  },
+  tiempo_caducidad: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  premium_recurso: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   },
   status: {
     type: DataTypes.ENUM("active", "disabled"),
     allowNull: false,
     defaultValue: "active",
   },
+},
+{
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at",
 });
 
-export { Clase };
+export { Recurso };

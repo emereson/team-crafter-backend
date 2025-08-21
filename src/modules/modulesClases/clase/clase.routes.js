@@ -4,14 +4,14 @@ import * as claseController from "./clase.controllers.js";
 
 const router = express.Router();
 
-router.get("/", claseController.findAll);
-router.post("/", claseController.create);
+router.get("/clases", claseController.findAll);
+router.post("/clases", claseController.createClase);
 
 router
-  .use("/:id", claseMiddleware.validExistClase)
-  .route("/:id")
-  .patch(claseController.update)
-  .delete(claseController.deleteUser)
+  .use("/clases/:id", claseMiddleware.validExistClase)
+  .route("/clases/:id")
+  .patch(claseController.updateClase)
+  .delete(claseController.deleteClase)
   .get(claseController.findOne);
 
 const claseRouter = router;
