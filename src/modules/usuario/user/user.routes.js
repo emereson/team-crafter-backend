@@ -6,10 +6,14 @@ import * as userController from './user.controllers.js';
 const router = express.Router();
 
 router.post('/login', userController.login);
+router.post('/signup', userController.signup);
+router.get('/verificar-correo/:token', userController.verificarCorreo);
+router.post('/correo-password', userController.correoRecuperarPassword);
+router.post('/nuevo-password/:token', userController.nuevoPassword);
 
 router.use(authMiddleware.protect);
 router.get('/', userController.findAll);
-router.post('/signup', userController.signup);
+router.get('/perfil', userController.findPerfil);
 
 router
   .use('/:id', userMiddleware.validExistUser)

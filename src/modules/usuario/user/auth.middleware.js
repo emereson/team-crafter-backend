@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
 import { User } from './user.model.js';
-import { catchAsync } from '../../utils/catchAsync.js';
-import { AppError } from '../../utils/AppError.js';
+import { catchAsync } from '../../../utils/catchAsync.js';
+import { AppError } from '../../../utils/AppError.js';
 
 export const protect = catchAsync(async (req, res, next) => {
   let token;
