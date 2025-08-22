@@ -7,6 +7,7 @@ export const {
   DB_USER,
   DB_PASSWORD,
   DB_HOST,
+  DB_PORT,
   PORT,
   FLOW_API_KEY,
   FLOW_SECRET,
