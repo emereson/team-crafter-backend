@@ -3,8 +3,8 @@ import { EMAIL, FRONTEND_URL, PASSWORD_EMAIL } from '../../config.js';
 
 export const transporter = nodemailer.createTransport({
   host: 'mail.team-crafter.com', // tu servidor SMTP
-  port: 465, // puerto seguro
-  secure: true, // true porque usas 465
+  port: 587, // puerto seguro
+  secure: false, // true porque usas 465
   auth: {
     user: EMAIL, // ventas@team-crafter.com
     pass: PASSWORD_EMAIL, // contraseña del correo
