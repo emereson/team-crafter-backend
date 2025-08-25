@@ -32,7 +32,7 @@ export const createPaymentOrder = async ({
     email: userEmail,
     paymentMethod: '9',
     urlConfirmation:
-      'https://23167e040d71.ngrok-free.app/api/v1/suscripcion/confirmacion',
+      'https://3c564896f497.ngrok-free.app/api/v1/suscripcion/confirmacion',
     urlReturn: 'http://localhost:3000/compra-completada',
   };
 

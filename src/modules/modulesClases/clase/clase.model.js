@@ -1,17 +1,23 @@
-import { DataTypes } from "sequelize";
-import { db } from "../../../db/mysql.js";
+import { DataTypes } from 'sequelize';
+import { db } from '../../../db/mysql.js';
 
-const Clase = db.define("clases", {
+const Clase = db.define('clases', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     allowNull: false,
     autoIncrement: true,
   },
-  imagen_clase: {
+  image_clase: {
     type: DataTypes.TEXT,
-    default:
-      "https://team-crafter.com/wp-content/uploads/2024/11/Team-Crafter-Footer-Logo.svg",
+    allowNull: false,
+  },
+  video_clase: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  duracion_video: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
   titulo_clase: {
@@ -22,10 +28,7 @@ const Clase = db.define("clases", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  tiempo_duracion_video: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
+
   nro_reproducciones: {
     type: DataTypes.INTEGER,
     defaultValue: 0,
@@ -34,18 +37,30 @@ const Clase = db.define("clases", {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
-  recurso_id: {
-    type: DataTypes.INTEGER,
+  categoria_clase: {
+    type: DataTypes.ENUM(
+      'Cake Toppers',
+      'Cajitas Temáticas',
+      'Cartonaje',
+      'Tarjetas Invitación',
+      'Proyectos Varios'
+    ),
     allowNull: false,
-    references: {
-      model: "recursos",
-      key: "id",
-    },
+  },
+  tutoriales_tips: {
+    type: DataTypes.ENUM(
+      'Tutoriales Silhouette Studio',
+      'Tutoriales Cricut Design',
+      'Tips de Diseño',
+      'Tips de Corte',
+      'Varios/otros'
+    ),
+    allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM("active", "disabled"),
+    type: DataTypes.ENUM('active', 'disabled'),
     allowNull: false,
-    defaultValue: "active",
+    defaultValue: 'active',
   },
 });
 

@@ -1,33 +1,30 @@
-import express from "express";
-import * as comentarioClaseMiddleware from "./comentarioClase.middleware.js";
-import * as comentarioClaseController from "./comentarioClase.controllers.js";
+import express from 'express';
+import * as comentarioMiddleware from './comentarioClase.middleware.js';
+import * as comentarioController from './comentarioClase.controllers.js';
+import * as claseMiddleware from '../clase/clase.middleware.js';
+import * as authMiddleware from '../../usuario/user/auth.middleware.js';
 
 const router = express.Router();
 
-router
-  .use("/:claseId/comentarios", 
-    comentarioClaseMiddleware.validExistComentarioClase)
-  .route("/:claseId/comentarios")
-  .get(comentarioClaseController.findComentariosByClase)
-  .post(comentarioClaseController.createComentarioClase);
+router.use(authMiddleware.protect);
+
+router.get(
+  '/:id',
+  claseMiddleware.validExistClase,
+  comentarioController.findAll
+);
+router.post(
+  '/:id',
+  claseMiddleware.validExistClase,
+  comentarioController.create
+);
 
 router
-  .use("/:claseId/comentarios/respuesta", 
-    comentarioClaseMiddleware.validExistComentarioClase)
-  .route("/:claseId/comentarios/respuesta")
-  .post(comentarioClaseController.createRespuestaComentario);
-
-router
-  .use("/:claseId/comentarios/:comentarioId/like", 
-    comentarioClaseMiddleware.validExistComentarioClase)
-  .route("/:claseId/comentarios/:comentarioId/like")
-  .post(comentarioClaseController.likeComentario)
-
-router
-  .use("/:claseId/comentarios/:comentarioId/unlike", 
-    comentarioClaseMiddleware.validExistComentarioClase)
-  .route("/:claseId/comentarios/:comentarioId/unlike")
-  .post(comentarioClaseController.unlikeComentario)
+  .use('/:id', comentarioMiddleware.validExistComentarioClase)
+  .route('/:id');
+// .patch(comentarioController.updateClase)
+// .delete(comentarioController.deleteClase)
+// .get(comentarioController.findOne);
 
 const comentarioClaseRouter = router;
 

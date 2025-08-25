@@ -2,6 +2,7 @@ import { db } from './src/db/mysql.js';
 import { app } from './src/app.js';
 import { PORT } from './config.js';
 import { actualizarSuscripcionesExpiradas } from './src/modules/usuario/suscripcion/suscripcion.controllers.js';
+import initModel from './src/db/initModel.js';
 
 db.authenticate()
   .then(() => {
@@ -13,7 +14,7 @@ db.authenticate()
   .then(() => {
     actualizarSuscripcionesExpiradas();
     console.log(`Database Authenticated! 👍`);
-    // return initModel();
+    return initModel();
   })
   .then(() => {
     return db.sync();

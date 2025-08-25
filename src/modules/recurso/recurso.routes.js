@@ -1,18 +1,29 @@
-import express from "express";
-import * as recursoMiddleware from "./recurso.middleware.js";
-import * as recursoController from "./recurso.controllers.js";
+import express from 'express';
+import { uploadDoc, uploadImage } from '../../utils/multer.js';
+
+import * as recursoMiddleware from './recurso.middleware.js';
+import * as recursoController from './recurso.controllers.js';
+import * as claseMiddleware from '../modulesClases/clase/clase.middleware.js';
 
 const router = express.Router();
 
-router.get("/", recursoController.findAll);
-router.post("/", recursoController.createRecurso);
+// Obtener todos los recursos
+router.get('/', recursoController.findAll);
 
+router.post(
+  '/clase/:id',
+  claseMiddleware.validExistClase,
+  uploadDoc.single('doc'),
+  recursoController.createRecurso
+);
+
+// Rutas para un recurso específico
 router
-  .use("/:recursoId", recursoMiddleware.validExistRecurso)
-  .route("/:recursoId")
+  .use('/:id', recursoMiddleware.validExistRecurso)
+  .route('/:id')
+  .get(recursoController.findOne)
   .patch(recursoController.updateRecurso)
-  .delete(recursoController.deleteRecurso)
-  .get(recursoController.findOne);
+  .delete(recursoController.deleteRecurso);
 
 const recursoRouter = router;
 

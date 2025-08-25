@@ -44,10 +44,4 @@ const Suscripcion = db.define(
   }
 );
 
-Suscripcion.belongsTo(Plan, { foreignKey: 'plan_id', as: 'plan' });
-Plan.hasMany(Suscripcion, { foreignKey: 'plan_id', as: 'suscripciones' });
-
-Suscripcion.belongsTo(User, { foreignKey: 'user_id', as: 'usuario' });
-User.hasMany(Suscripcion, { foreignKey: 'user_id', as: 'suscripciones' });
-
 export { Suscripcion };

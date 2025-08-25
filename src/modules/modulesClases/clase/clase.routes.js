@@ -1,16 +1,22 @@
-import express from "express";
-import * as claseMiddleware from "./clase.middleware.js";
-import * as claseController from "./clase.controllers.js";
+import express from 'express';
+import * as claseMiddleware from './clase.middleware.js';
+import * as claseController from './clase.controllers.js';
+import { uploadImage } from '../../../utils/multer.js';
 
 const router = express.Router();
 
-router.get("/clases", claseController.findAll);
-router.post("/clases", claseController.createClase);
+router.get('/', claseController.findAll);
+router.post('/', uploadImage.single('img'), claseController.createClase);
+router.get(
+  '/view/:id',
+  claseMiddleware.validExistClase,
+  claseController.findViewClase
+);
 
 router
-  .use("/clases/:id", claseMiddleware.validExistClase)
-  .route("/clases/:id")
-  .patch(claseController.updateClase)
+  .use('/:id', claseMiddleware.validExistClase)
+  .route('/:id')
+  .patch(uploadImage.single('img'), claseController.updateClase)
   .delete(claseController.deleteClase)
   .get(claseController.findOne);
 
