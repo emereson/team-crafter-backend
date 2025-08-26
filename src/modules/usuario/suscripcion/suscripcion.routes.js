@@ -6,6 +6,13 @@ import * as authMiddleware from '../../usuario/user/auth.middleware.js';
 const router = express.Router();
 
 router.post('/confirmacion', suscripcionController.confirmarPago);
+router.post('/compra-completada', async (req, res) => {
+  const { token } = req.body; // Flow envía token
+
+  console.log('Token recibido de Flow:', token);
+
+  res.redirect('https://dashboard.team-crafter.com/compra-completada');
+});
 router.use(authMiddleware.protect);
 
 router.post(
@@ -13,18 +20,6 @@ router.post(
   planMiddleware.validExistPlan,
   suscripcionController.crearSuscripcion
 );
-
-router.post('/compra-completada', async (req, res) => {
-  const { token } = req.body; // Flow envía token
-
-  console.log('Token recibido de Flow:', token);
-
-  // TODO: validar el pago con Flow usando token
-  // marcar pago como completado en tu DB, etc.
-
-  // Redirigir al frontend con GET
-  res.redirect('https://dashboard.team-crafter.com/compra-completada');
-});
 
 router.get('/activa', suscripcionController.obtenerContenidoPremium);
 
