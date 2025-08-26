@@ -9,9 +9,6 @@ export const transporter = nodemailer.createTransport({
     user: EMAIL, // ventas@team-crafter.com
     pass: PASSWORD_EMAIL, // contraseña del correo
   },
-  tls: {
-    rejectUnauthorized: false, // evita errores de certificados en hosting
-  },
 });
 
 transporter.verify((error, success) => {
