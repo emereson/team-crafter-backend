@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import axios from 'axios';
 import { FLOW_API_KEY, FLOW_SECRET } from '../../config.js';
 

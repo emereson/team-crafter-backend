@@ -3,7 +3,7 @@ import { User } from './user.model.js';
 import { catchAsync } from '../../../utils/catchAsync.js';
 import { AppError } from '../../../utils/AppError.js';
 import { generateJWT } from '../../../utils/jwt.js';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import {
   sendConfirmationEmail,
   sendPasswordRecoveryEmail,

@@ -2,17 +2,21 @@ import nodemailer from 'nodemailer';
 import { EMAIL, FRONTEND_URL, PASSWORD_EMAIL } from '../../config.js';
 
 export const transporter = nodemailer.createTransport({
-  host: 'mail.team-crafter.com', // tu servidor SMTP
-  port: 465, // puerto SMTP seguro (SSL/TLS)
-  secure: true, // true para puerto 465, false para otros puertos
+  host: 'mail.team-crafter.com',
+  port: 465, // Puerto SMTP correcto (no 993)
+  secure: true, // true para 465
   auth: {
     user: EMAIL, // ventas@team-crafter.com
-    pass: PASSWORD_EMAIL, // contraseña del correo
+    pass: PASSWORD_EMAIL,
   },
-  // Configuraciones adicionales recomendadas
+  // Configuraciones para resolver timeout
+  connectionTimeout: 60000, // 60 segundos
+  greetingTimeout: 30000, // 30 segundos
+  socketTimeout: 60000, // 60 segundos
+  // Configuraciones TLS
   tls: {
-    // No fallar en certificados inválidos
-    rejectUnauthorized: false,
+    rejectUnauthorized: false, // Permite certificados autofirmados
+    ciphers: 'SSLv3',
   },
 });
 
