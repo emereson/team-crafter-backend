@@ -6,7 +6,7 @@ import { uploadImage } from '../../../utils/multer.js';
 const router = express.Router();
 
 router.get('/', claseController.findAll);
-router.post('/', uploadImage.single('img'), claseController.createClase);
+router.post('/', claseController.createClase);
 router.get(
   '/view/:id',
   claseMiddleware.validExistClase,
@@ -16,7 +16,7 @@ router.get(
 router
   .use('/:id', claseMiddleware.validExistClase)
   .route('/:id')
-  .patch(uploadImage.single('img'), claseController.updateClase)
+  .patch(claseController.updateClase)
   .delete(claseController.deleteClase)
   .get(claseController.findOne);
 

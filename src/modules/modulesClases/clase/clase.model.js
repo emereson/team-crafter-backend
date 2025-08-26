@@ -8,10 +8,7 @@ const Clase = db.define('clases', {
     allowNull: false,
     autoIncrement: true,
   },
-  image_clase: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
+
   video_clase: {
     type: DataTypes.TEXT,
     allowNull: false,

@@ -88,11 +88,7 @@ export const createClase = catchAsync(async (req, res, next) => {
     tutoriales_tips,
   } = req.body;
 
-  // Si subiste imagen con multer
-  const img = req.file ? req.file.filename : null;
-
   const clase = await Clase.create({
-    image_clase: img,
     video_clase,
     duracion_video,
     titulo_clase,
@@ -128,14 +124,6 @@ export const updateClase = catchAsync(async (req, res, next) => {
     tutoriales_tips,
   };
 
-  if (req.file) {
-    if (clase.image_clase) {
-      await deleteImage(clase.image_clase);
-    }
-
-    updateData.image_clase = req.file.filename;
-  }
-
   await clase.update(updateData);
 
   const updatedClase = await clase.reload();
@@ -149,9 +137,6 @@ export const updateClase = catchAsync(async (req, res, next) => {
 
 export const deleteClase = catchAsync(async (req, res) => {
   const { clase } = req;
-  if (clase.image_clase) {
-    await deleteImage(clase.image_clase);
-  }
 
   await clase.destroy();
 
