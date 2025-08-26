@@ -32,8 +32,8 @@ export const createPaymentOrder = async ({
     email: userEmail,
     paymentMethod: '9',
     urlConfirmation:
-      'https://d6ce39258a2e.ngrok-free.app/api/v1/suscripcion/confirmacion',
-    urlReturn: 'http://localhost:3000/compra-completada',
+      'https://end-point.team-crafter.com/api/v1/suscripcion/confirmacion',
+    urlReturn: 'https://dashboard.team-crafter.com/compra-completada',
   };
 
   // generar firma

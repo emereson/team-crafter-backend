@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { EMAIL, FRONTEND_URL, PASSWORD_EMAIL } from '../../config.js';
+import { FRONTEND_URL } from '../../config.js';
 
 export const transporter = nodemailer.createTransport({
   host: 'mail.team-crafter.com', // Servidor SMTP
