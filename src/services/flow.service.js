@@ -33,7 +33,8 @@ export const createPaymentOrder = async ({
     paymentMethod: '9',
     urlConfirmation:
       'https://end-point.team-crafter.com/api/v1/suscripcion/confirmacion',
-    urlReturn: 'https://dashboard.team-crafter.com/compra-completada',
+    urlReturn:
+      'https://end-point.team-crafter.com/api/v1/suscripcion/compra-completada',
   };
 
   // generar firma

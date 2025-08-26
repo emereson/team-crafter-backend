@@ -14,6 +14,18 @@ router.post(
   suscripcionController.crearSuscripcion
 );
 
+router.post('/compra-completada', async (req, res) => {
+  const { token } = req.body; // Flow envía token
+
+  console.log('Token recibido de Flow:', token);
+
+  // TODO: validar el pago con Flow usando token
+  // marcar pago como completado en tu DB, etc.
+
+  // Redirigir al frontend con GET
+  res.redirect('https://dashboard.team-crafter.com/compra-completada');
+});
+
 router.get('/activa', suscripcionController.obtenerContenidoPremium);
 
 // router
