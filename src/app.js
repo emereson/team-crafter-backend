@@ -20,6 +20,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { respuestaComentarioClaseRouter } from './modules/modulesClases/respuestaComentarioClase/respuestaComentarioClase.routes.js';
 import { likeClaseRouter } from './modules/usuario/likesClases/likeClase.routes.js';
+import { likeComentarioClaseRouter } from './modules/usuario/likeComentarioClase/likeComentarioClase.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -64,6 +65,7 @@ app.use('/api/v1/descuento', descuentoRouter);
 app.use('/api/v1/favorito', favoritoRouter);
 
 app.use('/api/v1/like-clase', likeClaseRouter);
+app.use('/api/v1/like-comentario-clase', likeComentarioClaseRouter);
 
 // Manejo de rutas no encontradas
 app.all('*', (req, res, next) => {

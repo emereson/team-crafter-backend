@@ -3,34 +3,28 @@ import { catchAsync } from '../../../utils/catchAsync.js';
 import { Clase } from '../../modulesClases/clase/clase.model.js';
 import { LikeClase } from './likeClase.model.js';
 
+// GET /like-clase
 export const findAll = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
+
   const likeClases = await LikeClase.findAll({
-    where: {
-      usuario_id: sessionUser.id,
-    },
+    where: { usuario_id: sessionUser.id },
+    attributes: ['clase_id'], // <- solo traemos clase_id
   });
 
+  const claseIds = likeClases.map((like) => like.clase_id);
+
   return res.status(200).json({
-    status: 'Success',
-    results: likeClases.length,
-    likeClases,
+    status: 'success',
+    results: claseIds.length,
+    likeClases: claseIds,
   });
 });
 
-export const findOne = catchAsync(async (req, res, next) => {
-  const { likeClase } = req;
-
-  return res.status(200).json({
-    status: 'Success',
-    likeClase,
-  });
-});
-
+// POST /like-clase/:id
 export const create = catchAsync(async (req, res, next) => {
   const { sessionUser, clase } = req;
 
-  // Validar si ya existe un like de este usuario para esta clase
   const existingLike = await LikeClase.findOne({
     where: {
       usuario_id: sessionUser.id,
@@ -47,49 +41,29 @@ export const create = catchAsync(async (req, res, next) => {
     clase_id: clase.id,
   });
 
-  // Actualizar el contador de likes
-  await clase.update({
-    nro_likes: clase.nro_likes + 1,
+  await clase.update({ nro_likes: clase.nro_likes + 1 });
+
+  const likeClases = await LikeClase.findAll({
+    where: { usuario_id: sessionUser.id },
+    attributes: ['clase_id'],
   });
 
-  // Obtener los likes actualizados del usuario (si realmente lo necesitas)
-  const likeClases = await LikeClase.findAll({
-    where: {
-      usuario_id: sessionUser.id,
-    },
-  });
+  const claseIds = likeClases.map((like) => like.clase_id);
 
   return res.status(201).json({
     status: 'success',
     message: 'El like se ha creado correctamente',
-    likeClases, // opcional
+    likeClases: claseIds,
   });
 });
 
-export const update = catchAsync(async (req, res) => {
-  const { sessionUser, clase, likeClase } = req;
-
-  await likeClase.update({
-    usuario_id: sessionUser.id,
-    clase_id: clase.id,
-  });
-
-  return res.status(200).json({
-    status: 'success',
-    message: 'descuento information has been updated',
-    descuento,
-  });
-});
-
+// DELETE /like-clase/:id
 export const deleteLikeClase = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
   const { id } = req.params; // id de la clase
 
   const likeClase = await LikeClase.findOne({
-    where: {
-      clase_id: id,
-      usuario_id: sessionUser.id, // validamos que sea del usuario logueado
-    },
+    where: { clase_id: id, usuario_id: sessionUser.id },
   });
 
   if (!likeClase) {
@@ -98,29 +72,24 @@ export const deleteLikeClase = catchAsync(async (req, res, next) => {
     );
   }
 
-  // eliminamos el like
   await likeClase.destroy();
 
-  // buscamos la clase para actualizar el nro_likes
   const clase = await Clase.findByPk(id);
-
   if (clase) {
-    await clase.update({
-      nro_likes: clase.nro_likes > 0 ? clase.nro_likes - 1 : 0,
-    });
+    await clase.update({ nro_likes: Math.max(clase.nro_likes - 1, 0) });
   }
 
-  // obtenemos los likes actualizados del usuario
   const newLikeClases = await LikeClase.findAll({
-    where: {
-      usuario_id: sessionUser.id,
-    },
+    where: { usuario_id: sessionUser.id },
+    attributes: ['clase_id'],
   });
+
+  const claseIds = newLikeClases.map((like) => like.clase_id);
 
   return res.status(200).json({
     status: 'success',
     message: 'El like ha sido eliminado correctamente!',
-    results: newLikeClases.length,
-    newLikeClases,
+    results: claseIds.length,
+    likeClases: claseIds,
   });
 });

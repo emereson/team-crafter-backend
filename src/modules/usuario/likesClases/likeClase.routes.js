@@ -1,27 +1,20 @@
 import express from 'express';
-import * as lickeClaseMiddleware from './likeClase.middleware.js';
 import * as likeClaseController from './likeClase.controllers.js';
 import * as claseMiddleware from '../../modulesClases/clase/clase.middleware.js';
 import * as authMiddleware from '../../usuario/user/auth.middleware.js';
 
 const router = express.Router();
 
+// Protege todas las rutas
 router.use(authMiddleware.protect);
 
+// GET /like-clase -> traer todos los likes del usuario
 router.get('/', likeClaseController.findAll);
-router.post(
-  '/:id',
-  claseMiddleware.validExistClase,
-  likeClaseController.create
-);
 
+// POST y DELETE /like-clase/:id
 router
-  .use('/:id', claseMiddleware.validExistClase)
   .route('/:id')
-  .patch(likeClaseController.update)
-  .delete(likeClaseController.deleteLikeClase)
-  .get(likeClaseController.findOne);
+  .post(claseMiddleware.validExistClase, likeClaseController.create)
+  .delete(claseMiddleware.validExistClase, likeClaseController.deleteLikeClase);
 
-const likeClaseRouter = router;
-
-export { likeClaseRouter };
+export { router as likeClaseRouter };

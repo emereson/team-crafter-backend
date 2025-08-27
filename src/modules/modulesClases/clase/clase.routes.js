@@ -1,7 +1,6 @@
 import express from 'express';
 import * as claseMiddleware from './clase.middleware.js';
 import * as claseController from './clase.controllers.js';
-import { uploadImage } from '../../../utils/multer.js';
 
 const router = express.Router();
 

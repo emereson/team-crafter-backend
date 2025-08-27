@@ -1,9 +1,13 @@
 import { Recurso } from './recurso.model.js';
 import { catchAsync } from '../../utils/catchAsync.js';
-import { deleteDocument, deleteImage } from '../../utils/deleteUploads.js';
+import { deleteDocument } from '../../utils/deleteUploads.js';
+import { Clase } from '../modulesClases/clase/clase.model.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
-  const recursos = await Recurso.findAll({});
+  const recursos = await Recurso.findAll({
+    include: [{ model: Clase, as: 'clase' }],
+    order: [['createdAt', 'DESC']],
+  });
 
   return res.status(200).json({
     status: 'Success',

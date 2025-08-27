@@ -19,10 +19,8 @@ export const deleteFile = async (filename, folder = 'img') => {
   try {
     await fs.access(filePath); // Verificar si existe
     await fs.unlink(filePath); // Eliminar
-    console.log(`Archivo eliminado: ${filename}`);
     return true;
   } catch (error) {
-    console.log(`No se pudo eliminar el archivo ${filename}: ${error.message}`);
     return false;
   }
 };

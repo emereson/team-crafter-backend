@@ -4,7 +4,6 @@ import { User } from '../../usuario/user/user.model.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  console.log(id);
 
   const comentarios = await ComentarioClase.findAll({
     where: {

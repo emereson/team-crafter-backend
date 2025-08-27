@@ -122,7 +122,6 @@ export const actualizarSuscripcionesExpiradas = () => {
 
     for (const suscripcion of expiradas) {
       await suscripcion.update({ status: 'expirada' });
-      console.log(`Suscripción #${suscripcion.id} expiró automáticamente`);
     }
   });
 };

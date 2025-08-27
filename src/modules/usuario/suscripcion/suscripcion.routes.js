@@ -7,10 +7,6 @@ const router = express.Router();
 
 router.post('/confirmacion', suscripcionController.confirmarPago);
 router.post('/compra-completada', async (req, res) => {
-  const { token } = req.body; // Flow envía token
-
-  console.log('Token recibido de Flow:', token);
-
   res.redirect('https://dashboard.team-crafter.com/compra-completada');
 });
 router.use(authMiddleware.protect);

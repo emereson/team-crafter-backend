@@ -1,56 +1,71 @@
 import { Clase } from './clase.model.js';
 import { catchAsync } from '../../../utils/catchAsync.js';
-import { deleteImage } from '../../../utils/deleteUploads.js';
 import { Recurso } from '../../recurso/recurso.model.js';
 
-export const findAll = catchAsync(async (req, res, next) => {
-  const clases = await Clase.findAll({
-    include: [{ model: Recurso, as: 'recurso' }],
-  });
-  // const planes = [
-  //   {
-  //     id: 1,
-  //     nombre_plan: 'Plan Básico',
-  //     precio_plan: 5,
-  //     titulo: ' Paga por 1 mes',
-  //     descripcion: '*30 días de contenido exclusivo',
-  //     color_card: '#FFEE97',
-  //     color_principal: '#FFE251',
-  //     color_text: '#8A8A8A',
-  //     ruta_img: '/planes/planB.png',
-  //   },
-  //   {
-  //     id: 2,
-  //     nombre_plan: 'Plan Estándar',
-  //     precio_plan: 27,
-  //     titulo: ' Paga por 6 meses y ahorra 10%',
-  //     descripcion: '*precio regular $30USD',
-  //     color_card: '#C3F3F3',
-  //     color_principal: '#68E1E0',
-  //     color_text: '#8A8A8A',
-  //     ruta_img: '/planes/planE.png',
-  //   },
-  //   {
-  //     id: 3,
-  //     nombre_plan: 'Plan Pro Crafter',
-  //     precio_plan: 55,
-  //     titulo: 'Paga una vez al año',
-  //     descripcion: '*precio regular $60USD',
-  //     color_card: '#FFB4DF',
-  //     color_principal: '#FC68B9',
-  //     color_text: '#ffffff',
-  //     ruta_img: '/planes/planPro.png',
-  //   },
-  // ];
+// const planes = [
+//   {
+//     id: 1,
+//     nombre_plan: 'Plan Básico',
+//     precio_plan: 5,
+//     titulo: ' Paga por 1 mes',
+//     descripcion: '*30 días de contenido exclusivo',
+//     color_card: '#FFEE97',
+//     color_principal: '#FFE251',
+//     color_text: '#8A8A8A',
+//     ruta_img: '/planes/planB.png',
+//   },
+//   {
+//     id: 2,
+//     nombre_plan: 'Plan Estándar',
+//     precio_plan: 27,
+//     titulo: ' Paga por 6 meses y ahorra 10%',
+//     descripcion: '*precio regular $30USD',
+//     color_card: '#C3F3F3',
+//     color_principal: '#68E1E0',
+//     color_text: '#8A8A8A',
+//     ruta_img: '/planes/planE.png',
+//   },
+//   {
+//     id: 3,
+//     nombre_plan: 'Plan Pro Crafter',
+//     precio_plan: 55,
+//     titulo: 'Paga una vez al año',
+//     descripcion: '*precio regular $60USD',
+//     color_card: '#FFB4DF',
+//     color_principal: '#FC68B9',
+//     color_text: '#ffffff',
+//     ruta_img: '/planes/planPro.png',
+//   },
+// ];
 
-  // await Promise.all(
-  //   planes.map((p) =>
-  //     Plan.create({
-  //       nombre_plan: p.nombre_plan,
-  //       precio_plan: p.precio_plan,
-  //     })
-  //   )
-  // );
+// await Promise.all(
+//   planes.map((p) =>
+//     Plan.create({
+//       nombre_plan: p.nombre_plan,
+//       precio_plan: p.precio_plan,
+//     })
+//   )
+// );
+
+export const findAll = catchAsync(async (req, res, next) => {
+  const { categoria_clase, tutoriales_tips, cuatro_ultimos } = req.query;
+
+  let whereCategoria = {};
+
+  if (categoria_clase && categoria_clase.length > 3) {
+    whereCategoria.categoria_clase = categoria_clase;
+  }
+
+  if (tutoriales_tips && tutoriales_tips.length > 3) {
+    whereCategoria.tutoriales_tips = tutoriales_tips;
+  }
+
+  const clases = await Clase.findAll({
+    where: whereCategoria,
+    include: [{ model: Recurso, as: 'recurso' }],
+    order: [['createdAt', 'DESC']],
+    limit: cuatro_ultimos === 'true' ? 4 : undefined, // solo si cuatro_ultimos es true
+  });
 
   return res.status(200).json({
     status: 'Success',

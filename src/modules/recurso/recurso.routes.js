@@ -1,13 +1,15 @@
 import express from 'express';
-import { uploadDoc, uploadImage } from '../../utils/multer.js';
+import { uploadDoc } from '../../utils/multer.js';
 
 import * as recursoMiddleware from './recurso.middleware.js';
 import * as recursoController from './recurso.controllers.js';
 import * as claseMiddleware from '../modulesClases/clase/clase.middleware.js';
+import * as authMiddleware from '../usuario/user/auth.middleware.js';
 
 const router = express.Router();
 
-// Obtener todos los recursos
+router.use(authMiddleware.protect);
+
 router.get('/', recursoController.findAll);
 
 router.post(

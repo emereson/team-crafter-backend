@@ -1,6 +1,7 @@
-import { AppError } from "../../../utils/AppError.js";
-import { catchAsync } from "../../../utils/catchAsync.js";
-import { Clase } from "./clase.model.js";
+import { AppError } from '../../../utils/AppError.js';
+import { catchAsync } from '../../../utils/catchAsync.js';
+import { Recurso } from '../../recurso/recurso.model.js';
+import { Clase } from './clase.model.js';
 
 export const validExistClase = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -9,6 +10,7 @@ export const validExistClase = catchAsync(async (req, res, next) => {
     where: {
       id,
     },
+    include: [{ model: Recurso, as: 'recurso' }],
   });
 
   if (!clase) {
