@@ -1,6 +1,6 @@
 import { Recurso } from './recurso.model.js';
 import { catchAsync } from '../../utils/catchAsync.js';
-import { deleteDocument } from '../../utils/deleteUploads.js';
+import { deleteDocument, deleteImage } from '../../utils/deleteUploads.js';
 import { Clase } from '../modulesClases/clase/clase.model.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
@@ -35,13 +35,15 @@ export const createRecurso = catchAsync(async (req, res, next) => {
     categoria_recurso,
   } = req.body;
 
-  const doc = req.file ? req.file.filename : null;
+  const imagen = req.files?.img ? req.files.img[0] : null;
+  const documento = req.files?.doc ? req.files.doc[0] : null;
 
   const recurso = await Recurso.create({
     clase_id: clase.id,
     nombre_recurso,
     descripcion_recurso,
-    link_recurso: doc,
+    img_recurso: imagen.filename,
+    link_recurso: documento.filename,
     fecha_caducidad,
     tipo_recurso,
     categoria_recurso,
@@ -90,6 +92,10 @@ export const deleteRecurso = catchAsync(async (req, res) => {
 
   if (recurso.link_recurso) {
     await deleteDocument(recurso.link_recurso);
+  }
+
+  if (recurso.img_recurso) {
+    await deleteImage(recurso.img_recurso);
   }
 
   await recurso.destroy();

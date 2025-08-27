@@ -15,7 +15,10 @@ router.get('/', recursoController.findAll);
 router.post(
   '/clase/:id',
   claseMiddleware.validExistClase,
-  uploadDoc.single('doc'),
+  uploadDoc.fields([
+    { name: 'img', maxCount: 1 },
+    { name: 'doc', maxCount: 1 },
+  ]),
   recursoController.createRecurso
 );
 

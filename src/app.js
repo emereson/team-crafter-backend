@@ -14,13 +14,13 @@ import { claseRouter } from './modules/modulesClases/clase/clase.routes.js';
 import { comentarioClaseRouter } from './modules/modulesClases/comentarioClase/comentarioClase.routes.js';
 import { recursoRouter } from './modules/recurso/recurso.routes.js';
 import { descuentoRouter } from './modules/descuento/descuento.routes.js';
-import { favoritoRouter } from './modules/favoritos/favorito.routes.js';
 import { adminRouter } from './modules/admins/admin.routes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { respuestaComentarioClaseRouter } from './modules/modulesClases/respuestaComentarioClase/respuestaComentarioClase.routes.js';
 import { likeClaseRouter } from './modules/usuario/likesClases/likeClase.routes.js';
 import { likeComentarioClaseRouter } from './modules/usuario/likeComentarioClase/likeComentarioClase.routes.js';
+import { favoritoRouter } from './modules/usuario/favoritos/favorito.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -62,10 +62,10 @@ app.use('/api/v1/respuesta-comentario-clase', respuestaComentarioClaseRouter);
 
 app.use('/api/v1/recurso', recursoRouter);
 app.use('/api/v1/descuento', descuentoRouter);
-app.use('/api/v1/favorito', favoritoRouter);
 
 app.use('/api/v1/like-clase', likeClaseRouter);
 app.use('/api/v1/like-comentario-clase', likeComentarioClaseRouter);
+app.use('/api/v1/favorito', favoritoRouter);
 
 // Manejo de rutas no encontradas
 app.all('*', (req, res, next) => {

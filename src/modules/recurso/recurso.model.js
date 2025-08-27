@@ -18,6 +18,12 @@ const Recurso = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    img_recurso: {
+      type: DataTypes.STRING,
+      default:
+        'https://team-crafter.com/wp-content/uploads/2024/11/Team-Crafter-Footer-Logo.svg',
+      allowNull: false,
+    },
     link_recurso: {
       type: DataTypes.STRING,
       default:
