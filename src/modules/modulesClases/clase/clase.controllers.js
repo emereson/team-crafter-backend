@@ -48,22 +48,30 @@ import { Recurso } from '../../recurso/recurso.model.js';
 // );
 
 export const findAll = catchAsync(async (req, res, next) => {
-  const { categoria_clase, tutoriales_tips, cuatro_ultimos } = req.query;
+  const { categoria_clase, tutoriales_tips, cuatro_ultimos, order } = req.query;
 
   let whereCategoria = {};
 
-  if (categoria_clase && categoria_clase.length > 3) {
+  if (
+    categoria_clase &&
+    categoria_clase.length > 3 &&
+    categoria_clase !== 'Todos'
+  ) {
     whereCategoria.categoria_clase = categoria_clase;
   }
 
-  if (tutoriales_tips && tutoriales_tips.length > 3) {
+  if (
+    tutoriales_tips &&
+    tutoriales_tips.length > 3 &&
+    tutoriales_tips !== 'Todos'
+  ) {
     whereCategoria.tutoriales_tips = tutoriales_tips;
   }
 
   const clases = await Clase.findAll({
     where: whereCategoria,
     include: [{ model: Recurso, as: 'recurso' }],
-    order: [['createdAt', 'DESC']],
+    order: [['createdAt', order ? order : 'desc']],
     limit: cuatro_ultimos === 'true' ? 4 : undefined, // solo si cuatro_ultimos es true
   });
 

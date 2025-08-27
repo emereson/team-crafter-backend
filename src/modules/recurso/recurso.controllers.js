@@ -4,9 +4,28 @@ import { deleteDocument, deleteImage } from '../../utils/deleteUploads.js';
 import { Clase } from '../modulesClases/clase/clase.model.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
+  const { categoria_recurso, tipo_recurso, cuatro_ultimos, order } = req.query;
+
+  let whereCategoria = {};
+
+  if (
+    categoria_recurso &&
+    categoria_recurso.length > 3 &&
+    categoria_recurso !== 'Todos'
+  ) {
+    whereCategoria.categoria_recurso = categoria_recurso;
+  }
+
+  if (tipo_recurso && tipo_recurso.length > 3 && tipo_recurso !== 'Todos') {
+    whereCategoria.tipo_recurso = tipo_recurso;
+  }
+
   const recursos = await Recurso.findAll({
+    where: whereCategoria,
+
     include: [{ model: Clase, as: 'clase' }],
-    order: [['createdAt', 'DESC']],
+    order: [['createdAt', order ? order : 'desc']],
+    limit: cuatro_ultimos === 'true' ? 4 : undefined, // solo si cuatro_ultimos es true
   });
 
   return res.status(200).json({
