@@ -19,7 +19,6 @@ export const findAll = catchAsync(async (req, res, next) => {
   if (tipo_recurso && tipo_recurso.length > 3 && tipo_recurso !== 'Todos') {
     whereCategoria.tipo_recurso = tipo_recurso;
   }
-  console.log(whereCategoria);
 
   const recursos = await Recurso.findAll({
     where: whereCategoria,

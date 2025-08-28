@@ -8,7 +8,6 @@ const router = express.Router();
 // Protege todas las rutas
 router.use(authMiddleware.protect);
 
-// GET /like-clase -> traer todos los likes del usuario
 router.get('/', favoritoController.findAll);
 
 // POST y DELETE /like-clase/:id

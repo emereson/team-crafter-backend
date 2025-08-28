@@ -21,6 +21,8 @@ import { respuestaComentarioClaseRouter } from './modules/modulesClases/respuest
 import { likeClaseRouter } from './modules/usuario/likesClases/likeClase.routes.js';
 import { likeComentarioClaseRouter } from './modules/usuario/likeComentarioClase/likeComentarioClase.routes.js';
 import { favoritoRouter } from './modules/usuario/favoritos/favorito.routes.js';
+import { claseAdminRouter } from './modules/modulesClases/clase/claseAdmin.routes.js';
+import { recursoAdminRouter } from './modules/recurso/recursoAdmin.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -57,10 +59,14 @@ app.use('/api/v1/user', usersRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/suscripcion', suscripcionRouter);
 app.use('/api/v1/clase', claseRouter);
+app.use('/api/v1/clase-admin', claseAdminRouter);
+
 app.use('/api/v1/comentario-clase', comentarioClaseRouter);
 app.use('/api/v1/respuesta-comentario-clase', respuestaComentarioClaseRouter);
 
 app.use('/api/v1/recurso', recursoRouter);
+app.use('/api/v1/recurso-admin', recursoAdminRouter);
+
 app.use('/api/v1/descuento', descuentoRouter);
 
 app.use('/api/v1/like-clase', likeClaseRouter);
