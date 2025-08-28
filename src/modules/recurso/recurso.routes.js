@@ -11,7 +11,7 @@ const router = express.Router();
 // ✅ Solo el POST requiere auth
 router.post(
   '/clase/:id',
-  authAdminMiddleware.protect,
+  // authAdminMiddleware.protect,
   claseMiddleware.validExistClase,
   uploadDoc.fields([
     { name: 'img', maxCount: 1 },
