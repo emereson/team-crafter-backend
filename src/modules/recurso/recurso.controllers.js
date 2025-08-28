@@ -2,6 +2,7 @@ import { Recurso } from './recurso.model.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { deleteDocument, deleteImage } from '../../utils/deleteUploads.js';
 import { Clase } from '../modulesClases/clase/clase.model.js';
+import { sendRecursoCaducado } from '../../utils/nodemailer.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { categoria_recurso, tipo_recurso, cuatro_ultimos, order } = req.query;
@@ -103,6 +104,20 @@ export const updateRecurso = catchAsync(async (req, res) => {
     status: 'success',
     message: 'recurso information has been updated',
     updatedRecurso,
+  });
+});
+
+export const expirado = catchAsync(async (req, res, next) => {
+  const { recurso, sessionUser } = req;
+  const { mensaje } = req.body;
+  await sendRecursoCaducado(
+    recurso.nombre_recurso,
+    sessionUser.correo,
+    mensaje
+  );
+
+  return res.status(200).json({
+    status: 'Success',
   });
 });
 

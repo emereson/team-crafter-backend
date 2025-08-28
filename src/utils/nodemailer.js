@@ -246,3 +246,224 @@ export const sendPasswordRecoveryEmail = async (
     };
   }
 };
+
+export const sendRecursoCaducado = async (
+  nombre_recurso,
+  correo_usuario,
+  mensaje
+) => {
+  try {
+    const emailBody = `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Recurso Expirado - Team Crafter</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f0f0f0;
+                line-height: 1.6;
+            }
+            .container {
+                max-width: 600px;
+                margin: 20px auto;
+                background: linear-gradient(135deg, #ff69b4 0%, #e91e63 50%, #9c27b0 100%);
+                border-radius: 20px;
+                padding: 40px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+            .header {
+                text-align: left;
+                margin-bottom: 30px;
+            }
+            .title {
+                color: white;
+                font-size: 48px;
+                font-weight: 900;
+                margin: 0;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                letter-spacing: -1px;
+            }
+            .resource-card {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 15px;
+                padding: 25px;
+                margin: 30px 0;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }
+            .resource-icon {
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(45deg, #ff9800, #f57c00);
+                border-radius: 15px;
+                display: inline-block;
+                margin-right: 20px;
+                vertical-align: top;
+                position: relative;
+                box-shadow: 0 4px 15px rgba(255,152,0,0.3);
+            }
+            .resource-icon::before {
+                content: "📁";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 35px;
+            }
+            .resource-content {
+                display: inline-block;
+                vertical-align: top;
+                width: calc(100% - 120px);
+                padding-top: 10px;
+            }
+            .resource-title {
+                color: #424242;
+                font-size: 24px;
+                font-weight: 600;
+                margin: 0 0 10px 0;
+                line-height: 1.3;
+            }
+            .section-title {
+                color: white;
+                font-size: 36px;
+                font-weight: 800;
+                margin: 30px 0 20px 0;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+            .status {
+                background: rgba(66, 66, 66, 0.9);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 12px;
+                font-size: 28px;
+                font-weight: 700;
+                text-align: center;
+                margin: 20px 0;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+            .message-section {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 15px;
+                padding: 25px;
+                margin: 20px 0;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }
+            .message-title {
+                color: #ff69b4;
+                font-size: 32px;
+                font-weight: 800;
+                margin: 0 0 15px 0;
+            }
+            .message-content {
+                color: #555;
+                font-size: 18px;
+                line-height: 1.6;
+                margin: 0;
+                background: #f8f8f8;
+                padding: 20px;
+                border-radius: 10px;
+                border-left: 5px solid #ff69b4;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 40px;
+                padding-top: 30px;
+                border-top: 2px solid rgba(255,255,255,0.3);
+            }
+            .footer p {
+                color: white;
+                font-size: 14px;
+                margin: 5px 0;
+                opacity: 0.9;
+            }
+            .logo {
+                color: white;
+                font-size: 24px;
+                font-weight: 800;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+            .user-info {
+                background: rgba(255,255,255,0.2);
+                border-radius: 10px;
+                padding: 15px;
+                margin: 20px 0;
+                border: 1px solid rgba(255,255,255,0.3);
+            }
+            .user-info p {
+                color: white;
+                margin: 5px 0;
+                font-size: 16px;
+            }
+            .user-info strong {
+                color: #000000ff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1 class="title">Recurso</h1>
+            </div>
+            
+            <div class="resource-card">
+                <div class="resource-icon"></div>
+                <div class="resource-content">
+                    <h2 class="resource-title">${nombre_recurso}</h2>
+                    <div class="user-info">
+                        <p><strong>Usuario:</strong> ${correo_usuario}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Asunto</h2>
+            <div class="status">EXPIRADO TEAM CRAFTER</div>
+            
+            <h2 class="section-title">Mensaje</h2>
+            <div class="message-section">
+                <h3 class="message-title">Mensaje</h3>
+                <p class="message-content">${mensaje}</p>
+            </div>
+            
+            <div class="footer">
+                <div class="logo">TEAM CRAFTER</div>
+                <p>Este es un mensaje automático del sistema</p>
+                <p>&copy; 2025 Team Crafter - Todos los derechos reservados</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    const mailOptions = {
+      from: `ventas@team-crafter.com`,
+      to: correo_usuario, // Cambiado para enviar al usuario correcto
+      subject: 'EXPIRADO TEAM CRAFTER',
+      html: emailBody,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(
+      `EXPIRADO TEAM CRAFTER enviado: ${correo_usuario}, ID: ${info.messageId}`
+    );
+
+    return {
+      success: true,
+      messageId: info.messageId,
+      message: 'EXPIRADO TEAM CRAFTER enviado correctamente',
+    };
+  } catch (error) {
+    console.error(`❌ Error al enviar el correo EXPIRADO TEAM CRAFTER:`, error);
+
+    return {
+      success: false,
+      error: error.message,
+      message: 'Error al enviar el correo EXPIRADO TEAM CRAFTER',
+    };
+  }
+};
