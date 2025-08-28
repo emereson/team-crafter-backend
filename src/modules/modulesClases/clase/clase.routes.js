@@ -8,6 +8,8 @@ const router = express.Router();
 router.use(authMiddleware.protect);
 
 router.get('/', claseController.findAll);
+router.get('/:id', claseMiddleware.validExistClase, claseController.findOne);
+
 router.get(
   '/view/:id',
   claseMiddleware.validExistClase,
