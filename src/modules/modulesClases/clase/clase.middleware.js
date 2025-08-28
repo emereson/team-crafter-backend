@@ -5,6 +5,7 @@ import { Clase } from './clase.model.js';
 
 export const validExistClase = catchAsync(async (req, res, next) => {
   const { id } = req.params;
+  console.log(req.params);
 
   const clase = await Clase.findOne({
     where: {

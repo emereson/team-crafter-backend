@@ -1,24 +1,32 @@
 import express from 'express';
 import * as claseMiddleware from './clase.middleware.js';
 import * as claseController from './clase.controllers.js';
+import * as authAdminMiddleware from '../../admins/adminAuth.middleware.js';
 
 const router = express.Router();
 
+// Rutas públicas
 router.get('/', claseController.findAll);
-router.post('/', claseController.createClase);
 router.get(
   '/view/:id',
   claseMiddleware.validExistClase,
   claseController.findViewClase
 );
+router.get('/:id', claseMiddleware.validExistClase, claseController.findOne);
 
-router
-  .use('/:id', claseMiddleware.validExistClase)
-  .route('/:id')
-  .patch(claseController.updateClase)
-  .delete(claseController.deleteClase)
-  .get(claseController.findOne);
+// Rutas protegidas (solo admin)
+router.use(authAdminMiddleware.protect);
 
-const claseRouter = router;
+router.post('/', claseController.createClase);
+router.patch(
+  '/:id',
+  claseMiddleware.validExistClase,
+  claseController.updateClase
+);
+router.delete(
+  '/:id',
+  claseMiddleware.validExistClase,
+  claseController.deleteClase
+);
 
-export { claseRouter };
+export { router as claseRouter };
