@@ -8,6 +8,7 @@ import { Plan } from '../../plan/plan.model.js';
 import cron from 'node-cron';
 import { Op } from 'sequelize';
 import { User } from '../user/user.model.js';
+import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
 
 export const crearSuscripcion = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
@@ -118,10 +119,22 @@ export const actualizarSuscripcionesExpiradas = () => {
         endDate: { [Op.lt]: hoy },
         status: 'activa',
       },
+      include: [
+        { model: User, as: 'usuario' },
+        { model: Plan, as: 'plan' },
+      ],
     });
 
     for (const suscripcion of expiradas) {
       await suscripcion.update({ status: 'expirada' });
+      await Notificaciones.create({
+        usuario_id: suscripcion.usuario.id,
+        tipo_notificacion: 'noticias',
+        titulo: `Tu suscripción  ${suscripcion.plan.nombre_plan} a expirado `,
+        contenido: `La suscripción al plan ${
+          suscripcion.plan.nombre_plan
+        } expiró el día ${dayjs(suscripcion.endDate).format('DD/MM/YYYY')}.`,
+      });
     }
   });
 };

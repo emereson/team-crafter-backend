@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { db } from '../../../db/mysql.js';
 
-const LikeClase = db.define(
-  'like_clases',
+const ConfigNotificaciones = db.define(
+  'config_notificaciones',
   {
     id: {
       type: DataTypes.INTEGER,
@@ -14,9 +14,15 @@ const LikeClase = db.define(
       type: DataTypes.UUID,
       allowNull: false,
     },
-    clase_id: {
-      type: DataTypes.INTEGER,
+    noticias: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: true,
+    },
+    promociones: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
     },
   },
   {
@@ -24,4 +30,4 @@ const LikeClase = db.define(
   }
 );
 
-export { LikeClase };
+export { ConfigNotificaciones };

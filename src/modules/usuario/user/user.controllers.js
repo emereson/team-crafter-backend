@@ -8,6 +8,8 @@ import {
   sendConfirmationEmail,
   sendPasswordRecoveryEmail,
 } from '../../../utils/nodemailer.js';
+import { deleteImage } from '../../../utils/deleteUploads.js';
+import { ConfigNotificaciones } from '../configNotificaciones/configNotificaciones.model.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
@@ -61,10 +63,11 @@ export const signup = catchAsync(async (req, res, next) => {
   });
 
   sendConfirmationEmail(nombre, correo.toLowerCase(), verificationToken);
-  // aquí deberías enviar un correo con el link
-  // ejemplo: http://localhost:3000/api/auth/verify-email?token=${verificationToken}
-
   const token = await generateJWT(user.id);
+
+  await ConfigNotificaciones.create({
+    usuario_id: user.id,
+  });
 
   res.status(201).json({
     status: 'success',
@@ -98,11 +101,7 @@ export const login = catchAsync(async (req, res, next) => {
   res.status(201).json({
     status: 'success',
     token,
-    user: {
-      id: user.id,
-      nombre: user.nombre,
-      correo: user.correo,
-    },
+    user,
   });
 });
 
@@ -195,27 +194,48 @@ export const nuevoPassword = catchAsync(async (req, res) => {
 
 export const update = catchAsync(async (req, res) => {
   const { user } = req;
-  const { nombre, newPassword } = req.body;
+  const {
+    nombre,
+    apellidos,
+    telefono,
+    codigo_pais,
+    zona_horaria,
+    dni_id_ce,
+    newPassword,
+  } = req.body;
+
+  const updateData = {
+    nombre,
+    apellidos,
+    telefono,
+    codigo_pais,
+    zona_horaria,
+    dni_id_ce,
+  };
+
+  if (req.file) {
+    if (user.foto_perfil) {
+      await deleteImage(user.foto_perfil);
+    }
+
+    updateData.foto_perfil = req.file.filename;
+  }
 
   if (newPassword.length > 3) {
     const salt = await bcrypt.genSalt(12);
     const encryptedPassword = await bcrypt.hash(newPassword, salt);
 
-    await user.update({
-      nombre,
-
-      password: encryptedPassword,
-    });
-  } else {
-    await user.update({
-      nombre,
-    });
+    updateData.password = encryptedPassword;
   }
+
+  await user.update(updateData);
+
+  const updatedUser = await user.reload();
 
   return res.status(200).json({
     status: 'success',
     message: 'User information has been updated',
-    user,
+    user: updatedUser,
   });
 });
 

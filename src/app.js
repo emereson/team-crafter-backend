@@ -23,6 +23,13 @@ import { likeComentarioClaseRouter } from './modules/usuario/likeComentarioClase
 import { favoritoRouter } from './modules/usuario/favoritos/favorito.routes.js';
 import { claseAdminRouter } from './modules/modulesClases/clase/claseAdmin.routes.js';
 import { recursoAdminRouter } from './modules/recurso/recursoAdmin.routes.js';
+import { foroRouter } from './modules/modulesForos/foro/foro.routes.js';
+import { comentarioForoRouter } from './modules/modulesForos/comentarioForo/comentarioForo.routes.js';
+import { likeForoRouter } from './modules/usuario/likesForo/likesForo.routes.js';
+import { respuestaComentarioForoRouter } from './modules/modulesForos/respuestaComentarioForo/respuestaComentarioForo.routes.js';
+import { likeComentarioForoRouter } from './modules/usuario/likeComentarioForo/likeComentarioForo.routes.js';
+import { configNotificacionesRouter } from './modules/usuario/configNotificaciones/configNotificaciones.routes.js';
+import { notificacionesRouter } from './modules/notificaciones/notificaciones.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -69,9 +76,18 @@ app.use('/api/v1/recurso-admin', recursoAdminRouter);
 
 app.use('/api/v1/descuento', descuentoRouter);
 
+app.use('/api/v1/foro', foroRouter);
+app.use('/api/v1/comentario-foro', comentarioForoRouter);
+app.use('/api/v1/respuesta-comentario-foro', respuestaComentarioForoRouter);
+
 app.use('/api/v1/like-clase', likeClaseRouter);
 app.use('/api/v1/like-comentario-clase', likeComentarioClaseRouter);
 app.use('/api/v1/favorito', favoritoRouter);
+app.use('/api/v1/like-foro', likeForoRouter);
+app.use('/api/v1/like-comentario-foro', likeComentarioForoRouter);
+
+app.use('/api/v1/config-notificacion', configNotificacionesRouter);
+app.use('/api/v1/notificaciones', notificacionesRouter);
 
 // Manejo de rutas no encontradas
 app.all('*', (req, res, next) => {

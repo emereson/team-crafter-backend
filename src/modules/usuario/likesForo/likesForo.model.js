@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { db } from '../../../db/mysql.js';
 
-const LikeClase = db.define(
-  'like_clases',
+const LikeForo = db.define(
+  'likes_foros',
   {
     id: {
       type: DataTypes.INTEGER,
@@ -14,7 +14,7 @@ const LikeClase = db.define(
       type: DataTypes.UUID,
       allowNull: false,
     },
-    clase_id: {
+    foro_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -24,4 +24,4 @@ const LikeClase = db.define(
   }
 );
 
-export { LikeClase };
+export { LikeForo };

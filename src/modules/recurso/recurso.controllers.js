@@ -89,8 +89,8 @@ export const updateRecurso = catchAsync(async (req, res) => {
   };
 
   if (req.file) {
-    if (clase.link_recurso) {
-      await deleteDocument(clase.link_recurso);
+    if (recurso.link_recurso) {
+      await deleteDocument(recurso.link_recurso);
     }
 
     updateData.link_recurso = req.file.filename;

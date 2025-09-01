@@ -12,11 +12,11 @@ db.authenticate()
     });
   })
   .then(() => {
-    actualizarSuscripcionesExpiradas();
     console.log(`Database Authenticated! 👍`);
     return initModel();
   })
   .then(() => {
+    actualizarSuscripcionesExpiradas();
     return db.sync();
   })
   .catch((err) => {
