@@ -8,28 +8,30 @@ import { Op } from 'sequelize';
 export const buscador = catchAsync(async (req, res, next) => {
   const { buscador } = req.query;
 
+  if (!buscador || buscador.length === 0) {
+    return res.status(200).json({ status: 'success', clases: [] });
+  }
+
   const clases = await Clase.findAll({
     where: {
       [Op.or]: [
         { titulo_clase: { [Op.like]: `%${buscador}%` } },
         { descripcion_clase: { [Op.like]: `%${buscador}%` } },
+        { '$recurso.nombre_recurso$': { [Op.like]: `%${buscador}%` } }, // Buscar en Recursos
       ],
     },
     include: [
       {
         model: Recurso,
         as: 'recurso',
-        where: {
-          nombre_recurso: { [Op.like]: `%${buscador}%` },
-        },
-        required: false,
+        required: false, // Siempre incluir los recursos
       },
     ],
   });
 
   return res.status(200).json({
     status: 'success',
-    clases: clases,
+    clases,
   });
 });
 
