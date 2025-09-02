@@ -1,6 +1,6 @@
 import express from 'express';
 import * as planMiddleware from './plan.middleware.js';
-import * as planController from './clase.controllers.js';
+import * as planController from './plan.controllers.js';
 
 const router = express.Router();
 
@@ -11,9 +11,7 @@ router
   .use('/:id', planMiddleware.validExistPlan)
   .route('/:id')
   .patch(planController.update)
-  .delete(planController.deleteUser)
+  // .delete(planController.deleteUser)
   .get(planController.findOne);
 
-const claseRouter = router;
-
-export { claseRouter };
+export { router as planRouter };

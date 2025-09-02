@@ -30,6 +30,7 @@ import { respuestaComentarioForoRouter } from './modules/modulesForos/respuestaC
 import { likeComentarioForoRouter } from './modules/usuario/likeComentarioForo/likeComentarioForo.routes.js';
 import { configNotificacionesRouter } from './modules/usuario/configNotificaciones/configNotificaciones.routes.js';
 import { notificacionesRouter } from './modules/notificaciones/notificaciones.routes.js';
+import { planRouter } from './modules/plan/plan.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -64,6 +65,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/v1', limiter);
 app.use('/api/v1/user', usersRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/plan', planRouter);
 app.use('/api/v1/suscripcion', suscripcionRouter);
 app.use('/api/v1/clase', claseRouter);
 app.use('/api/v1/clase-admin', claseAdminRouter);

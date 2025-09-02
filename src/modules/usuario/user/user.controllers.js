@@ -10,6 +10,7 @@ import {
 } from '../../../utils/nodemailer.js';
 import { deleteImage } from '../../../utils/deleteUploads.js';
 import { ConfigNotificaciones } from '../configNotificaciones/configNotificaciones.model.js';
+import { createCustomerFlow } from '../../../services/flow.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
@@ -152,7 +153,16 @@ export const verificarCorreo = catchAsync(async (req, res) => {
 
   // Actualizar el estado de verificación
   user.emailVerified = true;
-  user.verificationToken = null; // 👈 opcional: limpiar el token para que no se reutilice
+  user.verificationToken = null;
+
+  const resFlow = await createCustomerFlow({
+    name: `${user.nombre} ${user.apellidos}`,
+    email: user.correo,
+    external_id: user.id,
+  });
+
+  user.customerId = resFlow.customerId;
+
   await user.save();
 
   res.status(200).json({

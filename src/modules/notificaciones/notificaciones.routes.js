@@ -14,6 +14,7 @@ router.get(
 
 router.use(adminAuthMiddleware.protect);
 
+router.get('/', notificacionesController.findAll);
 router.post('/', notificacionesController.create);
 
 router

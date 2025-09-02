@@ -17,6 +17,127 @@ function signParams(params) {
   return crypto.createHmac('sha256', FLOW_SECRET).update(sorted).digest('hex');
 }
 
+export const createPlanFlow = async ({
+  planId,
+  name,
+  amount,
+  interval_count,
+}) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    planId: planId,
+    name: name,
+    amount: amount,
+    currency: 'USD',
+    interval: 3,
+    interval_count: interval_count,
+  };
+
+  Object.keys(params).forEach(
+    (k) => params[k] === undefined && delete params[k]
+  );
+
+  const s = signParams(params);
+
+  const formData = new URLSearchParams({
+    ...Object.fromEntries(
+      Object.entries(params).map(([k, v]) => [k, String(v)])
+    ),
+    s,
+  });
+
+  try {
+    const response = await axios.post(
+      `${FLOW_URL}/plans/create`,
+      formData.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+
+    return response.data;
+  } catch (err) {
+    console.error(
+      '❌ Error en createPlanFlow:',
+      err.response?.data || err.message
+    );
+    throw err;
+  }
+};
+
+export const createCustomerFlow = async ({ name, email, external_id }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    name: name,
+    email: email,
+    externalId: external_id,
+  };
+
+  const s = signParams(params);
+  const formData = new URLSearchParams({ ...params, s });
+
+  try {
+    const response = await axios.post(
+      `${FLOW_URL}/customer/create`,
+      formData.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+    console.log('✅ Cliente creado en Flow:', response.data);
+    return response.data;
+  } catch (err) {
+    // Si el cliente ya existe, Flow devuelve un error específico.
+    // Puedes manejarlo para no detener el flujo.
+    if (err.response?.data?.code === 2210) {
+      console.log('ℹ️  Cliente ya existe en Flow, continuando...');
+      // Puedes optar por obtener los datos del cliente si lo necesitas.
+      return { customerId, name, email };
+    }
+    console.error(
+      '❌ Error en createCustomerFlow:',
+      err.response?.data || err.message
+    );
+    throw err;
+  }
+};
+
+export const createSubscriptionFlow = async ({
+  planId,
+  customerId,
+  subscription_start,
+}) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    planId: planId,
+    customerId: customerId,
+    subscription_start: subscription_start,
+    urlConfirmation:
+      'https://end-point.team-crafter.com/api/v1/suscripcion/confirmacion',
+    urlReturn:
+      'https://end-point.team-crafter.com/api/v1/suscripcion/compra-completada',
+  };
+
+  const s = signParams(params);
+
+  const formData = new URLSearchParams({ ...params, s });
+
+  try {
+    const response = await axios.post(
+      `${FLOW_URL}/subscription/create`,
+      formData.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+    // La respuesta contiene la URL y el token para redirigir al usuario
+    console.log(
+      '✅ Suscripción creada. Redirigiendo al usuario a la página de pago...'
+    );
+    return response.data; // Devuelve un objeto { url, token }
+  } catch (err) {
+    console.error(
+      '❌ Error en createSubscriptionFlow:',
+      err.response?.data || err.message
+    );
+    throw err.response?.data || err;
+  }
+};
+
 export const createPaymentOrder = async ({
   userEmail,
   orderId,

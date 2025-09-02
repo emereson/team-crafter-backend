@@ -10,6 +10,10 @@ const User = db.define(
       primaryKey: true,
       allowNull: false,
     },
+    customerId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     foto_perfil: {
       type: DataTypes.TEXT,
       allowNull: true,

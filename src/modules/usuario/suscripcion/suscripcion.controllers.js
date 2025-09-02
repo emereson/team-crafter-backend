@@ -2,6 +2,7 @@ import { Suscripcion } from './suscripcion.model.js';
 import { catchAsync } from '../../../utils/catchAsync.js';
 import {
   createPaymentOrder,
+  createSubscriptionFlow,
   getPaymentStatus,
 } from '../../../services/flow.service.js';
 import { Plan } from '../../plan/plan.model.js';
@@ -35,12 +36,13 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
     precio: plan.precio_plan,
     status: 'pendiente',
   });
+  const now = new Date();
+  const startDate = now.toISOString().split('T')[0];
 
-  const payment = await createPaymentOrder({
-    userEmail: sessionUser.correo,
-    orderId: suscripcion.id,
-    amount: plan.precio_plan,
-    subject: plan.nombre_plan,
+  const payment = await createSubscriptionFlow({
+    planId: plan.flow_plan_id,
+    customerId: sessionUser.customerId,
+    subscription_start: startDate,
   });
 
   return res.status(200).json({

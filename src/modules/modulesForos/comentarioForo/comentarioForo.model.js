@@ -15,7 +15,7 @@ const ComentarioForo = db.define(
       allowNull: false,
     },
     foro_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     comentario: {

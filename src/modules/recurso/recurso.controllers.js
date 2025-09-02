@@ -69,6 +69,14 @@ export const createRecurso = catchAsync(async (req, res, next) => {
     categoria_recurso,
   });
 
+  await Notificaciones.create({
+    notificacion_global: true,
+    tipo_notificacion: 'noticias',
+    titulo: 'Nuevo recurso añadido',
+    contenido: `Descargar el nuevo ${nombre_recurso}`,
+    url_notificacion: `${BACKEND_URL}/uploads/doc/${documento.filename}`,
+  });
+
   res.status(201).json({
     status: 'success',
     message: 'the recurso has been created successfully!',

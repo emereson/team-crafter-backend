@@ -16,7 +16,6 @@ const Suscripcion = db.define(
       type: DataTypes.UUID,
       allowNull: false,
     },
-
     plan_id: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -26,7 +25,7 @@ const Suscripcion = db.define(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM('pendiente', 'activa', 'expirada', 'cancelada'), // ✅ corregido
+      type: DataTypes.ENUM('pendiente', 'activa', 'expirada', 'cancelada'),
       defaultValue: 'pendiente',
     },
     startDate: {
@@ -37,10 +36,34 @@ const Suscripcion = db.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+
+    // Campos adicionales para Flow
+    flow_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    flow_subscription_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    flow_payment_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    // Campos adicionales para cancelación
+    motivo_cancelacion: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    fecha_cancelacion: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     tableName: 'suscripciones',
-    timestamps: true,
+    timestamps: true, // Esto crea automáticamente created_at y updated_at
   }
 );
 

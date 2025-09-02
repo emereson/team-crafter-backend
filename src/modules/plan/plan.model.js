@@ -1,3 +1,4 @@
+// models/Plan.js
 import { DataTypes } from 'sequelize';
 import { db } from '../../db/mysql.js';
 
@@ -14,6 +15,14 @@ const Plan = db.define('planes', {
   },
   precio_plan: {
     type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  interval_count: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  flow_plan_id: {
+    type: DataTypes.STRING,
     allowNull: true,
   },
   status: {
