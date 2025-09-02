@@ -3,6 +3,7 @@ import { catchAsync } from '../../utils/catchAsync.js';
 import { deleteDocument, deleteImage } from '../../utils/deleteUploads.js';
 import { Clase } from '../modulesClases/clase/clase.model.js';
 import { sendRecursoCaducado } from '../../utils/nodemailer.js';
+import { Notificaciones } from '../notificaciones/notificaciones.model.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { categoria_recurso, tipo_recurso, cuatro_ultimos, order } = req.query;
