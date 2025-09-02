@@ -108,10 +108,6 @@ export const createSubscriptionFlow = async ({
     planId: planId,
     customerId: customerId,
     subscription_start: subscription_start,
-    urlConfirmation:
-      'https://end-point.team-crafter.com/api/v1/suscripcion/confirmacion',
-    urlReturn:
-      'https://end-point.team-crafter.com/api/v1/suscripcion/compra-completada',
   };
 
   const s = signParams(params);
@@ -128,6 +124,8 @@ export const createSubscriptionFlow = async ({
     console.log(
       '✅ Suscripción creada. Redirigiendo al usuario a la página de pago...'
     );
+    console.log(response.data);
+
     return response.data; // Devuelve un objeto { url, token }
   } catch (err) {
     console.error(
@@ -138,54 +136,52 @@ export const createSubscriptionFlow = async ({
   }
 };
 
-export const createPaymentOrder = async ({
-  userEmail,
-  orderId,
-  amount,
+export const createInvoiceForSubscription = async ({
+  customerId,
+  email,
+  commerceOrder,
   subject,
+  amount,
 }) => {
   const params = {
     apiKey: FLOW_API_KEY,
-    commerceOrder: String(orderId),
-    subject: subject,
+    customerId,
+    commerceOrder,
+    email,
+    amount,
+    subject,
+    forward_times: 1,
+    byEmail: 1,
     currency: 'USD',
-    amount: amount,
-    email: userEmail,
-    paymentMethod: '9',
+    paymentMethod: 9,
     urlConfirmation:
       'https://end-point.team-crafter.com/api/v1/suscripcion/confirmacion',
     urlReturn:
       'https://end-point.team-crafter.com/api/v1/suscripcion/compra-completada',
   };
 
-  // generar firma
   const s = signParams(params);
-
-  // transformar params a string seguro
-  const formData = new URLSearchParams({
-    ...Object.fromEntries(
-      Object.entries(params).map(([k, v]) => [k, String(v)])
-    ),
-    s,
-  });
+  const formData = new URLSearchParams({ ...params, s });
 
   try {
     const response = await axios.post(
       `${FLOW_URL}/payment/create`,
       formData.toString(),
-      {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      }
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
 
-    const { url, token } = response.data;
-    return { redirectUrl: `${url}?token=${token}` };
+    const data = response.data;
+    const paymentUrl = `${data.url}?token=${data.token}`;
+
+    console.log('✅ Factura creada. Link de pago:', paymentUrl);
+
+    return { ...data, paymentUrl };
   } catch (err) {
     console.error(
-      '❌ Error en createPaymentOrder:',
+      '❌ Error en createInvoiceForSubscription:',
       err.response?.data || err.message
     );
-    throw err;
+    throw err.response?.data || err;
   }
 };
 

@@ -1,7 +1,7 @@
 import { Suscripcion } from './suscripcion.model.js';
 import { catchAsync } from '../../../utils/catchAsync.js';
 import {
-  createPaymentOrder,
+  createInvoiceForSubscription,
   createSubscriptionFlow,
   getPaymentStatus,
 } from '../../../services/flow.service.js';
@@ -30,21 +30,30 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
     });
   }
 
-  const suscripcion = await Suscripcion.create({
-    user_id: sessionUser.id,
-    plan_id: plan.id,
-    precio: plan.precio_plan,
-    status: 'pendiente',
-  });
   const now = new Date();
   const startDate = now.toISOString().split('T')[0];
 
-  const payment = await createSubscriptionFlow({
+  const suscripcionFlow = await createSubscriptionFlow({
     planId: plan.flow_plan_id,
     customerId: sessionUser.customerId,
     subscription_start: startDate,
   });
 
+  const suscripcion = await Suscripcion.create({
+    user_id: sessionUser.id,
+    plan_id: plan.id,
+    precio: plan.precio_plan,
+    flow_subscription_id: suscripcionFlow.subscriptionId,
+    status: 'pendiente',
+  });
+
+  const payment = await createInvoiceForSubscription({
+    customerId: sessionUser.customerId,
+    email: sessionUser.correo,
+    commerceOrder: suscripcion.id,
+    subject: plan.nombre_plan,
+    amount: plan.precio_plan,
+  });
   return res.status(200).json({
     status: 'success',
     suscripcion,
