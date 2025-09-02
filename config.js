@@ -14,4 +14,5 @@ export const {
   EMAIL,
   PASSWORD_EMAIL,
   FRONTEND_URL,
+  BACKEND_URL,
 } = process.env;
