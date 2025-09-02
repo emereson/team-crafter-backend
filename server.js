@@ -6,19 +6,19 @@ import initModel from './src/db/initModel.js';
 
 db.authenticate()
   .then(() => {
-    console.log(`Database Synced 💪`);
+    console.log(`✅ Database authenticated!`);
+    return initModel(); // Inicializa los modelos y asociaciones
+  })
+  .then(() => {
+    return db.sync(); // Sincroniza tablas
+  })
+  .then(() => {
+    console.log(`✅ Database synced!`);
+    actualizarSuscripcionesExpiradas(); // Inicia el cron
     app.listen(PORT, () => {
-      console.log(`App Running on Port ${PORT}`);
+      console.log(`🚀 App running on port ${PORT}`);
     });
   })
-  .then(() => {
-    console.log(`Database Authenticated! 👍`);
-    return initModel();
-  })
-  .then(() => {
-    actualizarSuscripcionesExpiradas();
-    return db.sync();
-  })
   .catch((err) => {
-    console.error('Error connecting to the database:', err);
+    console.error('❌ Error connecting to the database:', err);
   });
