@@ -11,6 +11,26 @@ import { Op } from 'sequelize';
 import { User } from '../user/user.model.js';
 import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
 
+export const findAll = catchAsync(async (req, res, next) => {
+  const { sessionUser } = req;
+
+  const suscripciones = await Suscripcion.findAll({
+    where: {
+      user_id: sessionUser.id,
+      status: {
+        [Op.in]: ['expirada', 'activa'], // 👈 esto es lo correcto
+      },
+    },
+    include: [{ model: Plan, as: 'plan' }],
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    results: suscripciones.length,
+    suscripciones,
+  });
+});
+
 export const crearSuscripcion = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
 
@@ -54,6 +74,7 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
     subject: plan.nombre_plan,
     amount: plan.precio_plan,
   });
+
   return res.status(200).json({
     status: 'success',
     suscripcion,

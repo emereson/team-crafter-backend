@@ -3,6 +3,35 @@ import { catchAsync } from '../../../utils/catchAsync.js';
 import { Recurso } from '../../recurso/recurso.model.js';
 import { FRONTEND_URL } from '../../../../config.js';
 import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
+import { Op } from 'sequelize';
+
+export const buscador = catchAsync(async (req, res, next) => {
+  const { buscador } = req.query;
+
+  const clases = await Clase.findAll({
+    where: {
+      [Op.or]: [
+        { titulo_clase: { [Op.like]: `%${buscador}%` } },
+        { descripcion_clase: { [Op.like]: `%${buscador}%` } },
+      ],
+    },
+    include: [
+      {
+        model: Recurso,
+        as: 'recurso',
+        where: {
+          nombre_recurso: { [Op.like]: `%${buscador}%` },
+        },
+        required: false,
+      },
+    ],
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    clases: clases,
+  });
+});
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { categoria_clase, tutoriales_tips, cuatro_ultimos, order } = req.query;

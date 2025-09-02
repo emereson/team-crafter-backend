@@ -18,6 +18,7 @@ router.post(
 );
 
 router.get('/activa', suscripcionController.obtenerContenidoPremium);
+router.get('/', suscripcionController.findAll);
 
 // router
 //   .use("/:id", claseMiddleware.validExistClase)

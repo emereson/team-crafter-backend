@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.use(authMiddleware.protect);
 
+router.get('/buscar', claseController.buscador);
+
 router.get('/', claseController.findAll);
 router.get('/:id', claseMiddleware.validExistClase, claseController.findOne);
 

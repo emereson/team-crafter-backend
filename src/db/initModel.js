@@ -6,6 +6,7 @@ import { Foro } from '../modules/modulesForos/foro/foro.model.js';
 import { RespuestaComentarioForo } from '../modules/modulesForos/respuestaComentarioForo/respuestaComentarioForo.model.js';
 import { Plan } from '../modules/plan/plan.model.js';
 import { Recurso } from '../modules/recurso/recurso.model.js';
+import { Favorito } from '../modules/usuario/favoritos/favorito.model.js';
 import { Suscripcion } from '../modules/usuario/suscripcion/suscripcion.model.js';
 import { User } from '../modules/usuario/user/user.model.js';
 
@@ -41,6 +42,12 @@ function initModel() {
   Clase.hasOne(Recurso, {
     foreignKey: 'clase_id',
     as: 'recurso',
+  });
+
+  Favorito.belongsTo(Clase, { foreignKey: 'clase_id', as: 'clase' });
+  Clase.hasOne(Favorito, {
+    foreignKey: 'clase_id',
+    as: 'favorito',
   });
 
   Foro.belongsTo(User, {
