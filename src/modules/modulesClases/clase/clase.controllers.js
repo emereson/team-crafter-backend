@@ -38,36 +38,44 @@ export const buscador = catchAsync(async (req, res, next) => {
 export const findAll = catchAsync(async (req, res, next) => {
   const { categoria_clase, tutoriales_tips, cuatro_ultimos, order } = req.query;
 
-  let whereCategoria = {};
+  let whereConditions = {};
 
-  if (
-    categoria_clase &&
-    categoria_clase.length > 3 &&
-    categoria_clase !== 'Todos'
-  ) {
-    whereCategoria.categoria_clase = categoria_clase;
+  // Manejar filtros múltiples para categorías
+  if (categoria_clase && categoria_clase.length > 0) {
+    const categoriasArray = categoria_clase.split(',').map((cat) => cat.trim());
+    if (categoriasArray.length > 0 && !categoriasArray.includes('Todos')) {
+      whereConditions.categoria_clase = {
+        [Op.in]: categoriasArray,
+      };
+    }
   }
 
-  if (
-    tutoriales_tips &&
-    tutoriales_tips.length > 3 &&
-    tutoriales_tips !== 'Todos'
-  ) {
-    whereCategoria.tutoriales_tips = tutoriales_tips;
+  // Manejar filtros múltiples para tutoriales
+  if (tutoriales_tips && tutoriales_tips.length > 0) {
+    const tutorialesArray = tutoriales_tips.split(',').map((tut) => tut.trim());
+    if (tutorialesArray.length > 0 && !tutorialesArray.includes('Todos')) {
+      whereConditions.tutoriales_tips = {
+        [Op.in]: tutorialesArray,
+      };
+    }
   }
 
-  const clases = await Clase.findAll({
-    where: whereCategoria,
-    include: [{ model: Recurso, as: 'recurso' }],
-    order: [['createdAt', order ? order : 'desc']],
-    limit: cuatro_ultimos === 'true' ? 4 : undefined, // solo si cuatro_ultimos es true
-  });
+  try {
+    const clases = await Clase.findAll({
+      where: whereConditions,
+      include: [{ model: Recurso, as: 'recurso' }],
+      order: [['createdAt', order || 'desc']],
+      limit: cuatro_ultimos === 'true' ? 2 : undefined,
+    });
 
-  return res.status(200).json({
-    status: 'Success',
-    results: clases.length,
-    clases,
-  });
+    return res.status(200).json({
+      status: 'Success',
+      results: clases.length,
+      clases,
+    });
+  } catch (error) {
+    return next(error);
+  }
 });
 
 export const findOne = catchAsync(async (req, res, next) => {

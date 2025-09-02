@@ -25,7 +25,8 @@ transporter.verify((error, success) => {
 export const sendConfirmationEmail = async (
   nombre,
   correo,
-  verificationLink
+  verificationLink,
+  plan
 ) => {
   try {
     const emailBody = `
@@ -87,7 +88,9 @@ export const sendConfirmationEmail = async (
             
             <!-- Botón CTA -->
             <div style="text-align: center; margin: 40px 0;">
-                <a href="${FRONTEND_URL}/verificar-correo?token=${verificationLink}" 
+                <a href="${FRONTEND_URL}/verificar-correo?token=${verificationLink}${
+      plan ? `&plan=${plan}` : ''
+    }" 
                    style="display: inline-block; background: linear-gradient(135deg, #f06292 0%, #e91e63 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: bold; text-align: center;">
                    Click para verificar mi correo electronico
                 </a>

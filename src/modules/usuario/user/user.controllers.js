@@ -45,7 +45,7 @@ export const findOne = catchAsync(async (req, res, next) => {
 });
 
 export const signup = catchAsync(async (req, res, next) => {
-  const { nombre, apellidos, correo, password, telefono, codigo_pais } =
+  const { nombre, apellidos, correo, password, telefono, codigo_pais, plan } =
     req.body;
 
   const encryptedPassword = await bcrypt.hash(password, 12);
@@ -63,7 +63,7 @@ export const signup = catchAsync(async (req, res, next) => {
     verificationToken,
   });
 
-  sendConfirmationEmail(nombre, correo.toLowerCase(), verificationToken);
+  sendConfirmationEmail(nombre, correo.toLowerCase(), verificationToken, plan);
   const token = await generateJWT(user.id);
 
   await ConfigNotificaciones.create({

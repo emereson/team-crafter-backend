@@ -28,7 +28,7 @@ export const findAll = catchAsync(async (req, res, next) => {
 
     include: [{ model: Clase, as: 'clase' }],
     order: [['createdAt', order ? order : 'desc']],
-    limit: cuatro_ultimos === 'true' ? 4 : undefined, // solo si cuatro_ultimos es true
+    limit: cuatro_ultimos === 'true' ? 3 : undefined, // solo si cuatro_ultimos es true
   });
 
   return res.status(200).json({
