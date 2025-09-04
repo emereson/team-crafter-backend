@@ -85,6 +85,7 @@ export const create = catchAsync(async (req, res, next) => {
   return res.status(201).json({
     status: 'success',
     plan: newPlan,
+    planFlow,
   });
 });
 

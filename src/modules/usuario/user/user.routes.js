@@ -11,10 +11,17 @@ router.post('/signup', userController.signup);
 router.get('/verificar-correo/:token', userController.verificarCorreo);
 router.post('/correo-password', userController.correoRecuperarPassword);
 router.post('/nuevo-password/:token', userController.nuevoPassword);
+router.post(
+  '/resultado-registro-tarjeta',
+  userController.resultadoRegistrarTarjeta
+);
 
 router.use(authMiddleware.protect);
 router.get('/', userController.findAll);
 router.get('/perfil', userController.findPerfil);
+router.get('/suscripciones', userController.findPerfilSuscripciones);
+
+router.get('/registrar-tarjeta', userController.finRegistrarTarjeta);
 
 router
   .use('/:id', userMiddleware.validExistUser)

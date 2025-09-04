@@ -5,7 +5,6 @@ import * as authMiddleware from '../../usuario/user/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/confirmacion', suscripcionController.confirmarPago);
 router.post('/compra-completada', async (req, res) => {
   res.redirect('https://dashboard.team-crafter.com/compra-completada');
 });

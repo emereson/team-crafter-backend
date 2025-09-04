@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import { db } from '../../../db/mysql.js';
-import { Plan } from '../../plan/plan.model.js';
-import { User } from '../user/user.model.js';
 
 const Suscripcion = db.define(
   'suscripciones',
@@ -14,6 +12,10 @@ const Suscripcion = db.define(
     },
     user_id: {
       type: DataTypes.UUID,
+      allowNull: false,
+    },
+    customerId: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     plan_id: {
@@ -36,17 +38,16 @@ const Suscripcion = db.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
-
+    plan_id_flow: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     // Campos adicionales para Flow
     flow_token: {
       type: DataTypes.STRING,
       allowNull: true,
     },
     flow_subscription_id: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    flow_payment_id: {
       type: DataTypes.STRING,
       allowNull: true,
     },

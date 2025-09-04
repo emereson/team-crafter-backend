@@ -10,7 +10,14 @@ import {
 } from '../../../utils/nodemailer.js';
 import { deleteImage } from '../../../utils/deleteUploads.js';
 import { ConfigNotificaciones } from '../configNotificaciones/configNotificaciones.model.js';
-import { createCustomerFlow } from '../../../services/flow.service.js';
+import {
+  createCustomerFlow,
+  createSubscriptionFlow,
+  listadoSuscripciones,
+  registrarTarjeta,
+  resultadoRegistroTarjeta,
+} from '../../../services/flow.service.js';
+import { Suscripcion } from '../suscripcion/suscripcion.model.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
@@ -19,6 +26,23 @@ export const findAll = catchAsync(async (req, res, next) => {
     status: 'Success',
     results: users.length,
     users,
+  });
+});
+
+export const findPerfilSuscripciones = catchAsync(async (req, res, next) => {
+  const { sessionUser } = req;
+
+  const perfil = await User.findOne({
+    where: { id: sessionUser.id },
+  });
+
+  const suscripciones = listadoSuscripciones({ customerId: perfil.customerId });
+
+  console.log(suscripciones);
+
+  return res.status(200).json({
+    status: 'Success',
+    perfil,
   });
 });
 
@@ -163,6 +187,8 @@ export const verificarCorreo = catchAsync(async (req, res) => {
 
   user.customerId = resFlow.customerId;
 
+  // use. =resTarjeta
+
   await user.save();
 
   res.status(200).json({
@@ -258,4 +284,68 @@ export const deleteUser = catchAsync(async (req, res) => {
     status: 'success',
     message: `The user with id: ${user.id} has been deleted`,
   });
+});
+
+export const finRegistrarTarjeta = catchAsync(async (req, res, next) => {
+  const { sessionUser } = req;
+
+  const perfil = await User.findOne({
+    where: { id: sessionUser.id },
+  });
+
+  const resTarjeta = await registrarTarjeta({
+    customerId: sessionUser.customerId,
+  });
+
+  return res.status(200).json({
+    status: 'Success',
+    token: resTarjeta.token,
+    url: `${resTarjeta.url}?token=${resTarjeta.token}`,
+
+    perfil,
+  });
+});
+
+export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
+  const { token } = req.body;
+
+  // 1. Consultamos a Flow por el registro de la tarjeta
+  const response = await resultadoRegistroTarjeta({ token });
+
+  // 3. Buscamos la última suscripción pendiente de ese usuario
+  const suscripcion = await Suscripcion.findOne({
+    where: { status: 'pendiente', customerId: response.customerId },
+
+    order: [['createdAt', 'DESC']], // 👈 aquí aseguramos la última
+  });
+
+  if (!suscripcion) {
+    return res.status(404).json({
+      status: 'Error',
+      message: 'No se encontró una suscripción pendiente para este cliente',
+    });
+  }
+  // 4. Podrías generar las fechas de inicio
+  const now = new Date();
+  const startDate = now.toISOString().split('T')[0];
+
+  const responseSus = await createSubscriptionFlow({
+    planId: suscripcion?.dataValues?.plan_id_flow,
+    customerId: response.customerId,
+    subscription_start: startDate,
+  });
+
+  await suscripcion.update({
+    status: 'activa',
+    startDate: responseSus.period_start,
+    endDate: responseSus.period_end,
+    flow_subscription_id: responseSus.subscriptionId,
+    status:
+      responseSus.status === 1
+        ? 'activa'
+        : responseSus.status === 4
+        ? 'cancelada'
+        : 'pendiente',
+  });
+  res.redirect('https://dashboard.team-crafter.com/compra-completada');
 });

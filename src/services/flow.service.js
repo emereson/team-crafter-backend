@@ -31,6 +31,7 @@ export const createPlanFlow = async ({
     currency: 'USD',
     interval: 3,
     interval_count: interval_count,
+    currency_convert_option: 1,
   };
 
   Object.keys(params).forEach(
@@ -52,6 +53,8 @@ export const createPlanFlow = async ({
       formData.toString(),
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
+
+    console.log(response.data);
 
     return response.data;
   } catch (err) {
@@ -98,6 +101,58 @@ export const createCustomerFlow = async ({ name, email, external_id }) => {
   }
 };
 
+export const registrarTarjeta = async ({ customerId }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    customerId: customerId,
+    url_return:
+      'https://end-point.team-crafter.com/api/v1/user/resultado-registro-tarjeta',
+  };
+
+  const s = signParams(params);
+
+  const formData = new URLSearchParams({ ...params, s });
+
+  try {
+    const response = await axios.post(
+      `${FLOW_URL}/customer/register`,
+      formData.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+
+    console.log(response.data);
+
+    return response.data; // Devuelve un objeto { url, token }
+  } catch (err) {
+    console.error(
+      '❌ Error en createSubscriptionFlow:',
+      err.response?.data || err.message
+    );
+    throw err.response?.data || err;
+  }
+};
+
+export const resultadoRegistroTarjeta = async ({ token }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    token,
+  };
+
+  const s = signParams(params);
+  const queryString = new URLSearchParams({ ...params, s }).toString();
+
+  try {
+    const response = await axios.get(
+      `${FLOW_URL}/customer/getRegisterStatus?${queryString}`
+    );
+
+    return response.data;
+  } catch (err) {
+    console.error('❌ Error :', err.response?.data || err.message);
+    throw err.response?.data || err;
+  }
+};
+
 export const createSubscriptionFlow = async ({
   planId,
   customerId,
@@ -108,6 +163,7 @@ export const createSubscriptionFlow = async ({
     planId: planId,
     customerId: customerId,
     subscription_start: subscription_start,
+    trial_period_days: 0,
   };
 
   const s = signParams(params);
@@ -137,27 +193,15 @@ export const createSubscriptionFlow = async ({
 };
 
 export const createInvoiceForSubscription = async ({
+  planId,
   customerId,
-  email,
-  commerceOrder,
-  subject,
-  amount,
+  subscription_start,
 }) => {
   const params = {
     apiKey: FLOW_API_KEY,
+    planId,
     customerId,
-    commerceOrder,
-    email,
-    amount,
-    subject,
-    forward_times: 1,
-    byEmail: 1,
-    currency: 'USD',
-    paymentMethod: 9,
-    urlConfirmation:
-      'https://end-point.team-crafter.com/api/v1/suscripcion/confirmacion',
-    urlReturn:
-      'https://end-point.team-crafter.com/api/v1/suscripcion/compra-completada',
+    subscription_start,
   };
 
   const s = signParams(params);
@@ -165,7 +209,7 @@ export const createInvoiceForSubscription = async ({
 
   try {
     const response = await axios.post(
-      `${FLOW_URL}/payment/create`,
+      `${FLOW_URL}/subscription/create`,
       formData.toString(),
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
@@ -185,11 +229,61 @@ export const createInvoiceForSubscription = async ({
   }
 };
 
-export const getPaymentStatus = async (token) => {
-  const params = { apiKey: FLOW_API_KEY, token };
-  const s = signParams(params);
+export const listadoSuscripciones = async ({ customerId }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    customerId,
+  };
 
-  const query = new URLSearchParams({ ...params, s }).toString();
-  const response = await axios.get(`${FLOW_URL}/payment/getStatus?${query}`);
-  return response.data;
+  const s = signParams(params);
+  const queryString = new URLSearchParams({ ...params, s }).toString();
+
+  try {
+    const response = await axios.get(
+      `${FLOW_URL}/customer/getSubscriptions?${queryString}`
+    );
+
+    return response.data;
+  } catch (err) {
+    console.error('❌ Error :', err.response?.data || err.message);
+    throw err.response?.data || err;
+  }
+};
+
+export const datosCliente = async ({ customerId }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    customerId,
+  };
+
+  const s = signParams(params);
+  const queryString = new URLSearchParams({ ...params, s }).toString();
+
+  try {
+    const response = await axios.get(`${FLOW_URL}/customer/get?${queryString}`);
+
+    return response.data;
+  } catch (err) {
+    console.error('❌ Error :', err.response?.data || err.message);
+    throw err.response?.data || err;
+  }
+};
+
+export const invoiceGet = async ({ invoiceId }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    invoiceId,
+  };
+
+  const s = signParams(params);
+  const queryString = new URLSearchParams({ ...params, s }).toString();
+
+  try {
+    const response = await axios.get(`${FLOW_URL}/invoice/get?${queryString}`);
+
+    return response.data;
+  } catch (err) {
+    console.error('❌ Error :', err.response?.data || err.message);
+    throw err.response?.data || err;
+  }
 };

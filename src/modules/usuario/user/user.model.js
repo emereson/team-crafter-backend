@@ -73,6 +73,10 @@ const User = db.define(
       type: DataTypes.STRING,
       allowNull: true, // token temporal enviado al correo
     },
+    tarjeta_token: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
   },
   {
     tableName: 'users',
