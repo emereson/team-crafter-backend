@@ -3,11 +3,31 @@ import * as userMiddleware from './user.middleware.js';
 import * as authMiddleware from './auth.middleware.js';
 import * as userController from './user.controllers.js';
 import { uploadImage } from '../../../utils/multer.js';
+import passport from '../../../config/passport.js';
 
 const router = express.Router();
 
 router.post('/login', userController.login);
 router.post('/signup', userController.signup);
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: '/login',
+  }),
+  (req, res) => {
+    const { user, token } = req.user;
+    res.redirect(
+      `http://localhost:3000/google-success?token=${token}&email=${user.correo}`
+    );
+  }
+);
+
 router.get('/verificar-correo/:token', userController.verificarCorreo);
 router.post('/correo-password', userController.correoRecuperarPassword);
 router.post('/nuevo-password/:token', userController.nuevoPassword);

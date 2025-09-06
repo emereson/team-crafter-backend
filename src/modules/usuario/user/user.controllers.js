@@ -18,7 +18,8 @@ import {
   resultadoRegistroTarjeta,
 } from '../../../services/flow.service.js';
 import { Suscripcion } from '../suscripcion/suscripcion.model.js';
-
+import passport from 'passport';
+import { GOOGLE_CLIENT_SECRET } from '../../../../config.js';
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
 
@@ -73,6 +74,43 @@ export const signup = catchAsync(async (req, res, next) => {
     req.body;
 
   const encryptedPassword = await bcrypt.hash(password, 12);
+
+  // Generar token de verificación único
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+
+  const user = await User.create({
+    nombre,
+    apellidos,
+    correo,
+    password: encryptedPassword,
+    telefono,
+    codigo_pais,
+    verificationToken,
+  });
+
+  sendConfirmationEmail(nombre, correo.toLowerCase(), verificationToken, plan);
+  const token = await generateJWT(user.id);
+
+  await ConfigNotificaciones.create({
+    usuario_id: user.id,
+  });
+
+  res.status(201).json({
+    status: 'success',
+    message:
+      'the user has been created successfully! Please verify your email.',
+    token,
+    user,
+  });
+});
+
+export const signupGoogle = catchAsync(async (req, res, next) => {
+  passport.authenticate('google', { scope: ['profile', 'email'] });
+
+  const encryptedPassword = await bcrypt.hash(password, 12);
+  passport;
+
+  GoogleStrategy;
 
   // Generar token de verificación único
   const verificationToken = crypto.randomBytes(32).toString('hex');

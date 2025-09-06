@@ -1,8 +1,8 @@
-import { db } from './src/db/mysql.js';
+import { db } from './src/config/mysql.js';
 import { app } from './src/app.js';
 import { PORT } from './config.js';
 import { actualizarSuscripcionesExpiradas } from './src/modules/usuario/suscripcion/suscripcion.controllers.js';
-import initModel from './src/db/initModel.js';
+import initModel from './src/config/initModel.js';
 
 db.authenticate()
   .then(() => {

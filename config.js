@@ -15,4 +15,6 @@ export const {
   PASSWORD_EMAIL,
   FRONTEND_URL,
   BACKEND_URL,
+  GOOGLE_CLIENT_SECRET,
+  GOOGLE_CLIENT_ID,
 } = process.env;

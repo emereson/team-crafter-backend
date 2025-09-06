@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { db } from '../../../db/mysql.js';
+import { db } from '../../../config/mysql.js';
 
 const User = db.define(
   'users',
@@ -14,6 +14,10 @@ const User = db.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    googleId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     foto_perfil: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -26,6 +30,7 @@ const User = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+
     correo: {
       type: DataTypes.STRING,
       unique: true,

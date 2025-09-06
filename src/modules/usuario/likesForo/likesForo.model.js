@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { db } from '../../../db/mysql.js';
+import { db } from '../../../config/mysql.js';
 
 const LikeForo = db.define(
   'likes_foros',

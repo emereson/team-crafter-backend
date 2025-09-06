@@ -1,6 +1,6 @@
 // models/Plan.js
 import { DataTypes } from 'sequelize';
-import { db } from '../../db/mysql.js';
+import { db } from '../../config/mysql.js';
 
 const Plan = db.define('planes', {
   id: {

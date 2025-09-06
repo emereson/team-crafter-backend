@@ -5,6 +5,9 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 import rateLimit from 'express-rate-limit';
 import xss from 'xss-clean';
+import passport from './config/passport.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { AppError } from './utils/AppError.js';
 import { globalErrorHandler } from './utils/errors.js';
@@ -15,8 +18,6 @@ import { comentarioClaseRouter } from './modules/modulesClases/comentarioClase/c
 import { recursoRouter } from './modules/recurso/recurso.routes.js';
 import { descuentoRouter } from './modules/descuento/descuento.routes.js';
 import { adminRouter } from './modules/admins/admin.routes.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { respuestaComentarioClaseRouter } from './modules/modulesClases/respuestaComentarioClase/respuestaComentarioClase.routes.js';
 import { likeClaseRouter } from './modules/usuario/likesClases/likeClase.routes.js';
 import { likeComentarioClaseRouter } from './modules/usuario/likeComentarioClase/likeComentarioClase.routes.js';
@@ -60,6 +61,9 @@ app.use(
     crossOriginResourcePolicy: false,
   })
 );
+
+app.use(passport.initialize());
+
 app.use(hpp());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
