@@ -37,8 +37,6 @@ export const create = catchAsync(async (req, res, next) => {
 
   const img = req?.file?.filename;
 
-  console.log(req.file);
-
   const foro = await Foro.create({
     user_id: sessionUser.id,
     titulo_foro,

@@ -32,6 +32,7 @@ import { likeComentarioForoRouter } from './modules/usuario/likeComentarioForo/l
 import { configNotificacionesRouter } from './modules/usuario/configNotificaciones/configNotificaciones.routes.js';
 import { notificacionesRouter } from './modules/notificaciones/notificaciones.routes.js';
 import { planRouter } from './modules/plan/plan.routes.js';
+import { bannerRouter } from './modules/banner/banner.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -95,6 +96,7 @@ app.use('/api/v1/like-comentario-foro', likeComentarioForoRouter);
 
 app.use('/api/v1/config-notificacion', configNotificacionesRouter);
 app.use('/api/v1/notificaciones', notificacionesRouter);
+app.use('/api/v1/banner', bannerRouter);
 
 // Manejo de rutas no encontradas
 app.all('*', (req, res, next) => {

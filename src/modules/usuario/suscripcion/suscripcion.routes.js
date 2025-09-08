@@ -15,9 +15,11 @@ router.post(
   planMiddleware.validExistPlan,
   suscripcionController.crearSuscripcion
 );
+router.patch('/:id', suscripcionController.migrarPlan);
 
 router.get('/activa', suscripcionController.obtenerContenidoPremium);
 router.get('/', suscripcionController.findAll);
+router.delete('/:id', suscripcionController.cancelarSuscripcion);
 
 // router
 //   .use("/:id", claseMiddleware.validExistClase)

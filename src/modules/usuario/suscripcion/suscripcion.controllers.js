@@ -6,9 +6,12 @@ import { Op } from 'sequelize';
 import { User } from '../user/user.model.js';
 import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
 import {
+  cancelarSuscripcionFlow,
   datosCliente,
   listadoSuscripciones,
+  migrarPlanSuscripcion,
 } from '../../../services/flow.service.js';
+import { AppError } from '../../../utils/AppError.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
@@ -103,25 +106,75 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
     customerId: sessionUser.customerId,
   });
 
-  // const suscripcion = await Suscripcion.findOne({
-  //   where: { user_id: userId, status: 'activa' },
-  //   include: [
-  //     { model: Plan, as: 'plan' },
-  //     { model: User, as: 'usuario' },
-  //   ],
-  // });
-
-  // if (!suscripcion) {
-  //   return res.status(403).json({ error: 'No tienes una suscripción activa' });
-  // }
-
-  // if (suscripcion.endDate && suscripcion.endDate < new Date()) {
-  //   await suscripcion.update({ status: 'expirada' });
-  //   return res.status(403).json({ error: 'Tu suscripción ha expirado' });
-  // }
-
-  res.json({
-    msg: '🎉 Acceso a contenido premium',
+  return res.status(200).json({
+    status: 'success',
     suscripcion: suscripcionesFlow.data[0],
   });
+});
+
+export const migrarPlan = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const { planExternalId } = req.body;
+
+  if (!planExternalId) {
+    return next(new AppError(`El plan es obligatorio`, 400));
+  }
+  if (!id) {
+    return next(new AppError(`La suscripción es obligatoria`, 400));
+  }
+
+  try {
+    const response = await migrarPlanSuscripcion({
+      subscriptionId: id,
+      newPlanId: planExternalId,
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      suscripcion: response,
+    });
+  } catch (err) {
+    // Caso específico: factura pendiente
+    return next(
+      new AppError(
+        'No puedes migrar de plan porque existe una factura pendiente de pago.',
+        400
+      )
+    );
+  }
+});
+
+export const cancelarSuscripcion = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  const existSuscripcion = await Suscripcion.findOne({
+    where: {
+      flow_subscription_id: id,
+    },
+  });
+  if (existSuscripcion) {
+    existSuscripcion.update({ status: 'cancelada' });
+  }
+  existSuscripcion.save();
+  if (!id) {
+    return next(new AppError(`La suscripción es obligatoria`, 400));
+  }
+
+  try {
+    const response = await cancelarSuscripcionFlow({
+      subscriptionId: id,
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      suscripcion: response,
+    });
+  } catch (err) {
+    return next(
+      new AppError(
+        'No puedes migrar de plan porque existe una factura pendiente de pago.',
+        400
+      )
+    );
+  }
 });

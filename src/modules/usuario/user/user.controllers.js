@@ -13,13 +13,13 @@ import { ConfigNotificaciones } from '../configNotificaciones/configNotificacion
 import {
   createCustomerFlow,
   createSubscriptionFlow,
+  datosCliente,
   listadoSuscripciones,
   registrarTarjeta,
   resultadoRegistroTarjeta,
 } from '../../../services/flow.service.js';
 import { Suscripcion } from '../suscripcion/suscripcion.model.js';
 import passport from 'passport';
-import { GOOGLE_CLIENT_SECRET } from '../../../../config.js';
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
 
@@ -114,16 +114,6 @@ export const signupGoogle = catchAsync(async (req, res, next) => {
 
   // Generar token de verificación único
   const verificationToken = crypto.randomBytes(32).toString('hex');
-
-  const user = await User.create({
-    nombre,
-    apellidos,
-    correo,
-    password: encryptedPassword,
-    telefono,
-    codigo_pais,
-    verificationToken,
-  });
 
   sendConfirmationEmail(nombre, correo.toLowerCase(), verificationToken, plan);
   const token = await generateJWT(user.id);
@@ -331,15 +321,15 @@ export const finRegistrarTarjeta = catchAsync(async (req, res, next) => {
     where: { id: sessionUser.id },
   });
 
+  const cliente = await datosCliente({ customerId: sessionUser.customerId });
+
   const resTarjeta = await registrarTarjeta({
     customerId: sessionUser.customerId,
   });
 
   return res.status(200).json({
     status: 'Success',
-    token: resTarjeta.token,
     url: `${resTarjeta.url}?token=${resTarjeta.token}`,
-
     perfil,
   });
 });

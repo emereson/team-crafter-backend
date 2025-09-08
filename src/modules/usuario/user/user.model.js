@@ -44,12 +44,12 @@ const User = db.define(
     },
     telefono: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       defaultValue: '',
     },
     codigo_pais: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     zona_horaria: {
       type: DataTypes.STRING,
@@ -61,7 +61,7 @@ const User = db.define(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     status: {
       type: DataTypes.ENUM('active', 'disabled'),

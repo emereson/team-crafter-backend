@@ -105,8 +105,7 @@ export const registrarTarjeta = async ({ customerId }) => {
   const params = {
     apiKey: FLOW_API_KEY,
     customerId: customerId,
-    url_return:
-      'https://end-point.team-crafter.com/api/v1/user/resultado-registro-tarjeta',
+    url_return: 'https://www.google.com',
   };
 
   const s = signParams(params);
@@ -280,6 +279,53 @@ export const invoiceGet = async ({ invoiceId }) => {
 
   try {
     const response = await axios.get(`${FLOW_URL}/invoice/get?${queryString}`);
+
+    return response.data;
+  } catch (err) {
+    console.error('❌ Error :', err.response?.data || err.message);
+    throw err.response?.data || err;
+  }
+};
+
+export const migrarPlanSuscripcion = async ({ subscriptionId, newPlanId }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    subscriptionId,
+    newPlanId,
+  };
+
+  const s = signParams(params);
+  const formData = new URLSearchParams({ ...params, s });
+
+  try {
+    const response = await axios.post(
+      `${FLOW_URL}/subscription/changePlan`,
+      formData.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+
+    return response.data;
+  } catch (err) {
+    console.error('❌ Error :', err.response?.data || err.message);
+    throw err.response?.data || err;
+  }
+};
+
+export const cancelarSuscripcionFlow = async ({ subscriptionId }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    subscriptionId,
+  };
+
+  const s = signParams(params);
+  const formData = new URLSearchParams({ ...params, s });
+
+  try {
+    const response = await axios.post(
+      `${FLOW_URL}/subscription/cancel`,
+      formData.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
 
     return response.data;
   } catch (err) {
