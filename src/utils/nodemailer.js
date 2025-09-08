@@ -42,7 +42,7 @@ export const sendConfirmationEmail = async (
         
         <!-- Header Rosa -->
         <div style="background: linear-gradient(135deg, #f06292 0%, #e91e63 100%); padding: 40px 20px; text-align: center; border-radius: 0;">
-            <img src="https://i.ibb.co/4YF1hzT/team-crafter-logo.png" alt="Team Crafter" style="max-width: 200px; height: auto;" />
+            <img src="https://app.team-crafter.com/_next/image?url=%2Flogo.png&w=1920&q=75" alt="Team Crafter" style="max-width: 200px; height: auto;" />
         </div>
         
         <!-- Contenido Principal -->
@@ -144,7 +144,7 @@ export const sendPasswordRecoveryEmail = async (
         
         <!-- Header Rosa -->
         <div style="background: linear-gradient(135deg, #f06292 0%, #e91e63 100%); padding: 40px 20px; text-align: center; border-radius: 0;">
-            <img src="https://i.ibb.co/4YF1hzT/team-crafter-logo.png" alt="Team Crafter" style="max-width: 200px; height: auto;" />
+            <img src="https://app.team-crafter.com/_next/image?url=%2Flogo.png&w=1920&q=75" alt="Team Crafter" style="max-width: 200px; height: auto;" />
         </div>
         
         <!-- Contenido Principal -->
