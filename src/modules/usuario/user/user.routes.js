@@ -23,7 +23,7 @@ router.get(
   (req, res) => {
     const { user, token } = req.user;
     res.redirect(
-      `http://localhost:3000/google-success?token=${token}&email=${user.correo}`
+      `https://app.team-crafter.com/google-success?token=${token}&email=${user.correo}`
     );
   }
 );
