@@ -70,8 +70,16 @@ export const findOne = catchAsync(async (req, res, next) => {
 });
 
 export const signup = catchAsync(async (req, res, next) => {
-  const { nombre, apellidos, correo, password, telefono, codigo_pais, plan } =
-    req.body;
+  const {
+    nombre,
+    apellidos,
+    correo,
+    password,
+    telefono,
+    codigo_pais,
+    plan,
+    dni_id_ce,
+  } = req.body;
 
   const encryptedPassword = await bcrypt.hash(password, 12);
 
@@ -86,6 +94,7 @@ export const signup = catchAsync(async (req, res, next) => {
     telefono,
     codigo_pais,
     verificationToken,
+    dni_id_ce,
   });
 
   sendConfirmationEmail(nombre, correo.toLowerCase(), verificationToken, plan);
