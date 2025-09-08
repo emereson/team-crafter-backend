@@ -383,5 +383,5 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
         ? 'cancelada'
         : 'pendiente',
   });
-  res.redirect('https://dashboard.team-crafter.com/compra-completada');
+  res.redirect('https://app.team-crafter.com/compra-completada');
 });
