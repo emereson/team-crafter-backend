@@ -94,7 +94,6 @@ export const signup = catchAsync(async (req, res, next) => {
     telefono,
     codigo_pais,
     verificationToken,
-    dni_id_ce,
   });
 
   sendConfirmationEmail(nombre, correo.toLowerCase(), verificationToken, plan);
