@@ -105,7 +105,8 @@ export const registrarTarjeta = async ({ customerId }) => {
   const params = {
     apiKey: FLOW_API_KEY,
     customerId: customerId,
-    url_return: 'https://www.google.com',
+    url_return:
+      'https://end-point.team-crafter.com/api/v1/user/resultado-registro-tarjeta',
   };
 
   const s = signParams(params);
