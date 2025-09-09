@@ -155,7 +155,7 @@ export const login = catchAsync(async (req, res, next) => {
   if (
     !(await bcrypt.compare(password, user.password ? user.password : 'asd'))
   ) {
-    return next(new AppError('Contraseña incorrecta', 401));
+    return next(new AppError('Contraseña incorrecta', 400));
   }
 
   const token = await generateJWT(user.id);
