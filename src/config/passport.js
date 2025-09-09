@@ -22,7 +22,7 @@ passport.use(
         if (!user) {
           user = await User.create({
             nombre: profile.name.givenName,
-            apellidos: profile.name.familyName,
+            apellidos: profile.name.familyName || '',
             correo: profile.emails[0].value.toLowerCase(),
             googleId: profile.id,
             status: 'active',
