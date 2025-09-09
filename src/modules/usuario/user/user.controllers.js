@@ -144,7 +144,6 @@ export const login = catchAsync(async (req, res, next) => {
 
   const user = await User.findOne({
     where: {
-      correo,
       correo: correo.toLowerCase(),
       status: 'active',
     },
@@ -153,7 +152,9 @@ export const login = catchAsync(async (req, res, next) => {
     return next(new AppError('El usuario no se encuentra registrado', 404));
   }
 
-  if (!(await bcrypt.compare(password, user.password))) {
+  if (
+    !(await bcrypt.compare(password, user.password ? user.password : 'asd'))
+  ) {
     return next(new AppError('Contraseña incorrecta', 401));
   }
 
