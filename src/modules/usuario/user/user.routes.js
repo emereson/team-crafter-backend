@@ -36,6 +36,8 @@ router.post(
   userController.resultadoRegistrarTarjeta
 );
 
+router.post('/datos-cliente-flow/:id', userController.datosClienteFlow);
+
 router.use(authMiddleware.protect);
 router.get('/', userController.findAll);
 router.get('/perfil', userController.findPerfil);

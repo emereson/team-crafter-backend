@@ -386,3 +386,15 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
   });
   res.redirect('https://app.team-crafter.com/compra-completada');
 });
+
+export const datosClienteFlow = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  const datosClientes = await datosCliente({
+    customerId: id,
+  });
+  return res.status(200).json({
+    status: 'success',
+    datosClientes: datosClientes,
+  });
+});
