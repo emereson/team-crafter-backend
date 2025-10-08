@@ -86,14 +86,11 @@ export const actualizarSuscripcionesExpiradas = () => {
         usuario_id: suscripcion.usuario.id,
         tipo_notificacion: 'noticias',
         titulo: `Tu suscripción  ${suscripcion.plan.nombre_plan} a expirado `,
-        contenido: `La suscripción al plan ${
-          suscripcion.plan.nombre_plan
-        } expiró el día ${dayjs(suscripcion.endDate).format('DD/MM/YYYY')}.`,
+        contenido: `La suscripción al plan ${suscripcion.plan.nombre_plan} expiró el día ${suscripcion.endDate}.`,
       });
     }
   });
 };
-
 // Acceso a contenido premium
 export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   const { sessionUser } = req;
