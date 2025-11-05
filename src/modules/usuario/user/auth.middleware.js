@@ -61,8 +61,6 @@ export const protect = catchAsync(async (req, res, next) => {
 export const protectAccountOwner = catchAsync(async (req, res, next) => {
   const { user, sessionUser } = req;
 
-  console.log(user);
-
   if (user.id !== sessionUser.id) {
     return next(new AppError('You are not the owner of this account.', 401));
   }

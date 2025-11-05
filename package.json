@@ -33,6 +33,10 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "sequelize": "^6.37.7",
-    "xss-clean": "^0.1.4"
+    "xss-clean": "^0.1.4",
+    "pino": "^10.0.0"
+  },
+  "devDependencies": {
+    "pino-pretty": "^13.1.1"
   }
 }

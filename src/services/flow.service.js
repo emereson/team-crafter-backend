@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import axios from 'axios';
 import { FLOW_API_KEY, FLOW_SECRET } from '../../config.js';
+import logger from '../utils/logger.js';
 
 const FLOW_URL = 'https://sandbox.flow.cl/api';
 // const FLOW_URL = 'https://www.flow.cl/api';
@@ -16,6 +17,39 @@ function signParams(params) {
 
   return crypto.createHmac('sha256', FLOW_SECRET).update(sorted).digest('hex');
 }
+
+export const createCustomerFlow = async ({ name, email, external_id }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    name: name,
+    email: email,
+    externalId: external_id,
+  };
+
+  const s = signParams(params);
+  const formData = new URLSearchParams({ ...params, s });
+
+  try {
+    const response = await axios.post(
+      `${FLOW_URL}/customer/create`,
+      formData.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+    return response.data;
+  } catch (err) {
+    // Si el cliente ya existe, Flow devuelve un error específico.
+    // Puedes manejarlo para no detener el flujo.
+    if (err.response?.data?.code === 2210) {
+      // Puedes optar por obtener los datos del cliente si lo necesitas.
+      return { customerId, name, email };
+    }
+    logger.error(
+      '❌ Error en createCustomerFlow:',
+      err.response?.data || err.message
+    );
+    throw err;
+  }
+};
 
 export const createPlanFlow = async ({
   planId,
@@ -54,11 +88,9 @@ export const createPlanFlow = async ({
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
 
-    console.log(response.data);
-
     return response.data;
   } catch (err) {
-    console.error(
+    logger.error(
       '❌ Error en createPlanFlow:',
       err.response?.data || err.message
     );
@@ -66,40 +98,25 @@ export const createPlanFlow = async ({
   }
 };
 
-export const createCustomerFlow = async ({ name, email, external_id }) => {
+export const listPlanFlow = async () => {
   const params = {
     apiKey: FLOW_API_KEY,
-    name: name,
-    email: email,
-    externalId: external_id,
   };
 
   const s = signParams(params);
-  const formData = new URLSearchParams({ ...params, s });
+  const queryString = new URLSearchParams({ ...params, s }).toString();
 
   try {
-    const response = await axios.post(
-      `${FLOW_URL}/customer/create`,
-      formData.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-    );
-    console.log('✅ Cliente creado en Flow:', response.data);
+    const response = await axios.get(`${FLOW_URL}/plans/list?${queryString}`);
+
     return response.data;
   } catch (err) {
-    // Si el cliente ya existe, Flow devuelve un error específico.
-    // Puedes manejarlo para no detener el flujo.
-    if (err.response?.data?.code === 2210) {
-      console.log('ℹ️  Cliente ya existe en Flow, continuando...');
-      // Puedes optar por obtener los datos del cliente si lo necesitas.
-      return { customerId, name, email };
-    }
-    console.error(
-      '❌ Error en createCustomerFlow:',
-      err.response?.data || err.message
-    );
-    throw err;
+    logger.error('❌ Error :', err.response?.data || err.message);
+    throw err.response?.data || err;
   }
 };
+
+listPlanFlow();
 
 export const registrarTarjeta = async ({ customerId }) => {
   const params = {
@@ -120,11 +137,9 @@ export const registrarTarjeta = async ({ customerId }) => {
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
 
-    console.log(response.data);
-
     return response.data; // Devuelve un objeto { url, token }
   } catch (err) {
-    console.error(
+    logger.error(
       '❌ Error en createSubscriptionFlow:',
       err.response?.data || err.message
     );
@@ -148,7 +163,7 @@ export const resultadoRegistroTarjeta = async ({ token }) => {
 
     return response.data;
   } catch (err) {
-    console.error('❌ Error :', err.response?.data || err.message);
+    logger.error('❌ Error :', err.response?.data || err.message);
     throw err.response?.data || err;
   }
 };
@@ -176,15 +191,10 @@ export const createSubscriptionFlow = async ({
       formData.toString(),
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
-    // La respuesta contiene la URL y el token para redirigir al usuario
-    console.log(
-      '✅ Suscripción creada. Redirigiendo al usuario a la página de pago...'
-    );
-    console.log(response.data);
 
     return response.data; // Devuelve un objeto { url, token }
   } catch (err) {
-    console.error(
+    logger.error(
       '❌ Error en createSubscriptionFlow:',
       err.response?.data || err.message
     );
@@ -217,11 +227,9 @@ export const createInvoiceForSubscription = async ({
     const data = response.data;
     const paymentUrl = `${data.url}?token=${data.token}`;
 
-    console.log('✅ Factura creada. Link de pago:', paymentUrl);
-
     return { ...data, paymentUrl };
   } catch (err) {
-    console.error(
+    logger.error(
       '❌ Error en createInvoiceForSubscription:',
       err.response?.data || err.message
     );
@@ -245,7 +253,7 @@ export const listadoSuscripciones = async ({ customerId }) => {
 
     return response.data;
   } catch (err) {
-    console.error('❌ Error :', err.response?.data || err.message);
+    logger.error('❌ Error :', err.response?.data || err.message);
     throw err.response?.data || err;
   }
 };
@@ -264,7 +272,7 @@ export const datosCliente = async ({ customerId }) => {
 
     return response.data;
   } catch (err) {
-    console.error('❌ Error :', err.response?.data || err.message);
+    logger.error('❌ Error :', err.response?.data || err.message);
     throw err.response?.data || err;
   }
 };
@@ -283,7 +291,7 @@ export const invoiceGet = async ({ invoiceId }) => {
 
     return response.data;
   } catch (err) {
-    console.error('❌ Error :', err.response?.data || err.message);
+    logger.error('❌ Error :', err.response?.data || err.message);
     throw err.response?.data || err;
   }
 };
@@ -307,7 +315,7 @@ export const migrarPlanSuscripcion = async ({ subscriptionId, newPlanId }) => {
 
     return response.data;
   } catch (err) {
-    console.error('❌ Error :', err.response?.data || err.message);
+    logger.error('❌ Error :', err.response?.data || err.message);
     throw err.response?.data || err;
   }
 };
@@ -330,7 +338,7 @@ export const cancelarSuscripcionFlow = async ({ subscriptionId }) => {
 
     return response.data;
   } catch (err) {
-    console.error('❌ Error :', err.response?.data || err.message);
+    logger.error('❌ Error :', err.response?.data || err.message);
     throw err.response?.data || err;
   }
 };

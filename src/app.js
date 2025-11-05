@@ -33,6 +33,7 @@ import { configNotificacionesRouter } from './modules/usuario/configNotificacion
 import { notificacionesRouter } from './modules/notificaciones/notificaciones.routes.js';
 import { planRouter } from './modules/plan/plan.routes.js';
 import { bannerRouter } from './modules/banner/banner.routes.js';
+import { webhookRouter } from './modules/webhooks/webhooks.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -97,6 +98,9 @@ app.use('/api/v1/like-comentario-foro', likeComentarioForoRouter);
 app.use('/api/v1/config-notificacion', configNotificacionesRouter);
 app.use('/api/v1/notificaciones', notificacionesRouter);
 app.use('/api/v1/banner', bannerRouter);
+
+// webhooks
+app.use('/api/v1/webhooks', webhookRouter);
 
 // Manejo de rutas no encontradas
 app.all('*', (req, res, next) => {

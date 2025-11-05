@@ -20,6 +20,8 @@ import {
 } from '../../../services/flow.service.js';
 import { Suscripcion } from '../suscripcion/suscripcion.model.js';
 import passport from 'passport';
+import { getSubscriptionPayPal } from '../../../services/paypal.service.js';
+import { Plan } from '../../plan/plan.model.js';
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
 
@@ -38,8 +40,6 @@ export const findPerfilSuscripciones = catchAsync(async (req, res, next) => {
   });
 
   const suscripciones = listadoSuscripciones({ customerId: perfil.customerId });
-
-  console.log(suscripciones);
 
   return res.status(200).json({
     status: 'Success',
@@ -94,34 +94,8 @@ export const signup = catchAsync(async (req, res, next) => {
     telefono,
     codigo_pais,
     verificationToken,
+    dni_id_ce,
   });
-
-  sendConfirmationEmail(nombre, correo.toLowerCase(), verificationToken, plan);
-  const token = await generateJWT(user.id);
-
-  await ConfigNotificaciones.create({
-    usuario_id: user.id,
-  });
-
-  res.status(201).json({
-    status: 'success',
-    message:
-      'the user has been created successfully! Please verify your email.',
-    token,
-    user,
-  });
-});
-
-export const signupGoogle = catchAsync(async (req, res, next) => {
-  passport.authenticate('google', { scope: ['profile', 'email'] });
-
-  const encryptedPassword = await bcrypt.hash(password, 12);
-  passport;
-
-  GoogleStrategy;
-
-  // Generar token de verificación único
-  const verificationToken = crypto.randomBytes(32).toString('hex');
 
   sendConfirmationEmail(nombre, correo.toLowerCase(), verificationToken, plan);
   const token = await generateJWT(user.id);
@@ -238,7 +212,6 @@ export const verificarCorreo = catchAsync(async (req, res) => {
 export const nuevoPassword = catchAsync(async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
-  console.log(password);
 
   const encryptedPassword = await bcrypt.hash(password, 12);
 
@@ -387,14 +360,90 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
   res.redirect('https://app.team-crafter.com/compra-completada');
 });
 
+export const resultadoPaypal = catchAsync(async (req, res, next) => {
+  const { subscription_id } = req.query;
+
+  const resPayal = await getSubscriptionPayPal({ subscription_id });
+
+  const suscripcion = await Suscripcion.findOne({
+    where: { suscripcion_id_paypal: subscription_id },
+
+    order: [['createdAt', 'DESC']], // 👈 aquí aseguramos la última
+  });
+
+  const start = new Date(resPayal.start_time);
+  const end = new Date(start);
+
+  if (suscripcion.plan_id === 1) {
+    end.setMonth(end.getMonth() + 1);
+  } else if (suscripcion.plan_id === 2) {
+    end.setMonth(end.getMonth() + 6);
+  } else if (suscripcion.plan_id === 3) {
+    end.setMonth(end.getMonth() + 12);
+  }
+
+  if (resPayal.status === 'ACTIVE') {
+    await suscripcion.update({
+      status: 'activa',
+      startDate: start,
+      endDate: end,
+    });
+  } else {
+    await suscripcion.update({ status: 'cancelada' });
+  }
+
+  // res.redirect('https://app.team-crafter.com/compra-completada');
+  res.redirect('http://localhost:3000/compra-completada');
+});
+
 export const datosClienteFlow = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
   const datosClientes = await datosCliente({
     customerId: id,
   });
+
   return res.status(200).json({
     status: 'success',
     datosClientes: datosClientes,
   });
+});
+
+export const migrarPaypal = catchAsync(async (req, res, next) => {
+  const { subscription_id } = req.query;
+
+  const resPayal = await getSubscriptionPayPal({ subscription_id });
+
+  const suscripcion = await Suscripcion.findOne({
+    where: { suscripcion_id_paypal: subscription_id },
+  });
+
+  const plan = await Plan.findOne({
+    where: {
+      paypal_plan_id: resPayal.plan_id,
+    },
+  });
+
+  const start = new Date(resPayal.start_time);
+  const end = new Date(start);
+
+  if (plan.id === 1) {
+    end.setMonth(end.getMonth() + 1);
+  } else if (plan.id === 2) {
+    end.setMonth(end.getMonth() + 6);
+  } else if (plan.id === 3) {
+    end.setMonth(end.getMonth() + 12);
+  }
+
+  if (resPayal.status === 'ACTIVE') {
+    await suscripcion.update({
+      status: 'activa',
+      startDate: start,
+      endDate: end,
+      plan_id: plan.id,
+    });
+  }
+
+  // res.redirect('https://app.team-crafter.com/compra-completada');
+  res.redirect('http://localhost:3000/dashboard/mi-cuenta');
 });

@@ -25,6 +25,10 @@ const Plan = db.define('planes', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  paypal_plan_id: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   status: {
     type: DataTypes.ENUM('active', 'disabled'),
     allowNull: false,

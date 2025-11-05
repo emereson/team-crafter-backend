@@ -7,30 +7,32 @@ import { User } from '../user/user.model.js';
 import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
 import {
   cancelarSuscripcionFlow,
-  datosCliente,
-  listadoSuscripciones,
   migrarPlanSuscripcion,
 } from '../../../services/flow.service.js';
 import { AppError } from '../../../utils/AppError.js';
+import {
+  cancelSubscriptionPayPal,
+  createSubscriptionPayPal,
+  reviseSubscriptionPayPal,
+} from '../../../services/paypal.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
 
-  const suscripcionesFlow = await listadoSuscripciones({
-    customerId: sessionUser.customerId,
-  });
-
-  const datosClientes = await datosCliente({
-    customerId: sessionUser.customerId,
+  const suscripciones = await Suscripcion.findAll({
+    where: {
+      user_id: sessionUser.id,
+      status: {
+        [Op.or]: ['activa', 'expirada', 'cancelada'],
+      },
+    },
   });
 
   return res.status(200).json({
     status: 'success',
-    suscripciones: suscripcionesFlow,
-    datosClientes: datosClientes,
+    suscripciones,
   });
 });
-
 export const crearSuscripcion = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
 
@@ -65,6 +67,47 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
   });
 });
 
+export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
+  const { sessionUser, plan } = req;
+
+  // Verificar si ya existe una suscripción activa
+  const suscripcionActiva = await Suscripcion.findOne({
+    where: {
+      user_id: sessionUser.id,
+      status: 'activa',
+    },
+  });
+
+  if (suscripcionActiva) {
+    return res.status(403).json({
+      status: 'fail',
+      message: 'Ya tienes una suscripción activa',
+      suscripcion: suscripcionActiva,
+    });
+  }
+
+  const resPayal = await createSubscriptionPayPal({
+    plan_id: plan.paypal_plan_id,
+    custom_id: sessionUser.id,
+    given_name: sessionUser.nombre,
+    email_address: sessionUser.correo,
+  });
+
+  await Suscripcion.create({
+    user_id: sessionUser.id,
+    customerId: sessionUser.customerId,
+    plan_id: plan.id,
+    suscripcion_id_paypal: resPayal.id,
+    precio: plan.precio_plan,
+    status: 'pendiente',
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    link_pago: resPayal.links[0].href,
+  });
+});
+
 // Cron job para actualizar suscripciones expiradas
 export const actualizarSuscripcionesExpiradas = () => {
   cron.schedule('0 0 * * *', async () => {
@@ -95,83 +138,130 @@ export const actualizarSuscripcionesExpiradas = () => {
 export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   const { sessionUser } = req;
 
-  if (!sessionUser.id) {
-    return res.status(401).json({ error: 'Usuario no autorizado' });
-  }
-
-  const suscripcionesFlow = await listadoSuscripciones({
-    customerId: sessionUser.customerId,
+  const suscripcionActiva = await Suscripcion.findOne({
+    where: {
+      user_id: sessionUser.id,
+      status: 'activa',
+    },
   });
 
   return res.status(200).json({
     status: 'success',
-    suscripcion: suscripcionesFlow.data[0],
+    suscripcionActiva,
+    sessionUser,
   });
 });
 
 export const migrarPlan = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+  const { suscripcion } = req;
   const { planExternalId } = req.body;
 
-  if (!planExternalId) {
+  const plan = await Plan.findOne({
+    where: {
+      id: planExternalId,
+    },
+  });
+
+  if (!plan) {
     return next(new AppError(`El plan es obligatorio`, 400));
   }
-  if (!id) {
-    return next(new AppError(`La suscripción es obligatoria`, 400));
+
+  const start = new Date(suscripcion.startDate);
+  const end = new Date(start);
+
+  if (plan.id === 1) {
+    end.setMonth(end.getMonth() + 1);
+  } else if (plan.id === 2) {
+    end.setMonth(end.getMonth() + 6);
+  } else if (plan.id === 3) {
+    end.setMonth(end.getMonth() + 12);
   }
 
-  try {
-    const response = await migrarPlanSuscripcion({
-      subscriptionId: id,
-      newPlanId: planExternalId,
+  if (suscripcion.suscripcion_id_paypal) {
+    const resPaypal = await reviseSubscriptionPayPal({
+      subscription_id: suscripcion.suscripcion_id_paypal,
+      new_plan_id: plan.paypal_plan_id,
     });
 
     return res.status(200).json({
       status: 'success',
-      suscripcion: response,
+      link_pago: resPaypal.links[0].href,
     });
-  } catch (err) {
-    // Caso específico: factura pendiente
-    return next(
-      new AppError(
-        'No puedes migrar de plan porque existe una factura pendiente de pago.',
-        400
-      )
-    );
+  }
+
+  if (suscripcion.flow_subscription_id) {
+    try {
+      const response = await migrarPlanSuscripcion({
+        subscriptionId: suscripcion.flow_subscription_id,
+        newPlanId: plan.flow_plan_id,
+      });
+      await suscripcion.update({
+        status: 'activa',
+        startDate: start,
+        endDate: end,
+        plan_id: plan.id,
+      });
+      return res.status(200).json({
+        status: 'success',
+        suscripcion: response,
+      });
+    } catch (err) {
+      return next(
+        new AppError(
+          'No puedes migrar de plan porque existe una factura pendiente de pago.',
+          400
+        )
+      );
+    }
   }
 });
 
 export const cancelarSuscripcion = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+  const { suscripcion } = req;
 
-  const existSuscripcion = await Suscripcion.findOne({
-    where: {
-      flow_subscription_id: id,
-    },
-  });
-  if (existSuscripcion) {
-    existSuscripcion.update({ status: 'cancelada' });
+  if (suscripcion.suscripcion_id_paypal) {
+    try {
+      // 🔹 Cancelar en PayPal
+      await cancelSubscriptionPayPal({
+        subscription_id: suscripcion.suscripcion_id_paypal,
+      });
+
+      // 🔹 Actualizar estado local (por ejemplo, con Sequelize)
+      await suscripcion.update({
+        status: 'cancelada',
+        endDate: new Date(),
+      });
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Suscripción cancelada correctamente.',
+      });
+    } catch (error) {
+      return next(
+        new AppError('Ocurrió un error al cancelar la suscripción.', 500)
+      );
+    }
   }
-  existSuscripcion.save();
-  if (!id) {
-    return next(new AppError(`La suscripción es obligatoria`, 400));
-  }
 
-  try {
-    const response = await cancelarSuscripcionFlow({
-      subscriptionId: id,
-    });
+  if (suscripcion.flow_subscription_id) {
+    try {
+      await cancelarSuscripcionFlow({
+        subscriptionId: suscripcion.flow_subscription_id,
+      });
 
-    return res.status(200).json({
-      status: 'success',
-      suscripcion: response,
-    });
-  } catch (err) {
-    return next(
-      new AppError(
-        'No puedes migrar de plan porque existe una factura pendiente de pago.',
-        400
-      )
-    );
+      await suscripcion.update({
+        status: 'cancelada',
+        endDate: new Date(),
+      });
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Suscripción cancelada correctamente.',
+      });
+    } catch (error) {
+      return next(
+        new AppError('Ocurrió un error al cancelar la suscripción.', 500)
+      );
+    }
   }
 });

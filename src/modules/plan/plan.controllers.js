@@ -1,6 +1,10 @@
 import { Plan } from './plan.model.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { createPlanFlow } from '../../services/flow.service.js';
+import {
+  createPlanPayPal,
+  createProductPayPal,
+} from '../../services/paypal.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const planes = await Plan.findAll({});
@@ -68,24 +72,61 @@ export const findOne = catchAsync(async (req, res, next) => {
 export const create = catchAsync(async (req, res, next) => {
   const { planId, nombre_plan, precio_plan, intervalo } = req.body;
 
-  const planFlow = await createPlanFlow({
-    planId,
-    name: nombre_plan,
-    amount: precio_plan,
+  // const planFlow = await createPlanFlow({
+  //   planId,
+  //   name: nombre_plan,
+  //   amount: precio_plan,
+  //   interval_count: intervalo,
+  // });
+
+  const planPaypal = await createProductPayPal({
+    product_id: 'PROD-4E113873AC239922K',
+    name: 'Plan Básico',
+    description: '222',
+    amount: '5',
     interval_count: intervalo,
   });
+
   // 2. Guardar el plan en tu BD
-  const newPlan = await Plan.create({
-    nombre_plan,
-    precio_plan,
-    intervalo,
-    flow_plan_id: planFlow.planId,
-  });
+  // const newPlan = await Plan.create({
+  //   nombre_plan,
+  //   precio_plan,
+  //   intervalo,
+  //   flow_plan_id: planFlow.planId,
+  // });
+  console.log(planPaypal);
 
   return res.status(201).json({
     status: 'success',
-    plan: newPlan,
-    planFlow,
+    planPaypal,
+  });
+});
+
+// async function createPlan() {
+//   const planPaypal = await createProductPayPal({
+//     product_id: 'PROD-4E113873AC239922K',
+//     name: 'Plan Pro Crafter',
+//     description: '222',
+//     amount: 55,
+//     interval_count: 12,
+//   });
+//   console.log(planPaypal);
+// }
+
+// createPlan();
+
+export const createProducto = catchAsync(async (req, res, next) => {
+  // const { planId, nombre_plan, precio_plan, intervalo } = req.body;
+
+  const product = await createProductPayPal({
+    name: 'Membresía Premium',
+    description: 'Acceso a funcionalidades avanzadas',
+  });
+  console.log(product);
+
+  return res.status(201).json({
+    status: 'success',
+    product,
   });
 });
 

@@ -42,6 +42,10 @@ const Suscripcion = db.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    suscripcion_id_paypal: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     // Campos adicionales para Flow
     flow_token: {
       type: DataTypes.STRING,

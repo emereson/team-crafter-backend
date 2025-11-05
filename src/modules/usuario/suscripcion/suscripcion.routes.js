@@ -1,5 +1,7 @@
 import express from 'express';
 import * as suscripcionController from './suscripcion.controllers.js';
+import * as suscripcionMiddleware from './suscripcion.middleware.js';
+
 import * as planMiddleware from '../../plan/plan.middleware.js';
 import * as authMiddleware from '../../usuario/user/auth.middleware.js';
 
@@ -15,11 +17,24 @@ router.post(
   planMiddleware.validExistPlan,
   suscripcionController.crearSuscripcion
 );
-router.patch('/:id', suscripcionController.migrarPlan);
+router.post(
+  '/paypal/:id',
+  planMiddleware.validExistPlan,
+  suscripcionController.crearSuscripcionPaypal
+);
+router.patch(
+  '/:id',
+  suscripcionMiddleware.validExistSuscripcion,
+  suscripcionController.migrarPlan
+);
 
 router.get('/activa', suscripcionController.obtenerContenidoPremium);
 router.get('/', suscripcionController.findAll);
-router.delete('/:id', suscripcionController.cancelarSuscripcion);
+router.delete(
+  '/:id',
+  suscripcionMiddleware.validExistSuscripcion,
+  suscripcionController.cancelarSuscripcion
+);
 
 // router
 //   .use("/:id", claseMiddleware.validExistClase)

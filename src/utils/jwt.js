@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
 const generateJWT = (id) => {
   return new Promise((resolve, reject) => {
@@ -12,7 +12,6 @@ const generateJWT = (id) => {
       },
       (err, token) => {
         if (err) {
-          console.log(err);
           reject(err);
         }
 

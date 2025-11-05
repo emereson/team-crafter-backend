@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { FRONTEND_URL } from '../../config.js';
+import logger from './logger.js';
 
 export const transporter = nodemailer.createTransport({
   host: 'mail.team-crafter.com', // Servidor SMTP
@@ -16,9 +17,9 @@ export const transporter = nodemailer.createTransport({
 
 transporter.verify((error, success) => {
   if (error) {
-    console.error('Error al conectar con el servidor de correo:', error);
+    logger.error('Error al conectar con el servidor de correo:', error);
   } else {
-    console.log('Conexión exitosa con el servidor de correo');
+    logger.info('Conexión exitosa con el servidor de correo');
   }
 });
 
@@ -119,9 +120,9 @@ export const sendConfirmationEmail = async (
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`📩 Correo enviado a: ${correo}, ID: ${info.messageId}`);
+    logger.info(`📩 Correo enviado a: ${correo}, ID: ${info.messageId}`);
   } catch (error) {
-    console.error(`❌ Error al enviar el correo electrónico:`, error);
+    logger.error(`❌ Error al enviar el correo electrónico:`, error);
   }
 };
 
@@ -230,7 +231,7 @@ export const sendPasswordRecoveryEmail = async (
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(
+    logger.info(
       `🔐 Correo de recuperación enviado a: ${correo}, ID: ${info.messageId}`
     );
 
@@ -240,7 +241,7 @@ export const sendPasswordRecoveryEmail = async (
       message: 'Correo de recuperación enviado exitosamente',
     };
   } catch (error) {
-    console.error(`❌ Error al enviar el correo de recuperación:`, error);
+    logger.error(`❌ Error al enviar el correo de recuperación:`, error);
 
     return {
       success: false,
@@ -451,7 +452,7 @@ export const sendRecursoCaducado = async (
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(
+    logger.info(
       `EXPIRADO TEAM CRAFTER enviado: ${correo_usuario}, ID: ${info.messageId}`
     );
 
@@ -461,7 +462,7 @@ export const sendRecursoCaducado = async (
       message: 'EXPIRADO TEAM CRAFTER enviado correctamente',
     };
   } catch (error) {
-    console.error(`❌ Error al enviar el correo EXPIRADO TEAM CRAFTER:`, error);
+    logger.error(`❌ Error al enviar el correo EXPIRADO TEAM CRAFTER:`, error);
 
     return {
       success: false,

@@ -36,6 +36,9 @@ router.post(
   userController.resultadoRegistrarTarjeta
 );
 
+router.get('/resultado-paypal', userController.resultadoPaypal);
+router.get('/migracion-paypal', userController.migrarPaypal);
+
 router.post('/datos-cliente-flow/:id', userController.datosClienteFlow);
 
 router.use(authMiddleware.protect);
