@@ -9,6 +9,7 @@ export const findAll = catchAsync(async (req, res, next) => {
   const descargas = await Descargas.findAll({
     where: { usuario_id: sessionUser.id },
     include: [{ model: Recurso, as: 'recurso' }],
+    order: [['id', 'desc']],
   });
 
   return res.status(200).json({

@@ -3,13 +3,16 @@ import { Notificaciones } from './notificaciones.model.js';
 
 export const findAllUsuarios = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
+
   const notificacionesUser = await Notificaciones.findAll({
     where: { usuario_id: sessionUser.id },
   });
 
-  const notificacionesGlobal = await Notificaciones.findAll({});
+  const notificacionesGlobal = await Notificaciones.findAll();
 
-  const notificaciones = [...notificacionesUser, ...notificacionesGlobal];
+  const notificaciones = [...notificacionesUser, ...notificacionesGlobal].sort(
+    (a, b) => b.id - a.id
+  );
 
   return res.status(200).json({
     status: 'Success',

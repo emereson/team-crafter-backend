@@ -26,6 +26,7 @@ export const findAll = catchAsync(async (req, res, next) => {
         [Op.or]: ['activa', 'expirada', 'cancelada'],
       },
     },
+    order: [['id', 'desc']],
   });
 
   return res.status(200).json({
