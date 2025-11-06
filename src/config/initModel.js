@@ -6,6 +6,7 @@ import { Foro } from '../modules/modulesForos/foro/foro.model.js';
 import { RespuestaComentarioForo } from '../modules/modulesForos/respuestaComentarioForo/respuestaComentarioForo.model.js';
 import { Plan } from '../modules/plan/plan.model.js';
 import { Recurso } from '../modules/recurso/recurso.model.js';
+import { Descargas } from '../modules/usuario/descargas/descargas.model.js';
 import { Favorito } from '../modules/usuario/favoritos/favorito.model.js';
 import { Suscripcion } from '../modules/usuario/suscripcion/suscripcion.model.js';
 import { User } from '../modules/usuario/user/user.model.js';
@@ -94,6 +95,15 @@ function initModel() {
   ComentarioForo.hasMany(RespuestaComentarioForo, {
     foreignKey: 'comentario_foro_id',
     as: 'respuesta_comentarios_foros',
+  });
+
+  Descargas.belongsTo(Recurso, {
+    foreignKey: 'recurso_id',
+    as: 'recurso',
+  });
+  Recurso.hasMany(Descargas, {
+    foreignKey: 'recurso_id',
+    as: 'descargas',
   });
 }
 

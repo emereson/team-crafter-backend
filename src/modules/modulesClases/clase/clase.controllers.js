@@ -100,6 +100,7 @@ export const findViewClase = catchAsync(async (req, res, next) => {
 export const createClase = catchAsync(async (req, res, next) => {
   const {
     video_clase,
+    poster_url,
     duracion_video,
     titulo_clase,
     descripcion_clase,
@@ -109,6 +110,7 @@ export const createClase = catchAsync(async (req, res, next) => {
 
   const clase = await Clase.create({
     video_clase,
+    poster_url,
     duracion_video,
     titulo_clase,
     descripcion_clase,
@@ -135,6 +137,7 @@ export const updateClase = catchAsync(async (req, res, next) => {
   const { clase } = req;
   const {
     video_clase,
+    poster_url,
     duracion_video,
     titulo_clase,
     descripcion_clase,
@@ -144,6 +147,7 @@ export const updateClase = catchAsync(async (req, res, next) => {
 
   const updateData = {
     video_clase,
+    poster_url,
     duracion_video,
     titulo_clase,
     descripcion_clase,

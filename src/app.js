@@ -34,6 +34,7 @@ import { notificacionesRouter } from './modules/notificaciones/notificaciones.ro
 import { planRouter } from './modules/plan/plan.routes.js';
 import { bannerRouter } from './modules/banner/banner.routes.js';
 import { webhookRouter } from './modules/webhooks/webhooks.routes.js';
+import { descargasRouter } from './modules/usuario/descargas/descargas.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -98,6 +99,8 @@ app.use('/api/v1/like-comentario-foro', likeComentarioForoRouter);
 app.use('/api/v1/config-notificacion', configNotificacionesRouter);
 app.use('/api/v1/notificaciones', notificacionesRouter);
 app.use('/api/v1/banner', bannerRouter);
+
+app.use('/api/v1/descargas', descargasRouter);
 
 // webhooks
 app.use('/api/v1/webhooks', webhookRouter);

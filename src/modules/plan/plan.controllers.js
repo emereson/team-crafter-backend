@@ -94,7 +94,6 @@ export const create = catchAsync(async (req, res, next) => {
   //   intervalo,
   //   flow_plan_id: planFlow.planId,
   // });
-  console.log(planPaypal);
 
   return res.status(201).json({
     status: 'success',
@@ -110,7 +109,6 @@ export const create = catchAsync(async (req, res, next) => {
 //     amount: 55,
 //     interval_count: 12,
 //   });
-//   console.log(planPaypal);
 // }
 
 // createPlan();
@@ -122,7 +120,6 @@ export const createProducto = catchAsync(async (req, res, next) => {
     name: 'Membresía Premium',
     description: 'Acceso a funcionalidades avanzadas',
   });
-  console.log(product);
 
   return res.status(201).json({
     status: 'success',

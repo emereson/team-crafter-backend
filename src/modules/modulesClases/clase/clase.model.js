@@ -15,6 +15,12 @@ const Clase = db.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+
+    poster_url: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+
     duracion_video: {
       type: DataTypes.STRING,
       allowNull: false,
