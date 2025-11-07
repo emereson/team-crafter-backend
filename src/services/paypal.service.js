@@ -3,6 +3,7 @@ import {
   PAYPAL_CLIENT_ID,
   PAYPAL_SECRET,
   PAYPAL_BASE_URL,
+  BACKEND_URL,
 } from '../../config.js';
 import logger from '../utils/logger.js';
 
@@ -152,8 +153,8 @@ export const createSubscriptionPayPal = async ({
     application_context: {
       brand_name: 'Team Crafter',
       user_action: 'SUBSCRIBE_NOW',
-      return_url: 'http://localhost:3010/api/v1/user/resultado-paypal',
-      cancel_url: 'http://localhost:3010/api/v1/user/resultado-paypal',
+      return_url: `${BACKEND_URL}/user/resultado-paypal`,
+      cancel_url: `${BACKEND_URL}/user/resultado-paypal`,
     },
   };
 
