@@ -392,8 +392,8 @@ export const resultadoPaypal = catchAsync(async (req, res, next) => {
     await suscripcion.update({ status: 'cancelada' });
   }
 
-  // res.redirect('https://app.team-crafter.com/compra-completada');
-  res.redirect('http://localhost:3000/compra-completada');
+  res.redirect('https://app.team-crafter.com/compra-completada');
+  // res.redirect('http://localhost:3000/compra-completada');
 });
 
 export const datosClienteFlow = catchAsync(async (req, res, next) => {
@@ -444,6 +444,6 @@ export const migrarPaypal = catchAsync(async (req, res, next) => {
     });
   }
 
-  // res.redirect('https://app.team-crafter.com/compra-completada');
-  res.redirect('http://localhost:3000/dashboard/mi-cuenta');
+  res.redirect('https://app.team-crafter.com/compra-completada');
+  // res.redirect('http://localhost:3000/dashboard/mi-cuenta');
 });

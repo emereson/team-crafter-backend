@@ -193,10 +193,8 @@ export const reviseSubscriptionPayPal = async ({
     application_context: {
       brand_name: 'Team Crafter',
       user_action: 'SUBSCRIBE_NOW',
-      return_url:
-        return_url || 'http://localhost:3010/api/v1/user/migracion-paypal',
-      cancel_url:
-        cancel_url || 'http://localhost:3010/api/v1/user/migracion-paypal',
+      return_url: return_url || `${BACKEND_URL}/user/migracion-paypal`,
+      cancel_url: cancel_url || `${BACKEND_URL}/user/migracion-paypal`,
     },
   };
 
