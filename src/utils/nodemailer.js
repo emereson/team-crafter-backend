@@ -103,7 +103,6 @@ export const sendConfirmationEmail = async (
         <div style="padding: 20px 30px; background-color: white; text-align: center; border-top: 1px solid #f0f0f0;">
             <p style="font-size: 12px; color: #999999; margin: 0; line-height: 1.4;">
                 Para asegurarte de seguir recibiendo estos correos electrónicos, agrega nuestro correo electrónico a tu libreta de direcciones. 
-                <a href="#" style="color: #f06292; text-decoration: underline;">Darse de baja</a>
             </p>
         </div>
         
@@ -214,7 +213,6 @@ export const sendPasswordRecoveryEmail = async (
         <div style="padding: 20px 30px; background-color: white; text-align: center; border-top: 1px solid #f0f0f0;">
             <p style="font-size: 12px; color: #999999; margin: 0; line-height: 1.4;">
                 Para asegurarte de seguir recibiendo estos correos electrónicos, agrega nuestro correo electrónico a tu libreta de direcciones. 
-                <a href="#" style="color: #f06292; text-decoration: underline;">Darse de baja</a>
             </p>
         </div>
         
