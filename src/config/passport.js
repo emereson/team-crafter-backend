@@ -36,8 +36,7 @@ passport.use(
             external_id: user.id,
           });
 
-          user.customerId = resFlow.customerId;
-          await user.save();
+          await user.update({ customerId: resFlow.customerId });
         }
 
         // ✅ Generar JWT
