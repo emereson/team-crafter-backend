@@ -140,7 +140,7 @@ export const updateRecurso = catchAsync(async (req, res) => {
   const documento = req.files?.doc ? req.files.doc[0] : null;
 
   const updateData = {
-    clase_id,
+    clase_id: clase_id || recurso.clase_id,
     nombre_recurso,
     descripcion_recurso,
     fecha_caducidad,
