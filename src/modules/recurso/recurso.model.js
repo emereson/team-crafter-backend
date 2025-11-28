@@ -12,7 +12,7 @@ const Recurso = db.define(
     },
     clase_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     nombre_recurso: {
       type: DataTypes.STRING,

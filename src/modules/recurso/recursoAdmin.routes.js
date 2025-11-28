@@ -22,11 +22,27 @@ router.post(
   ]),
   recursoController.createRecurso
 );
+
+router.post(
+  '/',
+  uploadDoc.fields([
+    { name: 'img', maxCount: 1 },
+    { name: 'doc', maxCount: 1 },
+  ]),
+  recursoController.create
+);
+
 router
   .use('/:id', recursoMiddleware.validExistRecurso)
   .route('/:id')
   .get(recursoController.findOne)
-  .patch(recursoController.updateRecurso)
+  .patch(
+    uploadDoc.fields([
+      { name: 'img', maxCount: 1 },
+      { name: 'doc', maxCount: 1 },
+    ]),
+    recursoController.updateRecurso
+  )
   .delete(recursoController.deleteRecurso);
 
 export { router as recursoAdminRouter };

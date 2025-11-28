@@ -192,7 +192,7 @@ export const createSubscriptionFlow = async ({
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
 
-    return response.data; // Devuelve un objeto { url, token }
+    return response.data;
   } catch (err) {
     logger.error(
       '❌ Error en createSubscriptionFlow:',

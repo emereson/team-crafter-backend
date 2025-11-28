@@ -86,24 +86,80 @@ export const createRecurso = catchAsync(async (req, res, next) => {
   });
 });
 
-export const updateRecurso = catchAsync(async (req, res) => {
-  const { recurso } = req;
-  const { nombre_recurso, descripcion_recurso, fecha_caducidad, tipo_recurso } =
-    req.body;
-
-  const updateData = {
+export const create = catchAsync(async (req, res, next) => {
+  const {
+    clase_id,
     nombre_recurso,
     descripcion_recurso,
     fecha_caducidad,
     tipo_recurso,
+    categoria_recurso,
+  } = req.body;
+
+  const imagen = req.files?.img ? req.files.img[0] : null;
+  const documento = req.files?.doc ? req.files.doc[0] : null;
+
+  const recurso = await Recurso.create({
+    clase_id,
+    nombre_recurso,
+    descripcion_recurso,
+    img_recurso: imagen.filename,
+    link_recurso: documento.filename,
+    fecha_caducidad,
+    tipo_recurso,
+    categoria_recurso,
+  });
+
+  await Notificaciones.create({
+    notificacion_global: true,
+    tipo_notificacion: 'noticias',
+    titulo: 'Nuevo recurso añadido',
+    contenido: `Descargar el nuevo ${nombre_recurso}`,
+    url_notificacion: `${BACKEND_URL}/uploads/doc/${documento.filename}`,
+  });
+
+  res.status(201).json({
+    status: 'success',
+    message: 'the recurso has been created successfully!',
+    recurso,
+  });
+});
+
+export const updateRecurso = catchAsync(async (req, res) => {
+  const { recurso } = req;
+  const {
+    clase_id,
+    nombre_recurso,
+    descripcion_recurso,
+    fecha_caducidad,
+    tipo_recurso,
+    categoria_recurso,
+  } = req.body;
+
+  const imagen = req.files?.img ? req.files.img[0] : null;
+  const documento = req.files?.doc ? req.files.doc[0] : null;
+
+  const updateData = {
+    clase_id,
+    nombre_recurso,
+    descripcion_recurso,
+    fecha_caducidad,
+    tipo_recurso,
+    categoria_recurso,
   };
 
-  if (req.file) {
+  if (imagen) {
+    if (recurso.img_recurso) {
+      await deleteImage(recurso.img_recurso);
+    }
+    updateData.img_recurso = imagen.filename;
+  }
+
+  if (documento) {
     if (recurso.link_recurso) {
       await deleteDocument(recurso.link_recurso);
     }
-
-    updateData.link_recurso = req.file.filename;
+    updateData.link_recurso = documento.filename;
   }
 
   await recurso.update(updateData);
