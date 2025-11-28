@@ -30,10 +30,6 @@ const Descuento = db.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    medio_descuento: {
-      type: DataTypes.ENUM('online', 'offline'),
-      allowNull: false,
-    },
     codigo_descuento: {
       type: DataTypes.STRING,
       allowNull: false,
