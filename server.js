@@ -5,26 +5,46 @@ import { actualizarSuscripcionesExpiradas } from './src/modules/usuario/suscripc
 import initModel from './src/config/initModel.js';
 import logger from './src/utils/logger.js';
 
-db.authenticate()
-  .then(() => {
-    logger.info(`✅ Database authenticated!`);
-    return initModel(); // Inicializa los modelos y asociaciones
-  })
-  .then(() => {
-    return db.sync(); // Sincroniza tablas
-  })
-  .then(() => {
-    logger.info(`✅ Database synced!`);
-    actualizarSuscripcionesExpiradas(); // Inicia el cron
+async function startServer() {
+  try {
+    logger.info('⏳ Authenticating database...');
+    await db.authenticate();
+    logger.info('✅ Database authenticated!');
 
-    // Aquí creas el server y aumentas el timeout
+    logger.info('⏳ Initializing models...');
+    await initModel();
+
+    logger.info('⏳ Syncing database...');
+    await db.sync();
+    logger.info('✅ Database synced!');
+
+    // Manejar errores dentro de esta función
+    try {
+      await actualizarSuscripcionesExpiradas();
+    } catch (err) {
+      logger.error('❌ Error en actualizarSuscripcionesExpiradas:', err);
+    }
+
+    // Crear servidor
     const server = app.listen(PORT, () => {
       logger.info(`🚀 App running on port ${PORT}`);
     });
 
-    // Aumentar tiempo de espera a 10 minutos
+    // Timeout a 10 min
     server.setTimeout(10 * 60 * 1000);
-  })
-  .catch((err) => {
-    logger.error('❌ Error connecting to the database:', err);
-  });
+  } catch (err) {
+    logger.error('❌ Fatal error al iniciar el servidor:', err);
+    process.exit(1);
+  }
+}
+
+// Capturar errores globales
+process.on('unhandledRejection', (reason) => {
+  logger.error('🚨 Unhandled Rejection:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  logger.error('🚨 Uncaught Exception:', err);
+});
+
+startServer();
