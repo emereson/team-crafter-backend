@@ -3,16 +3,14 @@ import { FRONTEND_URL } from '../../config.js';
 import logger from './logger.js';
 
 export const transporter = nodemailer.createTransport({
-  host: 'mail.team-crafter.com', // Servidor SMTP
-  port: 465, // Puerto SMTP seguro
-  secure: true, // true si usas 465, false si usas 587
+  host: 'mail.team-crafter.com',
+  port: 587,
+  secure: false, // porque 587 usa STARTTLS
   auth: {
-    user: process.env.EMAIL, // ventas@team-crafter.com
-    pass: process.env.PASSWORD_EMAIL, // contraseña del correo
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD_EMAIL,
   },
-  tls: {
-    rejectUnauthorized: false, // evita errores si el certificado SSL no es válido
-  },
+  tls: { rejectUnauthorized: false },
 });
 
 transporter.verify((error, success) => {
