@@ -14,8 +14,6 @@ export const findAll = catchAsync(async (req, res, next) => {
 
   const foroIds = likeForos.map((like) => like.foro_id);
 
-  console.log(foroIds);
-
   return res.status(200).json({
     status: 'success',
     results: foroIds.length,

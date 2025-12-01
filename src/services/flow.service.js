@@ -108,12 +108,9 @@ export const listPlanFlow = async () => {
 
   try {
     const response = await axios.get(`${FLOW_URL}/plans/list?${queryString}`);
-    console.log(response.data);
 
     return response.data;
   } catch (err) {
-    console.log(err);
-
     // logger.error('❌ Error :', err.response?.data || err.message);
     throw err.response?.data || err;
   }

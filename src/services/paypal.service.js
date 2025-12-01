@@ -38,7 +38,6 @@ export const findAllProdctosPaypal = async () => {
       Accept: 'application/json',
     },
   });
-  console.log(data);
 
   // PROD-34W534599M8489241
 

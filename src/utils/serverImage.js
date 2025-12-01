@@ -37,8 +37,6 @@ export const deleteImage = async (filename) => {
     await axios.delete(deleteUrl);
     logger.info(`Archivo huérfano ${filename} eliminado con éxito de Laravel.`);
   } catch (error) {
-    console.log(error);
-
     // Logueamos el error pero no lo relanzamos, ya que el error principal es el de la transacción.
     logger.error(
       `Error al intentar eliminar archivo huérfano ${filename} de Laravel:`,
