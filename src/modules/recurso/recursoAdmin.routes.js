@@ -1,5 +1,5 @@
 import express from 'express';
-import { uploadDoc } from '../../utils/multer.js';
+import { upload } from '../../utils/multer.js';
 
 import * as recursoMiddleware from './recurso.middleware.js';
 import * as recursoController from './recurso.controllers.js';
@@ -16,7 +16,7 @@ router.get('/', recursoController.findAll);
 router.post(
   '/clase/:id',
   claseMiddleware.validExistClase,
-  uploadDoc.fields([
+  upload.fields([
     { name: 'img', maxCount: 1 },
     { name: 'doc', maxCount: 1 },
   ]),
@@ -25,7 +25,7 @@ router.post(
 
 router.post(
   '/',
-  uploadDoc.fields([
+  upload.fields([
     { name: 'img', maxCount: 1 },
     { name: 'doc', maxCount: 1 },
   ]),
@@ -37,7 +37,7 @@ router
   .route('/:id')
   .get(recursoController.findOne)
   .patch(
-    uploadDoc.fields([
+    upload.fields([
       { name: 'img', maxCount: 1 },
       { name: 'doc', maxCount: 1 },
     ]),

@@ -1,10 +1,9 @@
 import { Recurso } from './recurso.model.js';
 import { catchAsync } from '../../utils/catchAsync.js';
-import { deleteDocument, deleteImage } from '../../utils/deleteUploads.js';
+import { deleteImage, uploadImage } from '../../utils/serverImage.js';
 import { Clase } from '../modulesClases/clase/clase.model.js';
 import { sendRecursoCaducado } from '../../utils/nodemailer.js';
 import { Notificaciones } from '../notificaciones/notificaciones.model.js';
-import { BACKEND_URL } from '../../../config.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { categoria_recurso, tipo_recurso, cuatro_ultimos, order } = req.query;
@@ -64,8 +63,8 @@ export const createRecurso = catchAsync(async (req, res, next) => {
     clase_id: clase.id,
     nombre_recurso,
     descripcion_recurso,
-    img_recurso: imagen.filename,
-    link_recurso: documento.filename,
+    img_recurso: await uploadImage(imagen),
+    link_recurso: await uploadImage(documento),
     fecha_caducidad,
     tipo_recurso,
     categoria_recurso,
@@ -76,7 +75,6 @@ export const createRecurso = catchAsync(async (req, res, next) => {
     tipo_notificacion: 'noticias',
     titulo: 'Nuevo recurso añadido',
     contenido: `Descargar el nuevo ${nombre_recurso}`,
-    url_notificacion: `${BACKEND_URL}/uploads/doc/${documento.filename}`,
   });
 
   res.status(201).json({
@@ -103,8 +101,8 @@ export const create = catchAsync(async (req, res, next) => {
     clase_id,
     nombre_recurso,
     descripcion_recurso,
-    img_recurso: imagen.filename,
-    link_recurso: documento.filename,
+    img_recurso: await uploadImage(imagen),
+    link_recurso: await uploadImage(documento),
     fecha_caducidad,
     tipo_recurso,
     categoria_recurso,
@@ -115,7 +113,6 @@ export const create = catchAsync(async (req, res, next) => {
     tipo_notificacion: 'noticias',
     titulo: 'Nuevo recurso añadido',
     contenido: `Descargar el nuevo ${nombre_recurso}`,
-    url_notificacion: `${BACKEND_URL}/uploads/doc/${documento.filename}`,
   });
 
   res.status(201).json({
@@ -140,7 +137,7 @@ export const updateRecurso = catchAsync(async (req, res) => {
   const documento = req.files?.doc ? req.files.doc[0] : null;
 
   const updateData = {
-    clase_id: clase_id,
+    clase_id: clase_id ? clase_id : null,
     nombre_recurso,
     descripcion_recurso,
     fecha_caducidad,
@@ -152,14 +149,14 @@ export const updateRecurso = catchAsync(async (req, res) => {
     if (recurso.img_recurso) {
       await deleteImage(recurso.img_recurso);
     }
-    updateData.img_recurso = imagen.filename;
+    updateData.img_recurso = await uploadImage(imagen);
   }
 
   if (documento) {
     if (recurso.link_recurso) {
-      await deleteDocument(recurso.link_recurso);
+      await deleteImage(recurso.link_recurso);
     }
-    updateData.link_recurso = documento.filename;
+    updateData.link_recurso = await uploadImage(documento);
   }
 
   await recurso.update(updateData);
@@ -191,7 +188,7 @@ export const deleteRecurso = catchAsync(async (req, res) => {
   const { recurso } = req;
 
   if (recurso.link_recurso) {
-    await deleteDocument(recurso.link_recurso);
+    await deleteImage(recurso.link_recurso);
   }
 
   if (recurso.img_recurso) {

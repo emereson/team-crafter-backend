@@ -1,4 +1,3 @@
-import { deleteImage } from '../../../utils/deleteUploads.js';
 import { catchAsync } from '../../../utils/catchAsync.js';
 import { ComentarioForo } from './comentarioForo.model.js';
 import { User } from '../../usuario/user/user.model.js';

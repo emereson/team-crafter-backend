@@ -1,6 +1,6 @@
 import { Banner } from './banner.model.js';
 import { catchAsync } from '../../utils/catchAsync.js';
-import { deleteImage } from '../../utils/deleteUploads.js';
+import { deleteImage, uploadImage } from '../../utils/serverImage.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const banners = await Banner.findAll({});
@@ -22,7 +22,7 @@ export const findOne = catchAsync(async (req, res, next) => {
 });
 
 export const create = catchAsync(async (req, res, next) => {
-  const img_url = req?.file?.filename;
+  let img_url = await uploadImage(req?.file);
 
   const banner = await Banner.create({
     url_banner: img_url,
@@ -43,7 +43,7 @@ export const update = catchAsync(async (req, res) => {
     if (banner.url_banner) {
       await deleteImage(banner.url_banner);
     }
-    updateData.url_banner = req.file.filename;
+    updateData.url_banner = await uploadImage(req.file);
   }
   await banner.update(updateData);
 
@@ -60,8 +60,7 @@ export const deleteBanner = catchAsync(async (req, res) => {
   const { banner } = req;
 
   if (banner.url_banner) {
-    const ress = await deleteImage(banner.url_banner);
-    console.log(ress);
+    await deleteImage(banner.url_banner);
   }
   await banner.destroy();
 

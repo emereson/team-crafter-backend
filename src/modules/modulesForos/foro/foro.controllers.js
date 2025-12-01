@@ -1,8 +1,8 @@
-import { deleteImage } from '../../../utils/deleteUploads.js';
 import { catchAsync } from '../../../utils/catchAsync.js';
 import { Foro } from './foro.model.js';
 import { User } from '../../usuario/user/user.model.js';
 import { ComentarioForo } from '../comentarioForo/comentarioForo.model.js';
+import { deleteImage, uploadImage } from '../../../utils/serverImage.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { order } = req.query;
@@ -35,7 +35,11 @@ export const create = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
   const { titulo_foro, contenido_foro, categoria_foro } = req.body;
 
-  const img = req?.file?.filename;
+  let img;
+
+  if (req?.file) {
+    img = await uploadImage(file);
+  }
 
   const foro = await Foro.create({
     user_id: sessionUser.id,
@@ -67,7 +71,7 @@ export const update = catchAsync(async (req, res) => {
       await deleteImage(foro.img_foro);
     }
 
-    updateData.img_foro = req.file.filename;
+    updateData.img_foro = uploadImage(req.file);
   }
 
   await foro.update({

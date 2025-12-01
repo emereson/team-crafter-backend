@@ -1,11 +1,11 @@
-import { Descuento } from "./descuento.model.js";
-import { catchAsync } from "../../utils/catchAsync.js";
+import { Descuento } from './descuento.model.js';
+import { catchAsync } from '../../utils/catchAsync.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const descuentos = await Descuento.findAll({});
 
   return res.status(200).json({
-    status: "Success",
+    status: 'Success',
     results: descuentos.length,
     descuentos,
   });
@@ -15,7 +15,7 @@ export const findOne = catchAsync(async (req, res, next) => {
   const { descuento } = req;
 
   return res.status(200).json({
-    status: "Success",
+    status: 'Success',
     descuento,
   });
 });
@@ -44,8 +44,8 @@ export const createDescuento = catchAsync(async (req, res, next) => {
   });
 
   res.status(201).json({
-    status: "success",
-    message: "the descuento has been created successfully!",
+    status: 'success',
+    message: 'the descuento has been created successfully!',
     descuento,
   });
 });
@@ -75,8 +75,8 @@ export const updateDescuento = catchAsync(async (req, res) => {
   });
 
   return res.status(200).json({
-    status: "success",
-    message: "descuento information has been updated",
+    status: 'success',
+    message: 'descuento information has been updated',
     descuento,
   });
 });
@@ -87,7 +87,7 @@ export const deleteDescuento = catchAsync(async (req, res) => {
   await descuento.destroy();
 
   return res.status(200).json({
-    status: "success",
+    status: 'success',
     message: `The descuento with id: ${descuento.id} has been deleted`,
   });
 });

@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/login', adminController.login);
 router.get('/', adminController.findAll);
 
-router.use(adminAuthMiddleware.protect);
+// router.use(adminAuthMiddleware.protect);
 router.post('/signup', adminController.signup);
 
 router

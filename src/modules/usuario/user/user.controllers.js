@@ -8,20 +8,18 @@ import {
   sendConfirmationEmail,
   sendPasswordRecoveryEmail,
 } from '../../../utils/nodemailer.js';
-import { deleteImage } from '../../../utils/deleteUploads.js';
 import { ConfigNotificaciones } from '../configNotificaciones/configNotificaciones.model.js';
 import {
   createCustomerFlow,
   createSubscriptionFlow,
   datosCliente,
-  listadoSuscripciones,
   registrarTarjeta,
   resultadoRegistroTarjeta,
 } from '../../../services/flow.service.js';
 import { Suscripcion } from '../suscripcion/suscripcion.model.js';
-import passport from 'passport';
 import { getSubscriptionPayPal } from '../../../services/paypal.service.js';
 import { Plan } from '../../plan/plan.model.js';
+import { uploadImage, deleteImage } from '../../../utils/serverImage.js';
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
 
@@ -38,8 +36,6 @@ export const findPerfilSuscripciones = catchAsync(async (req, res, next) => {
   const perfil = await User.findOne({
     where: { id: sessionUser.id },
   });
-
-  const suscripciones = listadoSuscripciones({ customerId: perfil.customerId });
 
   return res.status(200).json({
     status: 'Success',
@@ -264,7 +260,7 @@ export const update = catchAsync(async (req, res) => {
       await deleteImage(user.foto_perfil);
     }
 
-    updateData.foto_perfil = req.file.filename;
+    updateData.foto_perfil = uploadImage(req.file);
   }
 
   if (newPassword.length > 3) {
