@@ -4,8 +4,8 @@ import logger from './logger.js';
 
 export const transporter = nodemailer.createTransport({
   host: 'mail.team-crafter.com', // Servidor SMTP
-  port: 465, // Puerto SMTP seguro
-  secure: true, // true si usas 465, false si usas 587
+  port: 587, // Puerto SMTP seguro
+  secure: false, // true si usas 465, false si usas 587
   auth: {
     user: process.env.EMAIL, // ventas@team-crafter.com
     pass: process.env.PASSWORD_EMAIL, // contraseña del correo
