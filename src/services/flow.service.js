@@ -3,8 +3,8 @@ import axios from 'axios';
 import { FLOW_API_KEY, FLOW_SECRET } from '../../config.js';
 import logger from '../utils/logger.js';
 
-const FLOW_URL = 'https://sandbox.flow.cl/api';
-// const FLOW_URL = 'https://www.flow.cl/api';
+// const FLOW_URL = 'https://sandbox.flow.cl/api';
+const FLOW_URL = 'https://www.flow.cl/api';
 
 /**
  * Genera firma HMAC-SHA256
@@ -108,10 +108,13 @@ export const listPlanFlow = async () => {
 
   try {
     const response = await axios.get(`${FLOW_URL}/plans/list?${queryString}`);
+    console.log(response.data);
 
     return response.data;
   } catch (err) {
-    logger.error('❌ Error :', err.response?.data || err.message);
+    console.log(err);
+
+    // logger.error('❌ Error :', err.response?.data || err.message);
     throw err.response?.data || err;
   }
 };
@@ -123,7 +126,7 @@ export const registrarTarjeta = async ({ customerId }) => {
     apiKey: FLOW_API_KEY,
     customerId: customerId,
     url_return:
-      'https://end-point.team-crafter.com/api/v1/user/resultado-registro-tarjeta',
+      'https://team-crafter-backend-production.up.railway.app/api/v1/user/resultado-registro-tarjeta',
   };
 
   const s = signParams(params);

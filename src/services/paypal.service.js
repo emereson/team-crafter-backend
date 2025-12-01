@@ -38,11 +38,14 @@ export const findAllProdctosPaypal = async () => {
       Accept: 'application/json',
     },
   });
+  console.log(data);
 
-  // PROD-0ER08354P8431933M
+  // PROD-34W534599M8489241
 
   return data; // Devuelve el plan creado
 };
+
+// findAllProdctosPaypal();
 
 export const createProductPayPal = async ({ name, description }) => {
   const token = await getAccessTokenPaypal();
@@ -127,10 +130,10 @@ export const createPlanPayPal = async ({
 };
 
 // createPlanPayPal({
-//   product_id: 'PROD-0ER08354P8431933M',
-//   name: 'Plan Pro Crafter',
-//   interval_count: 12,
-//   amount: 55,
+//   product_id: 'PROD-34W534599M8489241',
+//   name: 'Plan Básico',
+//   interval_count: 5,
+//   amount: 1,
 // });
 
 export const createSubscriptionPayPal = async ({

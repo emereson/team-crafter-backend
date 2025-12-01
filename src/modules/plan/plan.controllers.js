@@ -1,10 +1,10 @@
 import { Plan } from './plan.model.js';
 import { catchAsync } from '../../utils/catchAsync.js';
-import { createPlanFlow } from '../../services/flow.service.js';
 import {
   createPlanPayPal,
   createProductPayPal,
 } from '../../services/paypal.service.js';
+import { createPlanFlow } from '../../services/flow.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const planes = await Plan.findAll({});
@@ -72,32 +72,32 @@ export const findOne = catchAsync(async (req, res, next) => {
 export const create = catchAsync(async (req, res, next) => {
   const { planId, nombre_plan, precio_plan, intervalo } = req.body;
 
-  // const planFlow = await createPlanFlow({
-  //   planId,
-  //   name: nombre_plan,
-  //   amount: precio_plan,
-  //   interval_count: intervalo,
-  // });
+  const planFlow = await createPlanFlow({
+    planId,
+    name: nombre_plan,
+    amount: precio_plan,
+    interval_count: intervalo,
+  });
 
-  const planPaypal = await createProductPayPal({
-    product_id: 'PROD-4E113873AC239922K',
-    name: 'Plan Básico',
-    description: '222',
-    amount: '5',
+  const planPaypal = await createPlanPayPal({
+    product_id: 'PROD-34W534599M8489241',
+    name: nombre_plan,
+    amount: precio_plan,
     interval_count: intervalo,
   });
 
   // 2. Guardar el plan en tu BD
-  // const newPlan = await Plan.create({
-  //   nombre_plan,
-  //   precio_plan,
-  //   intervalo,
-  //   flow_plan_id: planFlow.planId,
-  // });
+  const newPlan = await Plan.create({
+    nombre_plan,
+    precio_plan,
+    interval_count: intervalo,
+    flow_plan_id: planFlow.planId,
+    paypal_plan_id: planPaypal.id,
+  });
 
   return res.status(201).json({
     status: 'success',
-    planPaypal,
+    newPlan,
   });
 });
 
