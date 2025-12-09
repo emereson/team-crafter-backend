@@ -18,6 +18,10 @@ const Recurso = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    nombre_recurso_en: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     img_recurso: {
       type: DataTypes.STRING,
       default:

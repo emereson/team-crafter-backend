@@ -16,7 +16,9 @@ export const buscador = catchAsync(async (req, res, next) => {
     where: {
       [Op.or]: [
         { titulo_clase: { [Op.like]: `%${buscador}%` } },
+        { titulo_clase_en: { [Op.like]: `%${buscador}%` } },
         { descripcion_clase: { [Op.like]: `%${buscador}%` } },
+        { descripcion_clase_en: { [Op.like]: `%${buscador}%` } },
         { '$recurso.nombre_recurso$': { [Op.like]: `%${buscador}%` } }, // Buscar en Recursos
       ],
     },
@@ -103,7 +105,9 @@ export const createClase = catchAsync(async (req, res, next) => {
     poster_url,
     duracion_video,
     titulo_clase,
+    titulo_clase_en,
     descripcion_clase,
+    descripcion_clase_en,
     categoria_clase,
     tutoriales_tips,
   } = req.body;
@@ -113,7 +117,9 @@ export const createClase = catchAsync(async (req, res, next) => {
     poster_url,
     duracion_video,
     titulo_clase,
+    titulo_clase_en,
     descripcion_clase,
+    descripcion_clase_en,
     categoria_clase,
     tutoriales_tips,
   });
@@ -140,7 +146,9 @@ export const updateClase = catchAsync(async (req, res, next) => {
     poster_url,
     duracion_video,
     titulo_clase,
+    titulo_clase_en,
     descripcion_clase,
+    descripcion_clase_en,
     categoria_clase,
     tutoriales_tips,
   } = req.body;
@@ -150,7 +158,9 @@ export const updateClase = catchAsync(async (req, res, next) => {
     poster_url,
     duracion_video,
     titulo_clase,
+    titulo_clase_en,
     descripcion_clase,
+    descripcion_clase_en,
     categoria_clase,
     tutoriales_tips,
   };

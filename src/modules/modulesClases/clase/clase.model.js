@@ -29,11 +29,18 @@ const Clase = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    titulo_clase_en: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     descripcion_clase: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-
+    descripcion_clase_en: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
     nro_reproducciones: {
       type: DataTypes.INTEGER,
       defaultValue: 0,

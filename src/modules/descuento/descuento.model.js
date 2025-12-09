@@ -14,7 +14,15 @@ const Descuento = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    titulo_descuento_en: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     descripcion_descuento: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    descripcion_descuento_en: {
       type: DataTypes.STRING,
       allowNull: false,
     },

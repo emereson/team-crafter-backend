@@ -50,6 +50,7 @@ export const createRecurso = catchAsync(async (req, res, next) => {
   const { clase } = req;
   const {
     nombre_recurso,
+    nombre_recurso_en,
     descripcion_recurso,
     fecha_caducidad,
     tipo_recurso,
@@ -62,6 +63,7 @@ export const createRecurso = catchAsync(async (req, res, next) => {
   const recurso = await Recurso.create({
     clase_id: clase.id,
     nombre_recurso,
+    nombre_recurso_en,
     descripcion_recurso,
     img_recurso: await uploadImage(imagen),
     link_recurso: await uploadImage(documento),
@@ -88,6 +90,7 @@ export const create = catchAsync(async (req, res, next) => {
   const {
     clase_id,
     nombre_recurso,
+    nombre_recurso_en,
     descripcion_recurso,
     fecha_caducidad,
     tipo_recurso,
@@ -100,6 +103,7 @@ export const create = catchAsync(async (req, res, next) => {
   const recurso = await Recurso.create({
     clase_id,
     nombre_recurso,
+    nombre_recurso_en,
     descripcion_recurso,
     img_recurso: await uploadImage(imagen),
     link_recurso: await uploadImage(documento),
@@ -127,6 +131,7 @@ export const updateRecurso = catchAsync(async (req, res) => {
   const {
     clase_id,
     nombre_recurso,
+    nombre_recurso_en,
     descripcion_recurso,
     fecha_caducidad,
     tipo_recurso,
@@ -139,6 +144,7 @@ export const updateRecurso = catchAsync(async (req, res) => {
   const updateData = {
     clase_id: clase_id ? clase_id : null,
     nombre_recurso,
+    nombre_recurso_en,
     descripcion_recurso,
     fecha_caducidad,
     tipo_recurso,

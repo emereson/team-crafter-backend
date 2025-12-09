@@ -23,7 +23,9 @@ export const findOne = catchAsync(async (req, res, next) => {
 export const createDescuento = catchAsync(async (req, res, next) => {
   const {
     titulo_descuento,
+    titulo_descuento_en,
     descripcion_descuento,
+    descripcion_descuento_en,
     tipo_descuento,
     valor_descuento,
     fecha_expiracion,
@@ -34,7 +36,9 @@ export const createDescuento = catchAsync(async (req, res, next) => {
 
   const descuento = await Descuento.create({
     titulo_descuento,
+    titulo_descuento_en,
     descripcion_descuento,
+    descripcion_descuento_en,
     tipo_descuento,
     valor_descuento,
     fecha_expiracion,
@@ -54,7 +58,9 @@ export const updateDescuento = catchAsync(async (req, res) => {
   const { descuento } = req;
   const {
     titulo_descuento,
+    titulo_descuento_en,
     descripcion_descuento,
+    descripcion_descuento_en,
     tipo_descuento,
     valor_descuento,
     fecha_expiracion,
@@ -65,7 +71,9 @@ export const updateDescuento = catchAsync(async (req, res) => {
 
   await descuento.update({
     titulo_descuento,
+    titulo_descuento_en,
     descripcion_descuento,
+    descripcion_descuento_en,
     tipo_descuento,
     valor_descuento,
     fecha_expiracion,
