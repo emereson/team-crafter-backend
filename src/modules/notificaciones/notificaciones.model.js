@@ -22,7 +22,6 @@ const Notificaciones = db.define('notificaciones', {
     allowNull: false,
     defaultValue: false,
   },
-
   titulo: {
     type: DataTypes.STRING,
     allowNull: true,

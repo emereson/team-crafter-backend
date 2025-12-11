@@ -35,7 +35,7 @@ const Descuento = db.define(
       allowNull: false,
     },
     fecha_expiracion: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     codigo_descuento: {
