@@ -5,9 +5,9 @@ import { AppError } from './AppError.js';
 
 export const uploadImage = async (file) => {
   const formData = new FormData();
-  formData.append('image', file.buffer, file.originalname);
+  formData.append('imagen', file.buffer, file.originalname);
 
-  const uploadUrl = `${process.env.SERVER_IMAGE_URL}/image`;
+  const uploadUrl = `${process.env.SERVER_IMAGE_URL}/api/upload`;
 
   try {
     const { data } = await axios.post(uploadUrl, formData);
@@ -30,13 +30,15 @@ export const uploadImage = async (file) => {
 export const deleteImage = async (filename) => {
   if (!filename) return;
 
-  const deleteUrl = `${process.env.SERVER_IMAGE_URL}/delete-image/${filename}`;
+  const deleteUrl = `${process.env.SERVER_IMAGE_URL}/api/delete-image/${filename}`;
   logger.info(`Intentando eliminar archivo huérfano de Laravel: ${filename}`);
 
   try {
     await axios.delete(deleteUrl);
     logger.info(`Archivo huérfano ${filename} eliminado con éxito de Laravel.`);
   } catch (error) {
+    console.log(error);
+
     // Logueamos el error pero no lo relanzamos, ya que el error principal es el de la transacción.
     logger.error(
       `Error al intentar eliminar archivo huérfano ${filename} de Laravel:`,
