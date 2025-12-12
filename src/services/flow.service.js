@@ -98,6 +98,13 @@ export const createPlanFlow = async ({
   }
 };
 
+// createPlanFlow({
+//   planId: 'plan_basico_1',
+//   name: 'Plan Básico',
+//   amount: 5,
+//   interval_count: 1,
+// });
+
 export const listPlanFlow = async () => {
   const params = {
     apiKey: FLOW_API_KEY,
