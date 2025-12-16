@@ -8,11 +8,13 @@ import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
 import {
   cancelarSuscripcionFlow,
   migrarPlanSuscripcion,
+  suscripcionId,
 } from '../../../services/flow.service.js';
 import { AppError } from '../../../utils/AppError.js';
 import {
   cancelSubscriptionPayPal,
   createSubscriptionPayPal,
+  getSubscriptionPayPal,
   reviseSubscriptionPayPal,
 } from '../../../services/paypal.service.js';
 
@@ -139,19 +141,42 @@ export const actualizarSuscripcionesExpiradas = () => {
 export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   const { sessionUser } = req;
 
-  const suscripcionActiva = await Suscripcion.findOne({
+  // Buscar suscripción activa del usuario
+  const suscripcion = await Suscripcion.findOne({
     where: {
       user_id: sessionUser.id,
       status: 'activa',
     },
   });
 
+  // Si no hay suscripción activa, retornar respuesta inmediata
+  if (!suscripcion) {
+    return res.status(200).json({
+      status: 'success',
+      suscripcionActiva: null,
+      sessionUser,
+    });
+  }
+
+  // Verificar estado de la suscripción según el proveedor
+  const esValida = await verificarValidezSuscripcion(suscripcion);
+
+  // Si la suscripción no es válida, actualizar estado
+  if (!esValida) {
+    await suscripcion.update({ status: 'expirada' });
+  }
+
   return res.status(200).json({
     status: 'success',
-    suscripcionActiva,
+    suscripcionActiva: esValida ? suscripcion : null,
     sessionUser,
   });
 });
+
+/**
+ * Verifica si una suscripción sigue siendo válida
+ * según su proveedor de pago (PayPal o Flow)
+ */
 
 export const migrarPlan = catchAsync(async (req, res, next) => {
   const { suscripcion } = req;
@@ -266,3 +291,29 @@ export const cancelarSuscripcion = catchAsync(async (req, res, next) => {
     }
   }
 });
+
+const verificarValidezSuscripcion = async (suscripcion) => {
+  try {
+    // Si tiene ID de PayPal, verificar con PayPal
+    if (suscripcion.suscripcion_id_paypal) {
+      const resPaypal = await getSubscriptionPayPal({
+        subscription_id: suscripcion.suscripcion_id_paypal,
+      });
+      return resPaypal.status === 'ACTIVE';
+    }
+
+    // Si tiene ID de Flow, verificar con Flow
+    if (suscripcion.flow_subscription_id) {
+      const resFlow = await suscripcionId({
+        subscription_id: suscripcion.flow_subscription_id,
+      });
+      return resFlow.status === 1;
+    }
+
+    // Si no tiene ningún proveedor, considerar como inválida
+    return false;
+  } catch (error) {
+    console.error('Error al verificar suscripción:', error);
+    return false;
+  }
+};

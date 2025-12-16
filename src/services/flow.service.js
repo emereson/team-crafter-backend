@@ -265,6 +265,27 @@ export const listadoSuscripciones = async ({ customerId }) => {
   }
 };
 
+export const suscripcionId = async ({ subscriptionId }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    subscriptionId,
+  };
+
+  const s = signParams(params);
+  const queryString = new URLSearchParams({ ...params, s }).toString();
+
+  try {
+    const response = await axios.get(
+      `${FLOW_URL}/subscription/get?${queryString}`
+    );
+
+    return response.data;
+  } catch (err) {
+    logger.error('❌ Error :', err.response?.data || err.message);
+    throw err.response?.data || err;
+  }
+};
+
 export const datosCliente = async ({ customerId }) => {
   const params = {
     apiKey: FLOW_API_KEY,
