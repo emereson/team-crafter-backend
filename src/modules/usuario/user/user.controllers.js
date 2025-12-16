@@ -255,12 +255,10 @@ export const update = catchAsync(async (req, res) => {
     dni_id_ce,
   };
 
-  if (req.file) {
-    if (user.foto_perfil) {
-      await deleteImage(user.foto_perfil);
-    }
+  const fileAnterior = user.foto_perfil;
 
-    updateData.foto_perfil = uploadImage(req.file);
+  if (req.file) {
+    updateData.foto_perfil = await uploadImage(req.file);
   }
 
   if (newPassword.length > 3) {
@@ -271,6 +269,10 @@ export const update = catchAsync(async (req, res) => {
   }
 
   await user.update(updateData);
+
+  if (fileAnterior) {
+    await deleteImage(fileAnterior);
+  }
 
   const updatedUser = await user.reload();
 
