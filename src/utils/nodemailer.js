@@ -4,13 +4,11 @@ import logger from './logger.js';
 
 export const transporter = nodemailer.createTransport({
   host: 'mail.team-crafter.com',
-  port: 587,
-  secure: false, // porque 587 usa STARTTLS
+  port: 465,
   auth: {
     user: process.env.EMAIL,
     pass: process.env.PASSWORD_EMAIL,
   },
-  tls: { rejectUnauthorized: false },
 });
 
 transporter.verify((error, success) => {
