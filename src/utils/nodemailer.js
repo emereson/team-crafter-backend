@@ -4,10 +4,14 @@ import logger from './logger.js';
 
 export const transporter = nodemailer.createTransport({
   host: 'mail.team-crafter.com',
-  port: 465,
+  port: 587, // SMTP TLS
+  secure: false,
   auth: {
     user: process.env.EMAIL,
     pass: process.env.PASSWORD_EMAIL,
+  },
+  tls: {
+    rejectUnauthorized: false, // útil en VPS
   },
 });
 

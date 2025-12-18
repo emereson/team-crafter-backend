@@ -1,30 +1,53 @@
 import { db } from './src/config/mysql.js';
 import { app } from './src/app.js';
-import { PORT } from './config.js';
-// import { actualizarSuscripcionesExpiradas } from './src/modules/usuario/suscripcion/suscripcion.controllers.js';
+// ❌ no importamos PORT desde config
 import initModel from './src/config/initModel.js';
 import logger from './src/utils/logger.js';
 
-db.authenticate()
-  .then(() => {
-    logger.info(`✅ Database authenticated!`);
-    return initModel(); // Inicializa los modelos y asociaciones
-  })
-  .then(() => {
-    return db.sync(); // Sincroniza tablas
-  })
-  .then(() => {
-    logger.info(`✅ Database synced!`);
-    // actualizarSuscripcionesExpiradas(); // Inicia el cron
+// ✅ Puerto dinámico (obligatorio en producción)
+const PORT = process.env.PORT || 3010;
 
-    // Aquí creas el server y aumentas el timeout
+async function startServer() {
+  try {
+    // 1️⃣ Autenticar DB
+    await db.authenticate();
+    logger.info('✅ Database authenticated!');
+
+    // 2️⃣ Inicializar modelos y asociaciones
+    await initModel();
+
+    // 3️⃣ Sincronizar tablas
+    await db.sync();
+    logger.info('✅ Database synced!');
+
+    // 4️⃣ Levantar servidor
     const server = app.listen(PORT, () => {
       logger.info(`🚀 App running on port ${PORT}`);
     });
 
-    // Aumentar tiempo de espera a 10 minutos
+    // 5️⃣ Aumentar timeout (10 minutos)
     server.setTimeout(10 * 60 * 1000);
-  })
-  .catch((err) => {
-    logger.error('❌ Error connecting to the database:', err);
-  });
+
+    // 6️⃣ Manejo de cierre correcto (evita SIGTERM brusco)
+    process.on('SIGTERM', () => {
+      logger.warn('🛑 SIGTERM recibido. Cerrando servidor...');
+      server.close(() => {
+        logger.info('✅ Servidor cerrado correctamente');
+        process.exit(0);
+      });
+    });
+
+    process.on('SIGINT', () => {
+      logger.warn('🛑 SIGINT recibido. Cerrando servidor...');
+      server.close(() => {
+        logger.info('✅ Servidor cerrado correctamente');
+        process.exit(0);
+      });
+    });
+  } catch (error) {
+    logger.error('❌ Error starting server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
