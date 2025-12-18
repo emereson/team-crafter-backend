@@ -15,14 +15,6 @@ export const transporter = nodemailer.createTransport({
   },
 });
 
-transporter.verify((error, success) => {
-  if (error) {
-    logger.error(error);
-  } else {
-    logger.info('Conexión exitosa con el servidor de correo');
-  }
-});
-
 export const sendConfirmationEmail = async (
   nombre,
   correo,
