@@ -21,4 +21,6 @@ export const {
   PAYPAL_SECRET,
   PAYPAL_BASE_URL,
   PAYPAL_WEBHOOK_ID,
+  SECRET_JWT_SEED,
+  KEY_MAIL,
 } = process.env;
