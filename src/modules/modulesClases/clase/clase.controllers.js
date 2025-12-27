@@ -50,7 +50,7 @@ export const findAll = catchAsync(async (req, res, next) => {
   if (categoria_clase && categoria_clase.length > 0) {
     const categoriasArray = categoria_clase.split(',').map((cat) => cat.trim());
     if (categoriasArray.length > 0 && !categoriasArray.includes('Todos')) {
-      whereConditions.categoria_clase = {
+      whereConditions.categoria_clase_id = {
         [Op.in]: categoriasArray,
       };
     }
@@ -60,7 +60,7 @@ export const findAll = catchAsync(async (req, res, next) => {
   if (tutoriales_tips && tutoriales_tips.length > 0) {
     const tutorialesArray = tutoriales_tips.split(',').map((tut) => tut.trim());
     if (tutorialesArray.length > 0 && !tutorialesArray.includes('Todos')) {
-      whereConditions.tutoriales_tips = {
+      whereConditions.tutoriales_tips_id = {
         [Op.in]: tutorialesArray,
       };
     }

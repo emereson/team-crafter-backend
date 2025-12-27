@@ -42,6 +42,18 @@ const Descuento = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    texto_2_es: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    texto_2_en: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    enlace_descuento: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     status: {
       type: DataTypes.ENUM('active', 'disabled'),
       allowNull: false,

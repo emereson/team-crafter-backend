@@ -32,6 +32,9 @@ export const createDescuento = catchAsync(async (req, res, next) => {
     medio_descuento,
     codigo_descuento,
     status,
+    texto_2_es,
+    texto_2_en,
+    enlace_descuento,
   } = req.body;
 
   const descuento = await Descuento.create({
@@ -45,6 +48,9 @@ export const createDescuento = catchAsync(async (req, res, next) => {
     medio_descuento,
     codigo_descuento,
     status,
+    texto_2_es,
+    texto_2_en,
+    enlace_descuento,
   });
 
   res.status(201).json({
@@ -67,6 +73,9 @@ export const updateDescuento = catchAsync(async (req, res) => {
     medio_descuento,
     codigo_descuento,
     status,
+    texto_2_es,
+    texto_2_en,
+    enlace_descuento,
   } = req.body;
 
   await descuento.update({
@@ -80,6 +89,9 @@ export const updateDescuento = catchAsync(async (req, res) => {
     medio_descuento,
     codigo_descuento,
     status,
+    texto_2_es,
+    texto_2_en,
+    enlace_descuento,
   });
 
   return res.status(200).json({
