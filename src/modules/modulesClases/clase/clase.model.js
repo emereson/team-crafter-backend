@@ -49,24 +49,12 @@ const Clase = db.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
-    categoria_clase: {
-      type: DataTypes.ENUM(
-        'Cake Toppers',
-        'Cajitas Temáticas',
-        'Cartonaje',
-        'Tarjetas Invitación',
-        'Proyectos Varios'
-      ),
+    categoria_clase_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
-    tutoriales_tips: {
-      type: DataTypes.ENUM(
-        'Tutoriales Silhouette Studio',
-        'Tutoriales Cricut Design',
-        'Tips de Diseño',
-        'Tips de Corte',
-        'Varios/otros'
-      ),
+    tutoriales_tips_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     status: {

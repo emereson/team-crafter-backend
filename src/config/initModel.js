@@ -1,3 +1,5 @@
+import { CategoriaClase } from '../modules/ajustes/categoriaClases/categoriaClases.model.js';
+import { TipClase } from '../modules/ajustes/tipClases/tipClases.model.js';
 import { Clase } from '../modules/modulesClases/clase/clase.model.js';
 import { ComentarioClase } from '../modules/modulesClases/comentarioClase/comentarioClase.model.js';
 import { RespuestaComentarioClase } from '../modules/modulesClases/respuestaComentarioClase/respuestaComentarioClase.model.js';
@@ -104,6 +106,24 @@ function initModel() {
   Recurso.hasMany(Descargas, {
     foreignKey: 'recurso_id',
     as: 'descargas',
+  });
+
+  CategoriaClase.hasMany(Clase, {
+    foreignKey: 'categoria_clase_id',
+    as: 'clases',
+  });
+  Clase.belongsTo(CategoriaClase, {
+    foreignKey: 'categoria_clase_id',
+    as: 'categoria_clase',
+  });
+
+  TipClase.hasMany(Clase, {
+    foreignKey: 'tutoriales_tips_id',
+    as: 'clases',
+  });
+  Clase.belongsTo(TipClase, {
+    foreignKey: 'tutoriales_tips_id',
+    as: 'tip_clase',
   });
 }
 

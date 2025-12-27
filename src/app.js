@@ -40,6 +40,8 @@ import { comentarioForoAdminRouter } from './modules/modulesForos/comentarioForo
 import { respuestaComentarioAdminForoRouter } from './modules/modulesForos/respuestaComentarioForo/respuestaComentarioForoAdmin.routes.js';
 import { comentarioClaseAdminRouter } from './modules/modulesClases/comentarioClase/comentarioClaseAdmin.routes.js';
 import { respuestaComentarioClaseAdminRouter } from './modules/modulesClases/respuestaComentarioClase/respuestaComentarioClaseAdmin.routes.js';
+import { categoriaClaseRouter } from './modules/ajustes/categoriaClases/categoriaClases.routes.js';
+import { tipsClaseRouter } from './modules/ajustes/tipClases/tipClases.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -119,6 +121,11 @@ app.use('/api/v1/notificaciones', notificacionesRouter);
 app.use('/api/v1/banner', bannerRouter);
 
 app.use('/api/v1/descargas', descargasRouter);
+// ajustes
+app.use('/api/v1/ajustes/categorias-clase', categoriaClaseRouter);
+app.use('/api/v1/ajustes/tips-clase', tipsClaseRouter);
+
+// ajustes
 
 // webhooks
 app.use('/api/v1/webhooks', webhookRouter);

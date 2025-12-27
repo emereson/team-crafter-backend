@@ -4,6 +4,8 @@ import { Recurso } from '../../recurso/recurso.model.js';
 import { FRONTEND_URL } from '../../../../config.js';
 import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
 import { Op } from 'sequelize';
+import { CategoriaClase } from '../../ajustes/categoriaClases/categoriaClases.model.js';
+import { TipClase } from '../../ajustes/tipClases/tipClases.model.js';
 
 export const buscador = catchAsync(async (req, res, next) => {
   const { buscador } = req.query;
@@ -28,6 +30,8 @@ export const buscador = catchAsync(async (req, res, next) => {
         as: 'recurso',
         required: false, // Siempre incluir los recursos
       },
+      { model: CategoriaClase, as: 'categoria_clase' },
+      { model: TipClase, as: 'tip_clase' },
     ],
   });
 
@@ -65,7 +69,11 @@ export const findAll = catchAsync(async (req, res, next) => {
   try {
     const clases = await Clase.findAll({
       where: whereConditions,
-      include: [{ model: Recurso, as: 'recurso' }],
+      include: [
+        { model: Recurso, as: 'recurso' },
+        { model: CategoriaClase, as: 'categoria_clase' },
+        { model: TipClase, as: 'tip_clase' },
+      ],
       order: [['createdAt', order || 'desc']],
       limit: cuatro_ultimos === 'true' ? 2 : undefined,
     });
@@ -108,8 +116,8 @@ export const createClase = catchAsync(async (req, res, next) => {
     titulo_clase_en,
     descripcion_clase,
     descripcion_clase_en,
-    categoria_clase,
-    tutoriales_tips,
+    categoria_clase_id,
+    tutoriales_tips_id,
   } = req.body;
 
   const clase = await Clase.create({
@@ -120,8 +128,8 @@ export const createClase = catchAsync(async (req, res, next) => {
     titulo_clase_en,
     descripcion_clase,
     descripcion_clase_en,
-    categoria_clase,
-    tutoriales_tips,
+    categoria_clase_id,
+    tutoriales_tips_id,
   });
 
   await Notificaciones.create({
@@ -149,8 +157,8 @@ export const updateClase = catchAsync(async (req, res, next) => {
     titulo_clase_en,
     descripcion_clase,
     descripcion_clase_en,
-    categoria_clase,
-    tutoriales_tips,
+    categoria_clase_id,
+    tutoriales_tips_id,
   } = req.body;
 
   const updateData = {
@@ -161,8 +169,8 @@ export const updateClase = catchAsync(async (req, res, next) => {
     titulo_clase_en,
     descripcion_clase,
     descripcion_clase_en,
-    categoria_clase,
-    tutoriales_tips,
+    categoria_clase_id,
+    tutoriales_tips_id,
   };
 
   await clase.update(updateData);
