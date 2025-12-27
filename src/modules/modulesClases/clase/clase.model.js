@@ -49,14 +49,6 @@ const Clase = db.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
-    categoria_clase_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    tutoriales_tips_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     status: {
       type: DataTypes.ENUM('active', 'disabled'),
       allowNull: false,

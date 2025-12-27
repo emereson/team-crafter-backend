@@ -1,6 +1,8 @@
 import { CategoriaClase } from '../modules/ajustes/categoriaClases/categoriaClases.model.js';
 import { TipClase } from '../modules/ajustes/tipClases/tipClases.model.js';
+import { CategoriaClasesId } from '../modules/modulesClases/clase/categoriaClasesId.model.js';
 import { Clase } from '../modules/modulesClases/clase/clase.model.js';
+import { TipClasesId } from '../modules/modulesClases/clase/tipClasesId.model.js';
 import { ComentarioClase } from '../modules/modulesClases/comentarioClase/comentarioClase.model.js';
 import { RespuestaComentarioClase } from '../modules/modulesClases/respuestaComentarioClase/respuestaComentarioClase.model.js';
 import { ComentarioForo } from '../modules/modulesForos/comentarioForo/comentarioForo.model.js';
@@ -108,21 +110,39 @@ function initModel() {
     as: 'descargas',
   });
 
-  CategoriaClase.hasMany(Clase, {
-    foreignKey: 'categoria_clase_id',
-    as: 'clases',
+  Clase.hasMany(CategoriaClasesId, {
+    foreignKey: 'clase_id',
+    as: 'categorias_id',
   });
-  Clase.belongsTo(CategoriaClase, {
+  CategoriaClasesId.belongsTo(Clase, {
+    foreignKey: 'clase_id',
+    as: 'clase',
+  });
+
+  Clase.hasMany(TipClasesId, {
+    foreignKey: 'clase_id',
+    as: 'tips_id',
+  });
+  TipClasesId.belongsTo(Clase, {
+    foreignKey: 'clase_id',
+    as: 'clase',
+  });
+
+  CategoriaClase.hasMany(CategoriaClasesId, {
+    foreignKey: 'categoria_clase_id',
+    as: 'categorias_id',
+  });
+  CategoriaClasesId.belongsTo(CategoriaClase, {
     foreignKey: 'categoria_clase_id',
     as: 'categoria_clase',
   });
 
-  TipClase.hasMany(Clase, {
-    foreignKey: 'tutoriales_tips_id',
-    as: 'clases',
+  TipClase.hasMany(TipClasesId, {
+    foreignKey: 'tip_clase_id',
+    as: 'tips_id',
   });
-  Clase.belongsTo(TipClase, {
-    foreignKey: 'tutoriales_tips_id',
+  TipClasesId.belongsTo(TipClase, {
+    foreignKey: 'tip_clase_id',
     as: 'tip_clase',
   });
 }
