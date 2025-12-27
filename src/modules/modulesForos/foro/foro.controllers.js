@@ -3,16 +3,30 @@ import { Foro } from './foro.model.js';
 import { User } from '../../usuario/user/user.model.js';
 import { ComentarioForo } from '../comentarioForo/comentarioForo.model.js';
 import { deleteImage, uploadImage } from '../../../utils/serverImage.js';
+import { Op } from 'sequelize';
 
 export const findAll = catchAsync(async (req, res, next) => {
-  const { order } = req.query;
+  const { order, titulo_foro } = req.query;
+
+  const whereFilter = {};
+
+  // Filtro por título
+  if (titulo_foro) {
+    whereFilter.titulo_foro = {
+      [Op.like]: `%${titulo_foro}%`,
+    };
+  }
+
+  // Validar orden
+  const orderDirection = order === 'asc' || order === 'ASC' ? 'ASC' : 'DESC';
 
   const foros = await Foro.findAll({
+    where: whereFilter,
     include: [
       { model: User, as: 'usuario' },
       { model: ComentarioForo, as: 'comentarios_foro' },
     ],
-    order: [['created_at', order ? order : 'desc']],
+    order: [['created_at', orderDirection]],
   });
 
   return res.status(200).json({
@@ -38,7 +52,7 @@ export const create = catchAsync(async (req, res, next) => {
   let img;
 
   if (req?.file) {
-    img = await uploadImage(file);
+    img = await uploadImage(req?.file);
   }
 
   const foro = await Foro.create({

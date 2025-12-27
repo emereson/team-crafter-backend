@@ -35,6 +35,11 @@ import { planRouter } from './modules/plan/plan.routes.js';
 import { bannerRouter } from './modules/banner/banner.routes.js';
 import { webhookRouter } from './modules/webhooks/webhooks.routes.js';
 import { descargasRouter } from './modules/usuario/descargas/descargas.routes.js';
+import { foroRouterAdmin } from './modules/modulesForos/foro/foroAdmin.routes.js';
+import { comentarioForoAdminRouter } from './modules/modulesForos/comentarioForo/comentarioForoAdmin.routes.js';
+import { respuestaComentarioAdminForoRouter } from './modules/modulesForos/respuestaComentarioForo/respuestaComentarioForoAdmin.routes.js';
+import { comentarioClaseAdminRouter } from './modules/modulesClases/comentarioClase/comentarioClaseAdmin.routes.js';
+import { respuestaComentarioClaseAdminRouter } from './modules/modulesClases/respuestaComentarioClase/respuestaComentarioClaseAdmin.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -81,6 +86,12 @@ app.use('/api/v1/clase-admin', claseAdminRouter);
 app.use('/api/v1/comentario-clase', comentarioClaseRouter);
 app.use('/api/v1/respuesta-comentario-clase', respuestaComentarioClaseRouter);
 
+app.use('/api/v1/comentario-clase-admin', comentarioClaseAdminRouter);
+app.use(
+  '/api/v1/respuesta-comentario-clase-admin',
+  respuestaComentarioClaseAdminRouter
+);
+
 app.use('/api/v1/recurso', recursoRouter);
 app.use('/api/v1/recurso-admin', recursoAdminRouter);
 
@@ -89,6 +100,13 @@ app.use('/api/v1/descuento', descuentoRouter);
 app.use('/api/v1/foro', foroRouter);
 app.use('/api/v1/comentario-foro', comentarioForoRouter);
 app.use('/api/v1/respuesta-comentario-foro', respuestaComentarioForoRouter);
+
+app.use('/api/v1/foro-admin', foroRouterAdmin);
+app.use('/api/v1/comentario-foro-admin', comentarioForoAdminRouter);
+app.use(
+  '/api/v1/respuesta-comentario-foro-admin',
+  respuestaComentarioAdminForoRouter
+);
 
 app.use('/api/v1/like-clase', likeClaseRouter);
 app.use('/api/v1/like-comentario-clase', likeComentarioClaseRouter);

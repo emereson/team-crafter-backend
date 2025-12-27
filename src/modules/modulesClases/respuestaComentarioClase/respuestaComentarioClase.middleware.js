@@ -4,16 +4,16 @@ import { RespuestaComentarioClase } from './respuestaComentarioClase.model.js';
 
 export const validExistRespuestaComentarioClase = catchAsync(
   async (req, res, next) => {
-    const { claseId } = req.params;
+    const { id } = req.params;
 
     const respuestaComentarioClase = await RespuestaComentarioClase.findOne({
       where: {
-        claseId,
+        id,
       },
     });
 
     if (!respuestaComentarioClase) {
-      return next(new AppError(`clase with id: ${claseId} not found `, 404));
+      return next(new AppError(`clase with id: ${id} not found `, 404));
     }
 
     req.respuestaComentarioClase = respuestaComentarioClase;

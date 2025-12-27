@@ -44,3 +44,14 @@ export const create = catchAsync(async (req, res, next) => {
     respuestaComentarioForo,
   });
 });
+
+export const deleteItem = catchAsync(async (req, res) => {
+  const { respuestaComentarioForo } = req;
+
+  await respuestaComentarioForo.destroy();
+
+  return res.status(200).json({
+    status: 'success',
+    message: `The respuesta Comentario Foro with id: ${respuestaComentarioForo.id} has been deleted`,
+  });
+});
