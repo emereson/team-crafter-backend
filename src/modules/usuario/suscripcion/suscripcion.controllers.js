@@ -17,6 +17,7 @@ import {
   getSubscriptionPayPal,
   reviseSubscriptionPayPal,
 } from '../../../services/paypal.service.js';
+import logger from '../../../utils/logger.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
@@ -313,7 +314,7 @@ const verificarValidezSuscripcion = async (suscripcion) => {
     // Si no tiene ningún proveedor, considerar como inválida
     return false;
   } catch (error) {
-    console.error('Error al verificar suscripción:', error);
+    logger.error('Error al verificar suscripción:', error);
     return false;
   }
 };

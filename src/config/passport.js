@@ -19,8 +19,6 @@ passport.use(
           where: { correo: profile.emails[0].value.toLowerCase() },
         });
 
-        console.log(user);
-
         if (!user) {
           user = await User.create({
             nombre: profile.name.givenName,

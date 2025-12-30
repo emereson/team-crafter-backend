@@ -56,7 +56,7 @@ export const paypalWebhook = async (req, res) => {
     const isValid = await verifyWebhookSignature(req);
 
     if (!isValid) {
-      console.warn('⚠️ Firma PayPal inválida.');
+      logger.warn('⚠️ Firma PayPal inválida.');
       return res.status(400).json({ message: 'Invalid signature' });
     }
 
@@ -106,7 +106,7 @@ async function actualizarSuscripcion(subscriptionId, nuevoEstado) {
   });
 
   if (!suscripcionActual) {
-    console.warn(`⚠️ Suscripción PayPal ${subscriptionId} no encontrada`);
+    logger.warn(`⚠️ Suscripción PayPal ${subscriptionId} no encontrada`);
     return;
   }
 
@@ -128,7 +128,7 @@ async function crearNuevaRenovacion(event) {
   });
 
   if (!suscripcionActual) {
-    console.warn(
+    logger.warn(
       `⚠️ No se encontró suscripción para renovación (${subscriptionId})`
     );
     return;

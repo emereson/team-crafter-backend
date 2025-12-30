@@ -32,7 +32,7 @@ export const recibirWebhookFlow = async (req, res) => {
     // 1️⃣ Verificar firma
     const isValid = verificarFirmaFlow(data);
     if (!isValid) {
-      console.warn('⚠️ Firma inválida en webhook Flow');
+      logger.warn('⚠️ Firma inválida en webhook Flow');
       return res.status(400).send('Invalid signature');
     }
 

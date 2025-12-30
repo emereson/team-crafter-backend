@@ -22,5 +22,5 @@ db.authenticate()
     return db.sync();
   })
   .catch((err) => {
-    console.error('Error connecting to the database:', err);
+    logger.error('Error connecting to the database:', err);
   });
