@@ -4,28 +4,57 @@ import { deleteImage, uploadImage } from '../../utils/serverImage.js';
 import { Clase } from '../modulesClases/clase/clase.model.js';
 import { sendRecursoCaducado } from '../../utils/nodemailer.js';
 import { Notificaciones } from '../notificaciones/notificaciones.model.js';
+import { CategoriaRecursoId } from './categoriaRecursoId.model.js';
+import { TipoRecursoId } from './tipoRecursoId.model.js';
+import { CategoriaRecurso } from '../ajustes/categoriaRecurso/categoriaRecurso.model.js';
+import { TipoRecurso } from '../ajustes/tipoRecurso/tipoRecurso.model.js';
+import { Op } from 'sequelize';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { categoria_recurso, tipo_recurso, cuatro_ultimos, order } = req.query;
 
   let whereCategoria = {};
+  let whereTip = {};
 
-  if (
-    categoria_recurso &&
-    categoria_recurso.length > 3 &&
-    categoria_recurso !== 'Todos'
-  ) {
-    whereCategoria.categoria_recurso = categoria_recurso;
+  if (categoria_recurso && categoria_recurso.length > 0) {
+    const categoriasArray = categoria_recurso
+      .split(',')
+      .map((cat) => cat.trim());
+    if (categoriasArray.length > 0 && !categoriasArray.includes('Todos')) {
+      whereCategoria.categoria_recurso_id = {
+        [Op.in]: categoriasArray,
+      };
+    }
   }
 
-  if (tipo_recurso && tipo_recurso.length > 3 && tipo_recurso !== 'Todos') {
-    whereCategoria.tipo_recurso = tipo_recurso;
+  // Manejar filtros múltiples para tutoriales
+  if (tipo_recurso && tipo_recurso.length > 0) {
+    const tutorialesArray = tipo_recurso.split(',').map((tut) => tut.trim());
+    if (tutorialesArray.length > 0 && !tutorialesArray.includes('Todos')) {
+      whereTip.tipo_recurso_id = {
+        [Op.in]: tutorialesArray,
+      };
+    }
   }
 
   const recursos = await Recurso.findAll({
-    where: whereCategoria,
-
-    include: [{ model: Clase, as: 'clase' }],
+    include: [
+      { model: Clase, as: 'clase' },
+      {
+        model: CategoriaRecursoId,
+        as: 'categorias_ids',
+        where: whereCategoria,
+        required: false,
+        include: [{ model: CategoriaRecurso, as: 'categoria_recurso' }],
+      },
+      {
+        model: TipoRecursoId,
+        as: 'tipos_ids',
+        where: whereTip,
+        required: false,
+        include: [{ model: TipoRecurso, as: 'tipo_recurso' }],
+      },
+    ],
     order: [['createdAt', order ? order : 'desc']],
     limit: cuatro_ultimos === 'true' ? 3 : undefined, // solo si cuatro_ultimos es true
   });
@@ -53,12 +82,20 @@ export const createRecurso = catchAsync(async (req, res, next) => {
     nombre_recurso_en,
     descripcion_recurso,
     fecha_caducidad,
-    tipo_recurso,
-    categoria_recurso,
+    tipo_recurso_id,
+    categoria_recurso_id,
   } = req.body;
 
   const imagen = req.files?.img ? req.files.img[0] : null;
   const documento = req.files?.doc ? req.files.doc[0] : null;
+
+  const categoriasArray = categoria_recurso_id
+    ? String(categoria_recurso_id).split(',').map(Number).filter(Boolean)
+    : [];
+
+  const tipsArray = tipo_recurso_id
+    ? String(tipo_recurso_id).split(',').map(Number).filter(Boolean)
+    : [];
 
   const recurso = await Recurso.create({
     clase_id: clase.id,
@@ -68,9 +105,25 @@ export const createRecurso = catchAsync(async (req, res, next) => {
     img_recurso: await uploadImage(imagen),
     link_recurso: await uploadImage(documento),
     fecha_caducidad,
-    tipo_recurso,
-    categoria_recurso,
   });
+
+  await Promise.all(
+    categoriasArray.map((categoriaId) =>
+      CategoriaRecursoId.create({
+        recurso_id: recurso.id,
+        categoria_recurso_id: categoriaId,
+      })
+    )
+  );
+
+  await Promise.all(
+    tipsArray.map((tipId) =>
+      TipoRecursoId.create({
+        recurso_id: recurso.id,
+        tipo_recurso_id: tipId,
+      })
+    )
+  );
 
   await Notificaciones.create({
     notificacion_global: true,
@@ -93,12 +146,20 @@ export const create = catchAsync(async (req, res, next) => {
     nombre_recurso_en,
     descripcion_recurso,
     fecha_caducidad,
-    tipo_recurso,
-    categoria_recurso,
+    tipo_recurso_id,
+    categoria_recurso_id,
   } = req.body;
 
   const imagen = req.files?.img ? req.files.img[0] : null;
   const documento = req.files?.doc ? req.files.doc[0] : null;
+
+  const categoriasArray = categoria_recurso_id
+    ? String(categoria_recurso_id).split(',').map(Number).filter(Boolean)
+    : [];
+
+  const tipsArray = tipo_recurso_id
+    ? String(tipo_recurso_id).split(',').map(Number).filter(Boolean)
+    : [];
 
   const recurso = await Recurso.create({
     clase_id,
@@ -108,9 +169,25 @@ export const create = catchAsync(async (req, res, next) => {
     img_recurso: await uploadImage(imagen),
     link_recurso: await uploadImage(documento),
     fecha_caducidad,
-    tipo_recurso,
-    categoria_recurso,
   });
+
+  await Promise.all(
+    categoriasArray.map((categoriaId) =>
+      CategoriaRecursoId.create({
+        recurso_id: recurso.id,
+        categoria_recurso_id: categoriaId,
+      })
+    )
+  );
+
+  await Promise.all(
+    tipsArray.map((tipId) =>
+      TipoRecursoId.create({
+        recurso_id: recurso.id,
+        tipo_recurso_id: tipId,
+      })
+    )
+  );
 
   await Notificaciones.create({
     notificacion_global: true,
@@ -134,12 +211,23 @@ export const updateRecurso = catchAsync(async (req, res) => {
     nombre_recurso_en,
     descripcion_recurso,
     fecha_caducidad,
-    tipo_recurso,
-    categoria_recurso,
+    tipo_recurso_id,
+    categoria_recurso_id,
   } = req.body;
 
   const imagen = req.files?.img ? req.files.img[0] : null;
   const documento = req.files?.doc ? req.files.doc[0] : null;
+
+  const categoriasArray = categoria_recurso_id
+    ? String(categoria_recurso_id).split(',').map(Number).filter(Boolean)
+    : [];
+
+  const tipsArray = tipo_recurso_id
+    ? String(tipo_recurso_id).split(',').map(Number).filter(Boolean)
+    : [];
+
+  await TipoRecursoId.destroy({ where: { recurso_id: recurso.id } });
+  await CategoriaRecursoId.destroy({ where: { recurso_id: recurso.id } });
 
   const updateData = {
     clase_id: clase_id ? clase_id : null,
@@ -147,9 +235,25 @@ export const updateRecurso = catchAsync(async (req, res) => {
     nombre_recurso_en,
     descripcion_recurso,
     fecha_caducidad,
-    tipo_recurso,
-    categoria_recurso,
   };
+
+  await Promise.all(
+    categoriasArray.map((categoriaId) =>
+      CategoriaRecursoId.create({
+        recurso_id: recurso.id,
+        categoria_recurso_id: categoriaId,
+      })
+    )
+  );
+
+  await Promise.all(
+    tipsArray.map((tipId) =>
+      TipoRecursoId.create({
+        recurso_id: recurso.id,
+        tipo_recurso_id: tipId,
+      })
+    )
+  );
 
   if (imagen) {
     if (recurso.img_recurso) {
@@ -200,6 +304,9 @@ export const deleteRecurso = catchAsync(async (req, res) => {
   if (recurso.img_recurso) {
     await deleteImage(recurso.img_recurso);
   }
+
+  await TipoRecursoId.destroy({ where: { recurso_id: recurso.id } });
+  await CategoriaRecursoId.destroy({ where: { recurso_id: recurso.id } });
 
   await recurso.destroy();
 

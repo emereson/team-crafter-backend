@@ -42,6 +42,8 @@ import { comentarioClaseAdminRouter } from './modules/modulesClases/comentarioCl
 import { respuestaComentarioClaseAdminRouter } from './modules/modulesClases/respuestaComentarioClase/respuestaComentarioClaseAdmin.routes.js';
 import { categoriaClaseRouter } from './modules/ajustes/categoriaClases/categoriaClases.routes.js';
 import { tipsClaseRouter } from './modules/ajustes/tipClases/tipClases.routes.js';
+import { categoriaRecursoRouter } from './modules/ajustes/categoriaRecurso/categoriaRecurso.routes.js';
+import { tipsRecursoRouter } from './modules/ajustes/tipoRecurso/tipoRecurso.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -124,6 +126,8 @@ app.use('/api/v1/descargas', descargasRouter);
 // ajustes
 app.use('/api/v1/ajustes/categorias-clase', categoriaClaseRouter);
 app.use('/api/v1/ajustes/tips-clase', tipsClaseRouter);
+app.use('/api/v1/ajustes/categorias-recurso', categoriaRecursoRouter);
+app.use('/api/v1/ajustes/tipo-recurso', tipsRecursoRouter);
 
 // ajustes
 

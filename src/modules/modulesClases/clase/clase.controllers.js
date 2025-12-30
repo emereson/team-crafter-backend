@@ -32,8 +32,8 @@ export const buscador = catchAsync(async (req, res, next) => {
         as: 'recurso',
         required: false, // Siempre incluir los recursos
       },
-      { model: CategoriaClase, as: 'categoria_clase' },
-      { model: TipClase, as: 'tip_clase' },
+      // { model: CategoriaClase, as: 'categoria_clase' },
+      // { model: TipClase, as: 'tip_clase' },
     ],
   });
 
@@ -249,6 +249,9 @@ export const updateClase = catchAsync(async (req, res, next) => {
 
 export const deleteClase = catchAsync(async (req, res) => {
   const { clase } = req;
+
+  await TipClasesId.destroy({ where: { clase_id: clase.id } });
+  await CategoriaClasesId.destroy({ where: { clase_id: clase.id } });
 
   await clase.destroy();
 

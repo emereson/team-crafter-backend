@@ -1,5 +1,7 @@
 import { CategoriaClase } from '../modules/ajustes/categoriaClases/categoriaClases.model.js';
+import { CategoriaRecurso } from '../modules/ajustes/categoriaRecurso/categoriaRecurso.model.js';
 import { TipClase } from '../modules/ajustes/tipClases/tipClases.model.js';
+import { TipoRecurso } from '../modules/ajustes/tipoRecurso/tipoRecurso.model.js';
 import { CategoriaClasesId } from '../modules/modulesClases/clase/categoriaClasesId.model.js';
 import { Clase } from '../modules/modulesClases/clase/clase.model.js';
 import { TipClasesId } from '../modules/modulesClases/clase/tipClasesId.model.js';
@@ -9,7 +11,9 @@ import { ComentarioForo } from '../modules/modulesForos/comentarioForo/comentari
 import { Foro } from '../modules/modulesForos/foro/foro.model.js';
 import { RespuestaComentarioForo } from '../modules/modulesForos/respuestaComentarioForo/respuestaComentarioForo.model.js';
 import { Plan } from '../modules/plan/plan.model.js';
+import { CategoriaRecursoId } from '../modules/recurso/categoriaRecursoId.model.js';
 import { Recurso } from '../modules/recurso/recurso.model.js';
+import { TipoRecursoId } from '../modules/recurso/tipoRecursoId.model.js';
 import { Descargas } from '../modules/usuario/descargas/descargas.model.js';
 import { Favorito } from '../modules/usuario/favoritos/favorito.model.js';
 import { Suscripcion } from '../modules/usuario/suscripcion/suscripcion.model.js';
@@ -144,6 +148,42 @@ function initModel() {
   TipClasesId.belongsTo(TipClase, {
     foreignKey: 'tip_clase_id',
     as: 'tip_clase',
+  });
+
+  Recurso.hasMany(CategoriaRecursoId, {
+    foreignKey: 'recurso_id',
+    as: 'categorias_ids',
+  });
+  CategoriaRecursoId.belongsTo(Recurso, {
+    foreignKey: 'recurso_id',
+    as: 'recurso',
+  });
+
+  Recurso.hasMany(TipoRecursoId, {
+    foreignKey: 'recurso_id',
+    as: 'tipos_ids',
+  });
+  TipoRecursoId.belongsTo(Recurso, {
+    foreignKey: 'recurso_id',
+    as: 'recurso',
+  });
+
+  CategoriaRecurso.hasMany(CategoriaRecursoId, {
+    foreignKey: 'categoria_recurso_id',
+    as: 'categorias_id',
+  });
+  CategoriaRecursoId.belongsTo(CategoriaRecurso, {
+    foreignKey: 'categoria_recurso_id',
+    as: 'categoria_recurso',
+  });
+
+  TipoRecurso.hasMany(TipoRecursoId, {
+    foreignKey: 'tipo_recurso_id',
+    as: 'tipos_id',
+  });
+  TipoRecursoId.belongsTo(TipoRecurso, {
+    foreignKey: 'tipo_recurso_id',
+    as: 'tipo_recurso',
   });
 }
 

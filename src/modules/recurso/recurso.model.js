@@ -38,20 +38,7 @@ const Recurso = db.define(
       type: DataTypes.DATEONLY,
       allowNull: false,
     },
-    tipo_recurso: {
-      type: DataTypes.ENUM('Exclusivos', 'Adicionales'),
-      allowNull: false,
-    },
-    categoria_recurso: {
-      type: DataTypes.ENUM(
-        'Cake Toppers',
-        'Cajitas Temáticas',
-        'Cartonaje',
-        'Tarjetas Invitación',
-        'Proyectos Varios'
-      ),
-      allowNull: false,
-    },
+
     status: {
       type: DataTypes.ENUM('active', 'disabled'),
       allowNull: false,
