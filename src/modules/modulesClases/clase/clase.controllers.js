@@ -78,12 +78,14 @@ export const findAll = catchAsync(async (req, res, next) => {
         {
           model: CategoriaClasesId,
           as: 'categorias_id',
+          required: false,
           where: whereCategoria,
           include: [{ model: CategoriaClase, as: 'categoria_clase' }],
         },
         {
           model: TipClasesId,
           as: 'tips_id',
+          required: false,
           where: whereTip,
           include: [{ model: TipClase, as: 'tip_clase' }],
         },
