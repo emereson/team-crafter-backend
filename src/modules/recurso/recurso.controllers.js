@@ -9,6 +9,7 @@ import { TipoRecursoId } from './tipoRecursoId.model.js';
 import { CategoriaRecurso } from '../ajustes/categoriaRecurso/categoriaRecurso.model.js';
 import { TipoRecurso } from '../ajustes/tipoRecurso/tipoRecurso.model.js';
 import { Op } from 'sequelize';
+import { Descargas } from '../usuario/descargas/descargas.model.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { categoria_recurso, tipo_recurso, cuatro_ultimos, order } = req.query;
@@ -297,6 +298,20 @@ export const expirado = catchAsync(async (req, res, next) => {
 export const deleteRecurso = catchAsync(async (req, res) => {
   const { recurso } = req;
 
+  await Descargas.destroy({
+    where: { recurso_id: recurso.id },
+  });
+
+  await TipoRecursoId.destroy({
+    where: { recurso_id: recurso.id },
+  });
+
+  await CategoriaRecursoId.destroy({
+    where: { recurso_id: recurso.id },
+  });
+
+  await recurso.destroy();
+
   if (recurso.link_recurso) {
     await deleteImage(recurso.link_recurso);
   }
@@ -304,11 +319,6 @@ export const deleteRecurso = catchAsync(async (req, res) => {
   if (recurso.img_recurso) {
     await deleteImage(recurso.img_recurso);
   }
-
-  await TipoRecursoId.destroy({ where: { recurso_id: recurso.id } });
-  await CategoriaRecursoId.destroy({ where: { recurso_id: recurso.id } });
-
-  await recurso.destroy();
 
   return res.status(200).json({
     status: 'success',
