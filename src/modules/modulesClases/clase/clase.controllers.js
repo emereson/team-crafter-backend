@@ -8,6 +8,7 @@ import { CategoriaClase } from '../../ajustes/categoriaClases/categoriaClases.mo
 import { TipClase } from '../../ajustes/tipClases/tipClases.model.js';
 import { CategoriaClasesId } from './categoriaClasesId.model.js';
 import { TipClasesId } from './tipClasesId.model.js';
+import { Favorito } from '../../usuario/favoritos/favorito.model.js';
 
 export const buscador = catchAsync(async (req, res, next) => {
   const { buscador } = req.query;
@@ -254,6 +255,7 @@ export const deleteClase = catchAsync(async (req, res) => {
 
   await TipClasesId.destroy({ where: { clase_id: clase.id } });
   await CategoriaClasesId.destroy({ where: { clase_id: clase.id } });
+  await Favorito.destroy({ where: { clase_id: clase.id } });
 
   await clase.destroy();
 
