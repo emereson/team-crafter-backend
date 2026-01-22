@@ -33,7 +33,7 @@ export const createCustomerFlow = async ({ name, email, external_id }) => {
     const response = await axios.post(
       `${FLOW_URL}/customer/create`,
       formData.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
     );
     return response.data;
   } catch (err) {
@@ -45,7 +45,7 @@ export const createCustomerFlow = async ({ name, email, external_id }) => {
     }
     logger.error(
       '❌ Error en createCustomerFlow:',
-      err.response?.data || err.message
+      err.response?.data || err.message,
     );
     throw err;
   }
@@ -69,14 +69,14 @@ export const createPlanFlow = async ({
   };
 
   Object.keys(params).forEach(
-    (k) => params[k] === undefined && delete params[k]
+    (k) => params[k] === undefined && delete params[k],
   );
 
   const s = signParams(params);
 
   const formData = new URLSearchParams({
     ...Object.fromEntries(
-      Object.entries(params).map(([k, v]) => [k, String(v)])
+      Object.entries(params).map(([k, v]) => [k, String(v)]),
     ),
     s,
   });
@@ -85,23 +85,23 @@ export const createPlanFlow = async ({
     const response = await axios.post(
       `${FLOW_URL}/plans/create`,
       formData.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
     );
 
     return response.data;
   } catch (err) {
     logger.error(
       '❌ Error en createPlanFlow:',
-      err.response?.data || err.message
+      err.response?.data || err.message,
     );
     throw err;
   }
 };
 
 // createPlanFlow({
-//   planId: 'plan_basico_1',
+//   planId: 'plan_prueba',
 //   name: 'Plan Básico',
-//   amount: 5,
+//   amount: 1,
 //   interval_count: 1,
 // });
 
@@ -141,14 +141,14 @@ export const registrarTarjeta = async ({ customerId }) => {
     const response = await axios.post(
       `${FLOW_URL}/customer/register`,
       formData.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
     );
 
     return response.data; // Devuelve un objeto { url, token }
   } catch (err) {
     logger.error(
       '❌ Error en createSubscriptionFlow:',
-      err.response?.data || err.message
+      err.response?.data || err.message,
     );
     throw err.response?.data || err;
   }
@@ -165,7 +165,7 @@ export const resultadoRegistroTarjeta = async ({ token }) => {
 
   try {
     const response = await axios.get(
-      `${FLOW_URL}/customer/getRegisterStatus?${queryString}`
+      `${FLOW_URL}/customer/getRegisterStatus?${queryString}`,
     );
 
     return response.data;
@@ -196,14 +196,14 @@ export const createSubscriptionFlow = async ({
     const response = await axios.post(
       `${FLOW_URL}/subscription/create`,
       formData.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
     );
 
     return response.data;
   } catch (err) {
     logger.error(
       '❌ Error en createSubscriptionFlow:',
-      err.response?.data || err.message
+      err.response?.data || err.message,
     );
     throw err.response?.data || err;
   }
@@ -228,7 +228,7 @@ export const createInvoiceForSubscription = async ({
     const response = await axios.post(
       `${FLOW_URL}/subscription/create`,
       formData.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
     );
 
     const data = response.data;
@@ -238,7 +238,7 @@ export const createInvoiceForSubscription = async ({
   } catch (err) {
     logger.error(
       '❌ Error en createInvoiceForSubscription:',
-      err.response?.data || err.message
+      err.response?.data || err.message,
     );
     throw err.response?.data || err;
   }
@@ -255,7 +255,7 @@ export const listadoSuscripciones = async ({ customerId }) => {
 
   try {
     const response = await axios.get(
-      `${FLOW_URL}/customer/getSubscriptions?${queryString}`
+      `${FLOW_URL}/customer/getSubscriptions?${queryString}`,
     );
 
     return response.data;
@@ -276,7 +276,7 @@ export const suscripcionId = async ({ subscriptionId }) => {
 
   try {
     const response = await axios.get(
-      `${FLOW_URL}/subscription/get?${queryString}`
+      `${FLOW_URL}/subscription/get?${queryString}`,
     );
 
     return response.data;
@@ -338,7 +338,7 @@ export const migrarPlanSuscripcion = async ({ subscriptionId, newPlanId }) => {
     const response = await axios.post(
       `${FLOW_URL}/subscription/changePlan`,
       formData.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
     );
 
     return response.data;
@@ -361,7 +361,7 @@ export const cancelarSuscripcionFlow = async ({ subscriptionId }) => {
     const response = await axios.post(
       `${FLOW_URL}/subscription/cancel`,
       formData.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
     );
 
     return response.data;
