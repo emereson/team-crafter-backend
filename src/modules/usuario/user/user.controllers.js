@@ -72,7 +72,7 @@ export const signup = catchAsync(async (req, res, next) => {
     correo,
     password,
     telefono,
-    codigo_pais,
+    pais,
     plan,
     dni_id_ce,
   } = req.body;
@@ -88,7 +88,7 @@ export const signup = catchAsync(async (req, res, next) => {
     correo,
     password: encryptedPassword,
     telefono,
-    codigo_pais,
+    pais,
     verificationToken,
     dni_id_ce,
   });
