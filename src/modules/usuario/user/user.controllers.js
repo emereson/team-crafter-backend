@@ -322,6 +322,8 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
   // 1. Consultamos a Flow por el registro de la tarjeta
   const response = await resultadoRegistroTarjeta({ token });
 
+  console.log(response);
+
   // 3. Buscamos la última suscripción pendiente de ese usuario
   const suscripcion = await Suscripcion.findOne({
     where: { status: 'pendiente', customerId: response.customerId },

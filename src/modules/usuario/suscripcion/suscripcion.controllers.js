@@ -150,6 +150,8 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
     },
   });
 
+  console.log(suscripcion);
+
   // Si no hay suscripción activa, retornar respuesta inmediata
   if (!suscripcion) {
     return res.status(200).json({
@@ -236,8 +238,8 @@ export const migrarPlan = catchAsync(async (req, res, next) => {
       return next(
         new AppError(
           'No puedes migrar de plan porque existe una factura pendiente de pago.',
-          400
-        )
+          400,
+        ),
       );
     }
   }
@@ -265,7 +267,7 @@ export const cancelarSuscripcion = catchAsync(async (req, res, next) => {
       });
     } catch (error) {
       return next(
-        new AppError('Ocurrió un error al cancelar la suscripción.', 500)
+        new AppError('Ocurrió un error al cancelar la suscripción.', 500),
       );
     }
   }
@@ -287,7 +289,7 @@ export const cancelarSuscripcion = catchAsync(async (req, res, next) => {
       });
     } catch (error) {
       return next(
-        new AppError('Ocurrió un error al cancelar la suscripción.', 500)
+        new AppError('Ocurrió un error al cancelar la suscripción.', 500),
       );
     }
   }
@@ -300,6 +302,7 @@ const verificarValidezSuscripcion = async (suscripcion) => {
       const resPaypal = await getSubscriptionPayPal({
         subscription_id: suscripcion.suscripcion_id_paypal,
       });
+      console.log(resPaypal);
       return resPaypal.status === 'ACTIVE';
     }
 
@@ -308,6 +311,8 @@ const verificarValidezSuscripcion = async (suscripcion) => {
       const resFlow = await suscripcionId({
         subscription_id: suscripcion.flow_subscription_id,
       });
+      console.log(resFlow);
+
       return resFlow.status === 1;
     }
 
