@@ -47,6 +47,10 @@ const User = db.define(
       allowNull: true,
       defaultValue: '',
     },
+    pais: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     codigo_pais: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -86,7 +90,7 @@ const User = db.define(
   {
     tableName: 'users',
     timestamps: true,
-  }
+  },
 );
 
 export { User };

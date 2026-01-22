@@ -160,7 +160,7 @@ export const correoRecuperarPassword = catchAsync(async (req, res) => {
   sendPasswordRecoveryEmail(
     user.nombre,
     correo.toLowerCase(),
-    verificationToken
+    verificationToken,
   );
 
   res.status(200).json({
@@ -244,6 +244,7 @@ export const update = catchAsync(async (req, res) => {
     zona_horaria,
     dni_id_ce,
     newPassword,
+    pais,
   } = req.body;
 
   const updateData = {
@@ -253,6 +254,7 @@ export const update = catchAsync(async (req, res) => {
     codigo_pais,
     zona_horaria,
     dni_id_ce,
+    pais,
   };
 
   const fileAnterior = user.foto_perfil;
@@ -352,8 +354,8 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
       responseSus.status === 1
         ? 'activa'
         : responseSus.status === 4
-        ? 'cancelada'
-        : 'pendiente',
+          ? 'cancelada'
+          : 'pendiente',
   });
   res.redirect('https://app.team-crafter.com/compra-completada');
 });
