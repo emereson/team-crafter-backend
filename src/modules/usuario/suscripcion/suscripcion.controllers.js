@@ -142,37 +142,42 @@ export const actualizarSuscripcionesExpiradas = () => {
 export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   const { sessionUser } = req;
 
-  // Buscar suscripción activa del usuario
-  const suscripcion = await Suscripcion.findOne({
+  const suscripciones = await Suscripcion.findAll({
     where: {
       user_id: sessionUser.id,
-      status: 'activa',
     },
+    order: [['createdAt', 'DESC']],
   });
 
-  console.log(suscripcion);
+  let suscripcionActiva = null;
 
-  // Si no hay suscripción activa, retornar respuesta inmediata
-  if (!suscripcion) {
-    return res.status(200).json({
-      status: 'success',
-      suscripcionActiva: null,
-      sessionUser,
-    });
-  }
+  for (const suscripcion of suscripciones) {
+    const esValida = await verificarValidezSuscripcion(suscripcion);
 
-  // Verificar estado de la suscripción según el proveedor
-  const esValida = await verificarValidezSuscripcion(suscripcion);
+    if (esValida) {
+      suscripcionActiva = await suscripcion.update({ status: 'activa' });
 
-  // Si la suscripción no es válida, actualizar estado
-  if (!esValida) {
-    await suscripcion.update({ status: 'expirada' });
+      // Expirar las demás
+      await Suscripcion.update(
+        { status: 'expirada' },
+        {
+          where: {
+            user_id: sessionUser.id,
+            id: { [Op.ne]: suscripcion.id },
+          },
+        },
+      );
+
+      break; // ⛔ CORTA el loop
+    } else {
+      await suscripcion.update({ status: 'expirada' });
+    }
   }
 
   return res.status(200).json({
     status: 'success',
-    suscripcionActiva: esValida ? suscripcion : null,
-    sessionUser,
+    suscripcionActiva,
+    tieneAcceso: Boolean(suscripcionActiva),
   });
 });
 
@@ -302,7 +307,6 @@ const verificarValidezSuscripcion = async (suscripcion) => {
       const resPaypal = await getSubscriptionPayPal({
         subscription_id: suscripcion.suscripcion_id_paypal,
       });
-      console.log(resPaypal);
       return resPaypal.status === 'ACTIVE';
     }
 
@@ -311,7 +315,6 @@ const verificarValidezSuscripcion = async (suscripcion) => {
       const resFlow = await suscripcionId({
         subscription_id: suscripcion.flow_subscription_id,
       });
-      console.log(resFlow);
 
       return resFlow.status === 1;
     }

@@ -265,12 +265,13 @@ export const listadoSuscripciones = async ({ customerId }) => {
   }
 };
 
-export const suscripcionId = async ({ subscriptionId }) => {
+export const suscripcionId = async ({ subscription_id }) => {
   const params = {
     apiKey: FLOW_API_KEY,
-    subscriptionId,
+    subscriptionId: subscription_id,
   };
 
+  console.log(subscription_id);
   const s = signParams(params);
   const queryString = new URLSearchParams({ ...params, s }).toString();
 

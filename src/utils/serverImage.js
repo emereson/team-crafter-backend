@@ -14,7 +14,7 @@ export const uploadImage = async (file) => {
 
     if (!data.filename) {
       throw new AppError(
-        'La respuesta del servicio de archivos no incluyó un nombre de archivo.'
+        'La respuesta del servicio de archivos no incluyó un nombre de archivo.',
       );
     }
     logger.info('Archivo subido a Laravel con éxito:', data.filename);
@@ -37,12 +37,10 @@ export const deleteImage = async (filename) => {
     await axios.delete(deleteUrl);
     logger.info(`Archivo huérfano ${filename} eliminado con éxito de Laravel.`);
   } catch (error) {
-    console.log(error);
-
     // Logueamos el error pero no lo relanzamos, ya que el error principal es el de la transacción.
     logger.error(
       `Error al intentar eliminar archivo huérfano ${filename} de Laravel:`,
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
