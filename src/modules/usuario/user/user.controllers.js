@@ -77,6 +77,20 @@ export const signup = catchAsync(async (req, res, next) => {
     dni_id_ce,
   } = req.body;
 
+  const userExist = await User.findOne({
+    where: {
+      correo: correo.toLowerCase(),
+    },
+  });
+  if (userExist) {
+    return next(
+      new AppError(
+        `El correo ${correo.toLowerCase()} no se encuentra registrado`,
+        404,
+      ),
+    );
+  }
+
   const encryptedPassword = await bcrypt.hash(password, 12);
 
   // Generar token de verificación único
@@ -85,7 +99,7 @@ export const signup = catchAsync(async (req, res, next) => {
   const user = await User.create({
     nombre,
     apellidos,
-    correo,
+    correo: correo.toLowerCase(),
     password: encryptedPassword,
     telefono,
     pais,
