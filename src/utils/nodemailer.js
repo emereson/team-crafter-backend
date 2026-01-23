@@ -2,13 +2,13 @@ import axios from 'axios';
 import { KEY_MAIL } from '../../config.js';
 import logger from './logger.js';
 
-const API_URL = 'https://email-server.team-crafter.com/mail';
+const API_URL = 'https://email-server2.team-crafter.com/mail';
 
 export const sendConfirmationEmail = async (
   nombre,
   correo,
   verificationLink,
-  plan
+  plan,
 ) => {
   await axios
     .post(
@@ -18,7 +18,7 @@ export const sendConfirmationEmail = async (
         headers: {
           'x-api-key': KEY_MAIL,
         },
-      }
+      },
     )
     .catch((err) => logger.error(err));
 };
@@ -26,7 +26,7 @@ export const sendConfirmationEmail = async (
 export const sendPasswordRecoveryEmail = async (
   nombre,
   correo,
-  recoveryToken
+  recoveryToken,
 ) => {
   await axios
     .post(
@@ -36,7 +36,7 @@ export const sendPasswordRecoveryEmail = async (
         headers: {
           'x-api-key': KEY_MAIL,
         },
-      }
+      },
     )
     .catch((err) => logger.error(err));
 };
@@ -44,7 +44,7 @@ export const sendPasswordRecoveryEmail = async (
 export const sendRecursoCaducado = async (
   nombre_recurso,
   correo_usuario,
-  mensaje
+  mensaje,
 ) => {
   await axios
     .post(
@@ -54,7 +54,7 @@ export const sendRecursoCaducado = async (
         headers: {
           'x-api-key': KEY_MAIL,
         },
-      }
+      },
     )
     .catch((err) => logger.error(err));
 };
