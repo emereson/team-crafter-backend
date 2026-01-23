@@ -152,6 +152,7 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
     order: [['createdAt', 'DESC']],
   });
 
+  // sadd
   let suscripcionActiva = null;
 
   for (const suscripcion of suscripciones) {
