@@ -85,7 +85,7 @@ export const signup = catchAsync(async (req, res, next) => {
   if (userExist) {
     return next(
       new AppError(
-        `El correo ${correo.toLowerCase()} no se encuentra registrado`,
+        `El correo ${correo.toLowerCase()} ya se encuentra registrado`,
         404,
       ),
     );
