@@ -145,6 +145,9 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   const suscripciones = await Suscripcion.findAll({
     where: {
       user_id: sessionUser.id,
+      estado: {
+        [Op.in]: ['pendiente', 'activa'],
+      },
     },
     order: [['createdAt', 'DESC']],
   });
