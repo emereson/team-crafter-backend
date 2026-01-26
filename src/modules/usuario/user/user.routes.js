@@ -11,7 +11,7 @@ router.post('/login', userController.login);
 router.post('/signup', userController.signup);
 router.get(
   '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { scope: ['profile', 'email'] }),
 );
 
 router.get(
@@ -23,9 +23,9 @@ router.get(
   (req, res) => {
     const { user, token } = req.user;
     res.redirect(
-      `https://app.team-crafter.com/google-success?token=${token}&email=${user.correo}`
+      `https://app.team-crafter.com/google-success?token=${token}&email=${user.correo}`,
     );
-  }
+  },
 );
 
 router.get('/verificar-correo/:token', userController.verificarCorreo);
@@ -33,7 +33,7 @@ router.post('/correo-password', userController.correoRecuperarPassword);
 router.post('/nuevo-password/:token', userController.nuevoPassword);
 router.post(
   '/resultado-registro-tarjeta',
-  userController.resultadoRegistrarTarjeta
+  userController.resultadoRegistrarTarjeta,
 );
 
 router.get('/resultado-paypal', userController.resultadoPaypal);

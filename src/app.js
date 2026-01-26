@@ -44,6 +44,8 @@ import { categoriaClaseRouter } from './modules/ajustes/categoriaClases/categori
 import { tipsClaseRouter } from './modules/ajustes/tipClases/tipClases.routes.js';
 import { categoriaRecursoRouter } from './modules/ajustes/categoriaRecurso/categoriaRecurso.routes.js';
 import { tipsRecursoRouter } from './modules/ajustes/tipoRecurso/tipoRecurso.routes.js';
+import { usersAdminRouter } from './modules/usuario/user/userAdmin.routes.js';
+import { suscripcionAdminRouter } from './modules/usuario/suscripcion/suscripcionAdmin.routes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -71,7 +73,7 @@ app.use(xss());
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
-  })
+  }),
 );
 
 app.use(passport.initialize());
@@ -81,9 +83,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/v1', limiter);
 app.use('/api/v1/user', usersRouter);
+app.use('/api/v1/user-admin', usersAdminRouter);
+
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/plan', planRouter);
 app.use('/api/v1/suscripcion', suscripcionRouter);
+app.use('/api/v1/suscripcion-admin', suscripcionAdminRouter);
+
 app.use('/api/v1/clase', claseRouter);
 app.use('/api/v1/clase-admin', claseAdminRouter);
 
@@ -93,7 +99,7 @@ app.use('/api/v1/respuesta-comentario-clase', respuestaComentarioClaseRouter);
 app.use('/api/v1/comentario-clase-admin', comentarioClaseAdminRouter);
 app.use(
   '/api/v1/respuesta-comentario-clase-admin',
-  respuestaComentarioClaseAdminRouter
+  respuestaComentarioClaseAdminRouter,
 );
 
 app.use('/api/v1/recurso', recursoRouter);
@@ -109,7 +115,7 @@ app.use('/api/v1/foro-admin', foroRouterAdmin);
 app.use('/api/v1/comentario-foro-admin', comentarioForoAdminRouter);
 app.use(
   '/api/v1/respuesta-comentario-foro-admin',
-  respuestaComentarioAdminForoRouter
+  respuestaComentarioAdminForoRouter,
 );
 
 app.use('/api/v1/like-clase', likeClaseRouter);

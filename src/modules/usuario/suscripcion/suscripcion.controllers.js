@@ -2,7 +2,6 @@ import { Suscripcion } from './suscripcion.model.js';
 import { catchAsync } from '../../../utils/catchAsync.js';
 import { Plan } from '../../plan/plan.model.js';
 import cron from 'node-cron';
-import { Op } from 'sequelize';
 import { User } from '../user/user.model.js';
 import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
 import {
@@ -18,6 +17,7 @@ import {
   reviseSubscriptionPayPal,
 } from '../../../services/paypal.service.js';
 import logger from '../../../utils/logger.js';
+import { Op, fn, col, literal } from 'sequelize';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
@@ -37,6 +37,127 @@ export const findAll = catchAsync(async (req, res, next) => {
     suscripciones,
   });
 });
+
+export const findAllAnalytics = catchAsync(async (req, res, next) => {
+  const currentYear = new Date().getFullYear();
+
+  const subscriptionsByStatus = await Suscripcion.findAll({
+    attributes: ['status', [fn('COUNT', col('id')), 'total']],
+    where: {
+      status: {
+        [Op.in]: ['activa', 'expirada', 'cancelada', 'pendiente'],
+      },
+      createdAt: {
+        [Op.between]: [
+          new Date(`${currentYear}-01-01 00:00:00`),
+          new Date(`${currentYear}-12-31 23:59:59`),
+        ],
+      },
+    },
+    group: ['status'],
+    raw: true,
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    year: currentYear,
+    data: subscriptionsByStatus.map((item) => ({
+      status: item.status,
+      total: Number(item.total),
+    })),
+  });
+});
+
+export const findAllMonthAnalytics = catchAsync(async (req, res, next) => {
+  const currentYear = new Date().getFullYear();
+
+  const subscriptionsByMonth = await Suscripcion.findAll({
+    attributes: [
+      [fn('MONTH', col('createdAt')), 'month'],
+      [fn('COUNT', col('id')), 'total'],
+    ],
+    where: {
+      status: 'activa',
+      createdAt: {
+        [Op.between]: [
+          new Date(`${currentYear}-01-01 00:00:00`),
+          new Date(`${currentYear}-12-31 23:59:59`),
+        ],
+      },
+    },
+    group: [fn('MONTH', col('createdAt'))],
+    order: [[literal('month'), 'ASC']],
+    raw: true,
+  });
+
+  /* =========================
+     MESES EN ESPAÑOL
+  ========================= */
+  const MONTHS = [
+    'Ene',
+    'Feb',
+    'Mar',
+    'Abr',
+    'May',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dic',
+  ];
+
+  const formattedData = subscriptionsByMonth.map((item) => ({
+    month: MONTHS[item.month - 1],
+    total: Number(item.total),
+  }));
+
+  return res.status(200).json({
+    status: 'success',
+    year: currentYear,
+    data: formattedData,
+  });
+});
+
+export const findPlanAllAnalytics = catchAsync(async (req, res, next) => {
+  const currentYear = new Date().getFullYear();
+
+  const planes = await Plan.findAll({
+    attributes: ['id', 'nombre_plan', 'precio_plan'],
+    where: {
+      status: 'active',
+    },
+    include: [
+      {
+        model: Suscripcion,
+        as: 'suscripciones',
+        where: {
+          status: 'activa',
+          createdAt: {
+            [Op.between]: [
+              new Date(`${currentYear}-01-01 00:00:00`),
+              new Date(`${currentYear}-12-31 23:59:59`),
+            ],
+          },
+        },
+        required: false, // LEFT JOIN
+      },
+    ],
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    year: currentYear,
+    planes: planes.map((plan) => ({
+      planId: plan.id,
+      plan: plan.nombre_plan,
+      precio: plan.precio_plan,
+      total: Number(plan.suscripciones.length),
+    })),
+  });
+});
+
 export const crearSuscripcion = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
 
@@ -155,23 +276,18 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   for (const suscripcion of suscripciones) {
     const esValida = await verificarValidezSuscripcion(suscripcion);
 
-    if (esValida) {
+    if (esValida === 1 || esValida === 'ACTIVE') {
       suscripcionActiva = await suscripcion.update({ status: 'activa' });
 
-      // Expirar las demás
-      await Suscripcion.update(
-        { status: 'expirada' },
-        {
-          where: {
-            user_id: sessionUser.id,
-            id: { [Op.ne]: suscripcion.id },
-          },
-        },
-      );
-
       break; // ⛔ CORTA el loop
-    } else {
+    }
+    if (esValida === 0 || esValida === 'INACTIVE') {
       await suscripcion.update({ status: 'expirada' });
+    }
+    if (esValida === 4 || esValida === 'INACTIVE') {
+      await suscripcion.update({ status: 'cancelada' });
+    } else {
+      await suscripcion.update({ status: 'pendiente' });
     }
   }
 
@@ -308,7 +424,8 @@ const verificarValidezSuscripcion = async (suscripcion) => {
       const resPaypal = await getSubscriptionPayPal({
         subscription_id: suscripcion.suscripcion_id_paypal,
       });
-      return resPaypal.status === 'ACTIVE';
+
+      return resPaypal.status;
     }
 
     // Si tiene ID de Flow, verificar con Flow
@@ -317,7 +434,7 @@ const verificarValidezSuscripcion = async (suscripcion) => {
         subscription_id: suscripcion.flow_subscription_id,
       });
 
-      return resFlow.status === 1;
+      return resFlow.status;
     }
 
     // Si no tiene ningún proveedor, considerar como inválida

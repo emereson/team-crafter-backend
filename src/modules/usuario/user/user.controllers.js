@@ -20,6 +20,8 @@ import { Suscripcion } from '../suscripcion/suscripcion.model.js';
 import { getSubscriptionPayPal } from '../../../services/paypal.service.js';
 import { Plan } from '../../plan/plan.model.js';
 import { uploadImage, deleteImage } from '../../../utils/serverImage.js';
+import { fn, col, Op, literal } from 'sequelize';
+
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
 
@@ -27,6 +29,56 @@ export const findAll = catchAsync(async (req, res, next) => {
     status: 'Success',
     results: users.length,
     users,
+  });
+});
+
+export const findAllAnalytics = catchAsync(async (req, res, next) => {
+  const currentYear = new Date().getFullYear();
+
+  const usersByMonth = await User.findAll({
+    attributes: [
+      [fn('MONTH', col('createdAt')), 'month'],
+      [fn('COUNT', col('id')), 'total'],
+    ],
+    where: {
+      status: 'active',
+      createdAt: {
+        [Op.between]: [
+          new Date(`${currentYear}-01-01 00:00:00`),
+          new Date(`${currentYear}-12-31 23:59:59`),
+        ],
+      },
+    },
+    group: [fn('MONTH', col('createdAt'))],
+    order: [[literal('month'), 'ASC']],
+    raw: true,
+  });
+
+  // 🔹 Formatear meses para frontend
+  const MONTHS = [
+    'Ene',
+    'Feb',
+    'Mar',
+    'Abr',
+    'May',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dic',
+  ];
+
+  const formattedData = usersByMonth.map((item) => ({
+    month: MONTHS[item.month - 1],
+    total: Number(item.total),
+  }));
+
+  return res.status(200).json({
+    status: 'success',
+    year: currentYear,
+    data: formattedData,
   });
 });
 
