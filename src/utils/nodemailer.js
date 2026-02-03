@@ -55,7 +55,7 @@ export const sendConfirmationEmail = async (
                 }/verificar-correo?token=${verificationLink}${
                   plan !== 'null' && plan.length > 0 ? `&plan=${plan}` : ''
                 }" 
-                   style="display: inline-block; background: #e91e63;  color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: bold; text-align: center;">
+                   style="display: block; background: #e91e63;  color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: bold; text-align: center;">
                    Click para verificar mi correo electronico
                 </a>
                             <a href="${
@@ -65,7 +65,7 @@ export const sendConfirmationEmail = async (
                                 ? `&plan=${plan}`
                                 : ''
                             }" 
-                   style="display: inline-block;  color: #e91e63; text-decoration: none; font-size: 14px; font-weight: bold; text-align: center;">
+                   style="display: block;  color: #e91e63; text-decoration: none; font-size: 14px; font-weight: bold; text-align: center;">
                    Click para verificar mi correo electronico
                 </a>
             </div>
@@ -167,14 +167,14 @@ export const sendPasswordRecoveryEmail = async (
                <!-- Botón CTA -->
             <div style="text-align: center; margin: 40px 0;">
                 <a href="${process.env.FRONTEND_URL}/nuevo-password?token=${recoveryToken}" 
-                   style="display: inline-block; background:#e91e63; color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: bold; text-align: center;">
+                   style="display: block; background:#e91e63; color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: bold; text-align: center;">
                     Restablecer mi contraseña
                 </a>
-                  <a href="${process.env.FRONTEND_URL}/nuevo-password?token=${recoveryToken}" 
-                   style="display: inline-block; color: #e91e63; text-decoration: none;  font-size: 14px; font-weight: bold; text-align: center;">
-                    Restablecer mi contraseña
-                </a>
-            </div>
+                </div>
+                <a href="${process.env.FRONTEND_URL}/nuevo-password?token=${recoveryToken}" 
+                 style="display: block; color: #e91e63; text-decoration: none;  font-size: 14px; font-weight: bold; text-align: center;">
+                  Restablecer mi contraseña
+              </a>
             
             <p style="font-size: 16px; color: #999999; margin-bottom: 20px;">
                 Recibimos una solicitud para restablecer la contraseña de tu cuenta en Team Crafter. ¡No te preocupes, estamos aquí para ayudarte!
