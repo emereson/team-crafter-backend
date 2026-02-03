@@ -65,7 +65,7 @@ export const sendConfirmationEmail = async (
                                 ? `&plan=${plan}`
                                 : ''
                             }" 
-                   style="display: block;  color: #e91e63; text-decoration: none; font-size: 14px; font-weight: bold; text-align: center;">
+                   style="margin: 15px 0; display: block;  color: #e91e63; text-decoration: none; font-size: 14px; font-weight: bold; text-align: center;">
                    Click para verificar mi correo electronico
                 </a>
             </div>
@@ -170,11 +170,11 @@ export const sendPasswordRecoveryEmail = async (
                    style="display: block; background:#e91e63; color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: bold; text-align: center;">
                     Restablecer mi contraseña
                 </a>
-                </div>
                 <a href="${process.env.FRONTEND_URL}/nuevo-password?token=${recoveryToken}" 
-                 style="display: block; color: #e91e63; text-decoration: none;  font-size: 14px; font-weight: bold; text-align: center;">
+                 style="margin: 15px 0; display: block; color: #e91e63; text-decoration: none;  font-size: 14px; font-weight: bold; text-align: center;">
                   Restablecer mi contraseña
               </a>
+                </div>
             
             <p style="font-size: 16px; color: #999999; margin-bottom: 20px;">
                 Recibimos una solicitud para restablecer la contraseña de tu cuenta en Team Crafter. ¡No te preocupes, estamos aquí para ayudarte!
