@@ -58,6 +58,16 @@ export const sendConfirmationEmail = async (
                    style="display: inline-block; background: #e91e63;  color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: bold; text-align: center;">
                    Click para verificar mi correo electronico
                 </a>
+                            <a href="${
+                              process.env.FRONTEND_URL
+                            }/verificar-correo?token=${verificationLink}${
+                              plan !== 'null' && plan.length > 0
+                                ? `&plan=${plan}`
+                                : ''
+                            }" 
+                   style="display: inline-block;  color: #e91e63; text-decoration: none; font-size: 18px; font-weight: bold; text-align: center;">
+                   Click para verificar mi correo electronico
+                </a>
             </div>
             
             <p style="font-size: 16px; color: #999999; margin-bottom: 20px;">
@@ -158,6 +168,10 @@ export const sendPasswordRecoveryEmail = async (
             <div style="text-align: center; margin: 40px 0;">
                 <a href="${process.env.FRONTEND_URL}/nuevo-password?token=${recoveryToken}" 
                    style="display: inline-block; background:#e91e63; color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-size: 18px; font-weight: bold; text-align: center;">
+                    Restablecer mi contraseña
+                </a>
+                  <a href="${process.env.FRONTEND_URL}/nuevo-password?token=${recoveryToken}" 
+                   style="display: inline-block; color: #e91e63; text-decoration: none;  font-size: 18px; font-weight: bold; text-align: center;">
                     Restablecer mi contraseña
                 </a>
             </div>
