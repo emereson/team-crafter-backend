@@ -47,24 +47,35 @@ export const buscador = catchAsync(async (req, res, next) => {
 export const findAll = catchAsync(async (req, res, next) => {
   const { categoria_clase, tutoriales_tips, cuatro_ultimos, order } = req.query;
 
-  let whereConditions = {};
   let whereCategoria = {};
   let whereTip = {};
 
-  // Manejar filtros múltiples para categorías
-  if (categoria_clase && categoria_clase.length > 0) {
-    const categoriasArray = categoria_clase.split(',').map((cat) => cat.trim());
-    if (categoriasArray.length > 0 && !categoriasArray.includes('Todos')) {
+  // Corrected Categoría Logic
+  if (categoria_clase) {
+    const categoriasArray = categoria_clase
+      .split(',')
+      .map((cat) => cat.trim()) // Trim first while it's a string
+      .filter((cat) => cat !== '' && cat !== 'Todos') // Filter out "Todos" and empties
+      .map(Number) // Convert to Number
+      .filter((num) => !isNaN(num)); // Ensure they are valid numbers
+
+    if (categoriasArray.length > 0) {
       whereCategoria.categoria_clase_id = {
         [Op.in]: categoriasArray,
       };
     }
   }
 
-  // Manejar filtros múltiples para tutoriales
-  if (tutoriales_tips && tutoriales_tips.length > 0) {
-    const tutorialesArray = tutoriales_tips.split(',').map((tut) => tut.trim());
-    if (tutorialesArray.length > 0 && !tutorialesArray.includes('Todos')) {
+  // Corrected Tutoriales Logic
+  if (tutoriales_tips) {
+    const tutorialesArray = tutoriales_tips
+      .split(',')
+      .map((tut) => tut.trim())
+      .filter((tut) => tut !== '' && tut !== 'Todos')
+      .map(Number)
+      .filter((num) => !isNaN(num));
+
+    if (tutorialesArray.length > 0) {
       whereTip.tip_clase_id = {
         [Op.in]: tutorialesArray,
       };
@@ -73,26 +84,27 @@ export const findAll = catchAsync(async (req, res, next) => {
 
   try {
     const clases = await Clase.findAll({
-      where: whereConditions,
+      // IMPORTANT: If you want to FILTER the 'Clase' based on these IDs,
+      // you usually need 'required: true' in the include.
       include: [
         { model: Recurso, as: 'recurso' },
         {
           model: CategoriaClasesId,
           as: 'categorias_id',
-          required: false,
+          required: Object.keys(whereCategoria).length > 0, // Filter Clase if category is provided
           where: whereCategoria,
           include: [{ model: CategoriaClase, as: 'categoria_clase' }],
         },
         {
           model: TipClasesId,
           as: 'tips_id',
-          required: false,
+          required: Object.keys(whereTip).length > 0, // Filter Clase if tip is provided
           where: whereTip,
           include: [{ model: TipClase, as: 'tip_clase' }],
         },
       ],
-      order: [['createdAt', order || 'desc']],
-      limit: cuatro_ultimos === 'true' ? 2 : undefined,
+      order: [['createdAt', order === 'asc' ? 'ASC' : 'DESC']],
+      limit: cuatro_ultimos === 'true' ? 4 : undefined, // Assuming "cuatro_ultimos" means 4
     });
 
     return res.status(200).json({
@@ -104,7 +116,6 @@ export const findAll = catchAsync(async (req, res, next) => {
     return next(error);
   }
 });
-
 export const findOne = catchAsync(async (req, res, next) => {
   const { clase } = req;
 
@@ -160,8 +171,8 @@ export const createClase = catchAsync(async (req, res, next) => {
       CategoriaClasesId.create({
         clase_id: clase.id,
         categoria_clase_id: categoriaId,
-      })
-    )
+      }),
+    ),
   );
 
   await Promise.all(
@@ -169,8 +180,8 @@ export const createClase = catchAsync(async (req, res, next) => {
       TipClasesId.create({
         clase_id: clase.id,
         tip_clase_id: tipId,
-      })
-    )
+      }),
+    ),
   );
 
   await Notificaciones.create({
@@ -230,8 +241,8 @@ export const updateClase = catchAsync(async (req, res, next) => {
       CategoriaClasesId.create({
         clase_id: clase.id,
         categoria_clase_id: categoriaId,
-      })
-    )
+      }),
+    ),
   );
 
   await Promise.all(
@@ -239,8 +250,8 @@ export const updateClase = catchAsync(async (req, res, next) => {
       TipClasesId.create({
         clase_id: clase.id,
         tip_clase_id: tipId,
-      })
-    )
+      }),
+    ),
   );
 
   return res.status(200).json({
