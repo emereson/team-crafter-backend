@@ -17,11 +17,15 @@ export const findAll = catchAsync(async (req, res, next) => {
   let whereCategoria = {};
   let whereTip = {};
 
-  if (categoria_recurso && categoria_recurso.length > 0) {
+  if (categoria_recurso) {
     const categoriasArray = categoria_recurso
       .split(',')
-      .map((cat) => cat.trim());
-    if (categoriasArray.length > 0 && !categoriasArray.includes('Todos')) {
+      .map((cat) => cat.trim()) // Trim first while it's a string
+      .filter((cat) => cat !== '' && cat !== 'Todos') // Filter out "Todos" and empties
+      .map(Number) // Convert to Number
+      .filter((num) => !isNaN(num)); // Ensure they are valid numbers
+
+    if (categoriasArray.length > 0) {
       whereCategoria.categoria_recurso_id = {
         [Op.in]: categoriasArray,
       };
@@ -29,9 +33,15 @@ export const findAll = catchAsync(async (req, res, next) => {
   }
 
   // Manejar filtros múltiples para tutoriales
-  if (tipo_recurso && tipo_recurso.length > 0) {
-    const tutorialesArray = tipo_recurso.split(',').map((tut) => tut.trim());
-    if (tutorialesArray.length > 0 && !tutorialesArray.includes('Todos')) {
+  if (tipo_recurso) {
+    const tutorialesArray = tipo_recurso
+      .split(',')
+      .map((tut) => tut.trim())
+      .filter((tut) => tut !== '' && tut !== 'Todos')
+      .map(Number)
+      .filter((num) => !isNaN(num));
+
+    if (tutorialesArray.length > 0) {
       whereTip.tipo_recurso_id = {
         [Op.in]: tutorialesArray,
       };
@@ -44,15 +54,15 @@ export const findAll = catchAsync(async (req, res, next) => {
       {
         model: CategoriaRecursoId,
         as: 'categorias_ids',
+        required: Object.keys(whereCategoria).length > 0, // Filter Clase if category is provided
         where: whereCategoria,
-        required: false,
         include: [{ model: CategoriaRecurso, as: 'categoria_recurso' }],
       },
       {
         model: TipoRecursoId,
         as: 'tipos_ids',
+        required: Object.keys(whereTip).length > 0, // Filter Clase if tip is provided
         where: whereTip,
-        required: false,
         include: [{ model: TipoRecurso, as: 'tipo_recurso' }],
       },
     ],
@@ -113,8 +123,8 @@ export const createRecurso = catchAsync(async (req, res, next) => {
       CategoriaRecursoId.create({
         recurso_id: recurso.id,
         categoria_recurso_id: categoriaId,
-      })
-    )
+      }),
+    ),
   );
 
   await Promise.all(
@@ -122,8 +132,8 @@ export const createRecurso = catchAsync(async (req, res, next) => {
       TipoRecursoId.create({
         recurso_id: recurso.id,
         tipo_recurso_id: tipId,
-      })
-    )
+      }),
+    ),
   );
 
   await Notificaciones.create({
@@ -177,8 +187,8 @@ export const create = catchAsync(async (req, res, next) => {
       CategoriaRecursoId.create({
         recurso_id: recurso.id,
         categoria_recurso_id: categoriaId,
-      })
-    )
+      }),
+    ),
   );
 
   await Promise.all(
@@ -186,8 +196,8 @@ export const create = catchAsync(async (req, res, next) => {
       TipoRecursoId.create({
         recurso_id: recurso.id,
         tipo_recurso_id: tipId,
-      })
-    )
+      }),
+    ),
   );
 
   await Notificaciones.create({
@@ -243,8 +253,8 @@ export const updateRecurso = catchAsync(async (req, res) => {
       CategoriaRecursoId.create({
         recurso_id: recurso.id,
         categoria_recurso_id: categoriaId,
-      })
-    )
+      }),
+    ),
   );
 
   await Promise.all(
@@ -252,8 +262,8 @@ export const updateRecurso = catchAsync(async (req, res) => {
       TipoRecursoId.create({
         recurso_id: recurso.id,
         tipo_recurso_id: tipId,
-      })
-    )
+      }),
+    ),
   );
 
   if (imagen) {
@@ -287,7 +297,7 @@ export const expirado = catchAsync(async (req, res, next) => {
   await sendRecursoCaducado(
     recurso.nombre_recurso,
     sessionUser.correo,
-    mensaje
+    mensaje,
   );
 
   return res.status(200).json({

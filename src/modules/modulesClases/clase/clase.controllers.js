@@ -116,6 +116,7 @@ export const findAll = catchAsync(async (req, res, next) => {
     return next(error);
   }
 });
+
 export const findOne = catchAsync(async (req, res, next) => {
   const { clase } = req;
 
