@@ -5,9 +5,9 @@ import * as authAdminMiddleware from '../../admins/adminAuth.middleware.js';
 const router = express.Router();
 // router.use(authAdminMiddleware.protect);
 
-router.get('/analytics', suscripcionController.findAllAnalytics);
-router.get('/analytics-plan', suscripcionController.findPlanAllAnalytics);
-router.get('/analytics-months', suscripcionController.findAllMonthAnalytics);
+router.get('/analytics', suscripcionController.findAnalytics);
+router.get('/analytics-planes', suscripcionController.findPlanAllAnalytics);
+router.get('/stats', suscripcionController.getDashboardStats);
 
 // router
 //   .use('/:id', recursoMiddleware.validExistRecurso)

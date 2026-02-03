@@ -38,88 +38,77 @@ export const findAll = catchAsync(async (req, res, next) => {
   });
 });
 
-export const findAllAnalytics = catchAsync(async (req, res, next) => {
-  const currentYear = new Date().getFullYear();
+export const findAnalytics = catchAsync(async (req, res) => {
+  const { type, from, to } = req.query;
 
-  const subscriptionsByStatus = await Suscripcion.findAll({
-    attributes: ['status', [fn('COUNT', col('id')), 'total']],
-    where: {
-      status: {
-        [Op.in]: ['activa', 'expirada', 'cancelada', 'pendiente'],
-      },
-      createdAt: {
-        [Op.between]: [
-          new Date(`${currentYear}-01-01 00:00:00`),
-          new Date(`${currentYear}-12-31 23:59:59`),
-        ],
-      },
-    },
-    group: ['status'],
-    raw: true,
-  });
+  if (!type || !from || !to) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'type, from y to son requeridos',
+    });
+  }
 
-  return res.status(200).json({
-    status: 'success',
-    year: currentYear,
-    data: subscriptionsByStatus.map((item) => ({
-      status: item.status,
-      total: Number(item.total),
-    })),
-  });
-});
+  let attributes = [];
+  let group = [];
+  let order = [];
 
-export const findAllMonthAnalytics = catchAsync(async (req, res, next) => {
-  const currentYear = new Date().getFullYear();
+  switch (type) {
+    case 'day':
+      attributes = [
+        [fn('HOUR', col('createdAt')), 'label'],
+        [fn('COUNT', col('id')), 'total'],
+      ];
+      group = [fn('HOUR', col('createdAt'))];
+      order = [[literal('label'), 'ASC']];
+      break;
 
-  const subscriptionsByMonth = await Suscripcion.findAll({
-    attributes: [
-      [fn('MONTH', col('createdAt')), 'month'],
-      [fn('COUNT', col('id')), 'total'],
-    ],
+    case 'week':
+    case 'month':
+      attributes = [
+        [fn('DATE', col('createdAt')), 'label'],
+        [fn('COUNT', col('id')), 'total'],
+      ];
+      group = [fn('DATE', col('createdAt'))];
+      order = [[literal('label'), 'ASC']];
+      break;
+
+    case 'year':
+      attributes = [
+        [fn('MONTH', col('createdAt')), 'label'],
+        [fn('COUNT', col('id')), 'total'],
+      ];
+      group = [fn('MONTH', col('createdAt'))];
+      order = [[literal('label'), 'ASC']];
+      break;
+
+    default:
+      return res.status(400).json({
+        status: 'error',
+        message: 'Tipo de filtro inválido',
+      });
+  }
+
+  const data = await Suscripcion.findAll({
+    attributes,
     where: {
       status: 'activa',
       createdAt: {
-        [Op.between]: [
-          new Date(`${currentYear}-01-01 00:00:00`),
-          new Date(`${currentYear}-12-31 23:59:59`),
-        ],
+        [Op.between]: [new Date(from), new Date(to)],
       },
     },
-    group: [fn('MONTH', col('createdAt'))],
-    order: [[literal('month'), 'ASC']],
+    group,
+    order,
     raw: true,
   });
 
-  /* =========================
-     MESES EN ESPAÑOL
-  ========================= */
-  const MONTHS = [
-    'Ene',
-    'Feb',
-    'Mar',
-    'Abr',
-    'May',
-    'Jun',
-    'Jul',
-    'Ago',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dic',
-  ];
-
-  const formattedData = subscriptionsByMonth.map((item) => ({
-    month: MONTHS[item.month - 1],
-    total: Number(item.total),
-  }));
-
   return res.status(200).json({
     status: 'success',
-    year: currentYear,
-    data: formattedData,
+    type,
+    from,
+    to,
+    data,
   });
 });
-
 export const findPlanAllAnalytics = catchAsync(async (req, res, next) => {
   const currentYear = new Date().getFullYear();
 
@@ -155,6 +144,54 @@ export const findPlanAllAnalytics = catchAsync(async (req, res, next) => {
       precio: plan.precio_plan,
       total: Number(plan.suscripciones.length),
     })),
+  });
+});
+
+// Añadir al controlador de suscripciones
+export const getDashboardStats = catchAsync(async (req, res) => {
+  const currentYear = new Date().getFullYear();
+
+  // 1. Ingresos y conteo total (Usando nombres correctos del modelo)
+  const stats = await Suscripcion.findOne({
+    attributes: [
+      [fn('SUM', col('precio')), 'totalRevenue'],
+      [fn('COUNT', col('id')), 'totalSubs'],
+    ],
+    where: {
+      status: 'activa',
+      createdAt: {
+        [Op.between]: [
+          new Date(`${currentYear}-01-01 00:00:00`),
+          new Date(`${currentYear}-12-31 23:59:59`),
+        ],
+      },
+    },
+    raw: true,
+  });
+
+  // 2. Usuarios únicos usando 'user_id' (como está en tu modelo)
+  const totalUsers = await Suscripcion.count({
+    distinct: true,
+    col: 'user_id',
+    where: { status: 'activa' },
+  });
+
+  // 3. Extra: Últimas 5 suscripciones para llenar el dashboard
+  const recentSubscriptions = await Suscripcion.findAll({
+    limit: 5,
+    order: [['createdAt', 'DESC']],
+    where: { status: 'activa' },
+    include: [{ model: User, as: 'usuario' }],
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    data: {
+      revenue: Number(stats?.totalRevenue || 0),
+      subscriptions: Number(stats?.totalSubs || 0),
+      users: totalUsers,
+      recent: recentSubscriptions,
+    },
   });
 });
 
