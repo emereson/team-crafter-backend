@@ -65,7 +65,7 @@ export const sendConfirmationEmail = async (
                                 ? `&plan=${plan}`
                                 : ''
                             }" 
-                   style="display: inline-block;  color: #e91e63; text-decoration: none; font-size: 18px; font-weight: bold; text-align: center;">
+                   style="display: inline-block;  color: #e91e63; text-decoration: none; font-size: 14px; font-weight: bold; text-align: center;">
                    Click para verificar mi correo electronico
                 </a>
             </div>
@@ -171,7 +171,7 @@ export const sendPasswordRecoveryEmail = async (
                     Restablecer mi contraseña
                 </a>
                   <a href="${process.env.FRONTEND_URL}/nuevo-password?token=${recoveryToken}" 
-                   style="display: inline-block; color: #e91e63; text-decoration: none;  font-size: 18px; font-weight: bold; text-align: center;">
+                   style="display: inline-block; color: #e91e63; text-decoration: none;  font-size: 14px; font-weight: bold; text-align: center;">
                     Restablecer mi contraseña
                 </a>
             </div>
