@@ -178,7 +178,7 @@ export const getDashboardStats = catchAsync(async (req, res) => {
 
   // 3. Extra: Últimas 5 suscripciones para llenar el dashboard
   const recentSubscriptions = await Suscripcion.findAll({
-    limit: 10,
+    limit: 5,
     order: [['createdAt', 'DESC']],
     where: { status: 'activa' },
     include: [{ model: User, as: 'usuario' }],
