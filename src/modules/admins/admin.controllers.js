@@ -3,6 +3,7 @@ import { Admin } from './admin.model.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { generateJWT } from '../../utils/jwt.js';
 import { AppError } from '../../utils/AppError.js';
+import { where } from 'sequelize';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const admins = await Admin.findAll({});
@@ -95,7 +96,6 @@ export const update = catchAsync(async (req, res) => {
 
     await admin.update({
       nombre,
-
       password: encryptedPassword,
     });
   } else {
@@ -110,6 +110,27 @@ export const update = catchAsync(async (req, res) => {
     admin,
   });
 });
+
+async function updateUser() {
+  // Asegúrate de que 'nombre' venga de algún lugar (parámetro o variable)
+  const nombre = 'Nuevo Nombre';
+
+  const salt = await bcrypt.genSalt(12);
+  const encryptedPassword = await bcrypt.hash('Teamcrafter@2026', salt);
+
+  await Admin.update(
+    {
+      password: encryptedPassword,
+    }, // Fin del primer objeto (datos)
+    {
+      where: {
+        id: 'dd757477-fce0-4892-a451-c4bcd49dc4dc', // Con comillas
+      },
+    }, // Fin del segundo objeto (opciones)
+  );
+}
+
+// updateUser();
 
 export const deleteAdmin = catchAsync(async (req, res) => {
   const { admin } = req;

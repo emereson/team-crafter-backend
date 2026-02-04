@@ -3,7 +3,7 @@ import * as suscripcionController from './suscripcion.controllers.js';
 import * as authAdminMiddleware from '../../admins/adminAuth.middleware.js';
 
 const router = express.Router();
-// router.use(authAdminMiddleware.protect);
+router.use(authAdminMiddleware.protect);
 
 router.get('/analytics', suscripcionController.findAnalytics);
 router.get('/analytics-planes', suscripcionController.findPlanAllAnalytics);
