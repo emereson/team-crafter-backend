@@ -175,16 +175,11 @@ export const resultadoRegistroTarjeta = async ({ token }) => {
   }
 };
 
-export const createSubscriptionFlow = async ({
-  planId,
-  customerId,
-  subscription_start,
-}) => {
+export const createSubscriptionFlow = async ({ planId, customerId }) => {
   const params = {
     apiKey: FLOW_API_KEY,
     planId: planId,
     customerId: customerId,
-    subscription_start: subscription_start,
     trial_period_days: 0,
   };
 
