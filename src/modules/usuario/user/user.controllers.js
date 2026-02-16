@@ -248,7 +248,6 @@ export const verificarCorreo = catchAsync(async (req, res) => {
     });
   }
 
-  // Actualizar el estado de verificación
   user.emailVerified = true;
   user.verificationToken = null;
 
@@ -259,8 +258,6 @@ export const verificarCorreo = catchAsync(async (req, res) => {
   });
 
   user.customerId = resFlow.customerId;
-
-  // use. =resTarjeta
 
   await user.save();
 
@@ -385,14 +382,12 @@ export const finRegistrarTarjeta = catchAsync(async (req, res, next) => {
 export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
   const { token } = req.body;
 
-  // 1. Consultamos a Flow por el registro de la tarjeta
   const response = await resultadoRegistroTarjeta({ token });
 
-  // 3. Buscamos la última suscripción pendiente de ese usuario
   const suscripcion = await Suscripcion.findOne({
     where: { status: 'pendiente', customerId: response.customerId },
 
-    order: [['createdAt', 'DESC']], // 👈 aquí aseguramos la última
+    order: [['createdAt', 'DESC']],
   });
 
   if (!suscripcion) {
@@ -401,14 +396,10 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
       message: 'No se encontró una suscripción pendiente para este cliente',
     });
   }
-  // 4. Podrías generar las fechas de inicio
-  const now = new Date();
-  const startDate = now.toISOString().split('T')[0];
 
   const responseSus = await createSubscriptionFlow({
     planId: suscripcion?.dataValues?.plan_id_flow,
     customerId: response.customerId,
-    subscription_start: startDate,
   });
 
   await suscripcion.update({
@@ -434,7 +425,7 @@ export const resultadoPaypal = catchAsync(async (req, res, next) => {
   const suscripcion = await Suscripcion.findOne({
     where: { suscripcion_id_paypal: subscription_id },
 
-    order: [['createdAt', 'DESC']], // 👈 aquí aseguramos la última
+    order: [['createdAt', 'DESC']],
   });
 
   const start = new Date(resPayal.start_time);
