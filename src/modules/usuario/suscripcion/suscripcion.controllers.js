@@ -202,7 +202,7 @@ export const getDashboardStats = catchAsync(async (req, res) => {
 export const crearSuscripcion = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
   const { reason, payer_email, card_token_id } = req.body;
-  console.log(req.body);
+  console.log(card_token_id);
 
   const suscripcionActiva = await Suscripcion.findOne({
     where: {
@@ -219,13 +219,25 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
     });
   }
 
+  let start = new Date();
+  let end = new Date(start);
+
+  if (plan.id === 1 || plan.id-- - 4) {
+    end.setMonth(end.getMonth() + 1);
+  } else if (plan.id === 2) {
+    end.setMonth(end.getMonth() + 6);
+  } else if (plan.id === 3) {
+    end.setMonth(end.getMonth() + 12);
+  }
+
   const resSuscription = await createSubscriptionMP({
     planId: plan.mercado_pago_id,
     reason,
     payer_email: payer_email || sessionUser.correo,
     card_token_id,
     user_id: sessionUser.id,
-    frequency: plan.interval_count,
+    start,
+    end,
   });
 
   let suscripcion;
@@ -249,6 +261,9 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
 
 export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
+  const { paypalSubscriptionId } = req.body;
+
+  console.log(paypalSubscriptionId);
 
   // Verificar si ya existe una suscripción activa
   const suscripcionActiva = await Suscripcion.findOne({
@@ -265,26 +280,29 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
       suscripcion: suscripcionActiva,
     });
   }
+  let resPayal = null;
 
-  const resPayal = await createSubscriptionPayPal({
-    plan_id: plan.paypal_plan_id,
-    custom_id: sessionUser.id,
-    given_name: sessionUser.nombre,
-    email_address: sessionUser.correo,
-  });
+  if (paypalSubscriptionId.length === 0) {
+    resPayal = await createSubscriptionPayPal({
+      plan_id: plan.paypal_plan_id,
+      custom_id: sessionUser.id,
+      given_name: sessionUser.nombre,
+      email_address: sessionUser.correo,
+    });
+  }
 
   await Suscripcion.create({
     user_id: sessionUser.id,
     customerId: sessionUser.customerId,
     plan_id: plan.id,
-    suscripcion_id_paypal: resPayal.id,
+    suscripcion_id_paypal: paypalSubscriptionId,
     precio: plan.precio_plan,
     status: 'pendiente',
   });
 
   return res.status(200).json({
     status: 'success',
-    link_pago: resPayal.links[0].href,
+    // link_pago: resPayal.links[0].href,
   });
 });
 
@@ -303,8 +321,6 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
 
   for (const suscripcion of suscripciones) {
     const esValida = await verificarValidezSuscripcion(suscripcion);
-
-    console.log(esValida);
 
     if (esValida === 'authorized' || esValida === 'ACTIVE') {
       suscripcionActiva = await suscripcion.update({ status: 'activa' });

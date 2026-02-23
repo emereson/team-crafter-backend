@@ -5,8 +5,6 @@ import logger from '../utils/logger.js';
 const MP_URL = 'https://api.mercadopago.com';
 
 export const createPlanMP = async ({ name, amount, interval_count }) => {
-  console.log(interval_count);
-
   const planBody = {
     reason: name,
     auto_recurring: {
@@ -15,6 +13,7 @@ export const createPlanMP = async ({ name, amount, interval_count }) => {
       transaction_amount: amount,
       currency_id: 'PEN',
     },
+    // billing_day_proportional: true,
     back_url: 'https://app.team-crafter.com/compra-completada',
     status: 'active',
   };
@@ -39,9 +38,9 @@ export const createPlanMP = async ({ name, amount, interval_count }) => {
   }
 };
 // createPlanMP({
-//   name: 'Plan Pro Crafter',
-//   amount: 192,
-//   interval_count: 12,
+//   name: 'Plan Pro Crafter 6',
+//   amount: 35,
+//   interval_count: 1,
 // });
 
 export const createSubscriptionMP = async ({
@@ -50,17 +49,24 @@ export const createSubscriptionMP = async ({
   payer_email,
   card_token_id,
   user_id,
-  frequency,
+  start,
+  end,
+  transaction_amount,
 }) => {
-  console.log(payer_email);
+  const now = new Date();
+  const startDate = now.toISOString();
 
   const subscriptionBody = {
-    preapproval_plan_id: planId,
+    preapproval_plan_id: 'ffe828aa222949258136595e36302f06',
     reason: reason,
     payer_email: payer_email,
     card_token_id: card_token_id,
     external_reference: user_id,
     status: 'authorized',
+    auto_recurring: {
+      transaction_amount: 35,
+      start_date: startDate,
+    },
     back_url: 'https://app.team-crafter.com/compra-completada',
   };
 
@@ -87,62 +93,6 @@ export const createSubscriptionMP = async ({
   }
 };
 
-// export const createInvoiceForSubscription = async ({
-//   planId,
-//   customerId,
-//   subscription_start,
-// }) => {
-//   const params = {
-//     apiKey: MP_URL,
-//     planId,
-//     customerId,
-//     subscription_start,
-//   };
-
-//   const s = signParams(params);
-//   const formData = new URLSearchParams({ ...params, s });
-
-//   try {
-//     const response = await axios.post(
-//       `${MP_URL}/subscription/create`,
-//       formData.toString(),
-//       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-//     );
-
-//     const data = response.data;
-//     const paymentUrl = `${data.url}?token=${data.token}`;
-
-//     return { ...data, paymentUrl };
-//   } catch (err) {
-//     logger.error(
-//       '❌ Error en createInvoiceForSubscription:',
-//       err.response?.data || err.message,
-//     );
-//     throw err.response?.data || err;
-//   }
-// };
-
-// export const listadoSuscripciones = async ({ customerId }) => {
-//   const params = {
-//     apiKey: MP_URL,
-//     customerId,
-//   };
-
-//   const s = signParams(params);
-//   const queryString = new URLSearchParams({ ...params, s }).toString();
-
-//   try {
-//     const response = await axios.get(
-//       `${MP_URL}/customer/getSubscriptions?${queryString}`,
-//     );
-
-//     return response.data;
-//   } catch (err) {
-//     logger.error('❌ Error :', err.response?.data || err.message);
-//     throw err.response?.data || err;
-//   }
-// };
-
 export const suscripcionId = async ({ subscription_id }) => {
   console.log('Consultando suscripción MP:', subscription_id);
 
@@ -167,88 +117,3 @@ export const suscripcionId = async ({ subscription_id }) => {
     throw err.response?.data || err;
   }
 };
-
-// export const datosCliente = async ({ customerId }) => {
-//   const params = {
-//     apiKey: MP_URL,
-//     customerId,
-//   };
-
-//   const s = signParams(params);
-//   const queryString = new URLSearchParams({ ...params, s }).toString();
-
-//   try {
-//     const response = await axios.get(`${MP_URL}/customer/get?${queryString}`);
-
-//     return response.data;
-//   } catch (err) {
-//     logger.error('❌ Error :', err.response?.data || err.message);
-//     throw err.response?.data || err;
-//   }
-// };
-
-// export const invoiceGet = async ({ invoiceId }) => {
-//   const params = {
-//     apiKey: MP_URL,
-//     invoiceId,
-//   };
-
-//   const s = signParams(params);
-//   const queryString = new URLSearchParams({ ...params, s }).toString();
-
-//   try {
-//     const response = await axios.get(`${MP_URL}/invoice/get?${queryString}`);
-
-//     return response.data;
-//   } catch (err) {
-//     logger.error('❌ Error :', err.response?.data || err.message);
-//     throw err.response?.data || err;
-//   }
-// };
-
-// export const migrarPlanSuscripcion = async ({ subscriptionId, newPlanId }) => {
-//   const params = {
-//     apiKey: MP_URL,
-//     subscriptionId,
-//     newPlanId,
-//   };
-
-//   const s = signParams(params);
-//   const formData = new URLSearchParams({ ...params, s });
-
-//   try {
-//     const response = await axios.post(
-//       `${MP_URL}/subscription/changePlan`,
-//       formData.toString(),
-//       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-//     );
-
-//     return response.data;
-//   } catch (err) {
-//     logger.error('❌ Error :', err.response?.data || err.message);
-//     throw err.response?.data || err;
-//   }
-// };
-
-// export const cancelarSuscripcionFlow = async ({ subscriptionId }) => {
-//   const params = {
-//     apiKey: MP_URL,
-//     subscriptionId,
-//   };
-
-//   const s = signParams(params);
-//   const formData = new URLSearchParams({ ...params, s });
-
-//   try {
-//     const response = await axios.post(
-//       `${MP_URL}/subscription/cancel`,
-//       formData.toString(),
-//       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-//     );
-
-//     return response.data;
-//   } catch (err) {
-//     logger.error('❌ Error :', err.response?.data || err.message);
-//     throw err.response?.data || err;
-//   }
-// };

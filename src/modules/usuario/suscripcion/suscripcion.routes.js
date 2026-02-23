@@ -15,25 +15,27 @@ router.use(authMiddleware.protect);
 router.post(
   '/:id',
   planMiddleware.validExistPlan,
-  suscripcionController.crearSuscripcion
+  suscripcionController.crearSuscripcion,
 );
 router.post(
   '/paypal/:id',
   planMiddleware.validExistPlan,
-  suscripcionController.crearSuscripcionPaypal
+  suscripcionController.crearSuscripcionPaypal,
 );
 router.patch(
   '/:id',
   suscripcionMiddleware.validExistSuscripcion,
-  suscripcionController.migrarPlan
+  suscripcionController.migrarPlan,
 );
 
 router.get('/activa', suscripcionController.obtenerContenidoPremium);
+router.get('/activa/id', suscripcionController.obtenerContenidoPremium);
+
 router.get('/', suscripcionController.findAll);
 router.delete(
   '/:id',
   suscripcionMiddleware.validExistSuscripcion,
-  suscripcionController.cancelarSuscripcion
+  suscripcionController.cancelarSuscripcion,
 );
 
 // router
