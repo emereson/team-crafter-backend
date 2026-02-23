@@ -225,6 +225,7 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
     payer_email: payer_email || sessionUser.correo,
     card_token_id,
     user_id: sessionUser.id,
+    frequency: plan.interval_count,
   });
 
   let suscripcion;

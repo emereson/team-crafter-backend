@@ -50,15 +50,22 @@ export const createSubscriptionMP = async ({
   payer_email,
   card_token_id,
   user_id,
+  frequency,
 }) => {
-  // Construimos el body con los datos mínimos obligatorios
-  // para atar un usuario a un plan existente
+  console.log(payer_email);
+
   const subscriptionBody = {
     preapproval_plan_id: planId,
     reason: reason,
     payer_email: payer_email,
     card_token_id: card_token_id,
     external_reference: user_id,
+    auto_recurring: {
+      frequency: frequency,
+      frequency_type: 'months',
+      currency_id: 'PEN',
+    },
+    status: 'authorized',
     back_url: 'https://app.team-crafter.com/compra-completada',
   };
 
