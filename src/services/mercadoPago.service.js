@@ -60,11 +60,6 @@ export const createSubscriptionMP = async ({
     payer_email: payer_email,
     card_token_id: card_token_id,
     external_reference: user_id,
-    auto_recurring: {
-      frequency: frequency,
-      frequency_type: 'months',
-      currency_id: 'PEN',
-    },
     status: 'authorized',
     back_url: 'https://app.team-crafter.com/compra-completada',
   };
