@@ -4,7 +4,8 @@ import {
   createPlanPayPal,
   createProductPayPal,
 } from '../../services/paypal.service.js';
-import { createPlanFlow } from '../../services/flow.service.js';
+import { createPlanMP } from '../../services/mercadoPago.service.js';
+// import { createPlanFlow } from '../../services/flow.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const planes = await Plan.findAll({});
@@ -70,10 +71,9 @@ export const findOne = catchAsync(async (req, res, next) => {
 });
 
 export const create = catchAsync(async (req, res, next) => {
-  const { planId, nombre_plan, precio_plan, intervalo } = req.body;
+  const { nombre_plan, precio_plan, intervalo } = req.body;
 
-  const planFlow = await createPlanFlow({
-    planId,
+  const planFlow = await createPlanMP({
     name: nombre_plan,
     amount: precio_plan,
     interval_count: intervalo,

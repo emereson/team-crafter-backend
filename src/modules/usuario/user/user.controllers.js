@@ -9,13 +9,13 @@ import {
   sendPasswordRecoveryEmail,
 } from '../../../utils/nodemailer.js';
 import { ConfigNotificaciones } from '../configNotificaciones/configNotificaciones.model.js';
-import {
-  createCustomerFlow,
-  createSubscriptionFlow,
-  datosCliente,
-  registrarTarjeta,
-  resultadoRegistroTarjeta,
-} from '../../../services/flow.service.js';
+// import {
+//   createCustomerFlow,
+//   createSubscriptionFlow,
+//   datosCliente,
+//   registrarTarjeta,
+//   resultadoRegistroTarjeta,
+// } from '../../../services/mercadoPago.service.js';
 import { Suscripcion } from '../suscripcion/suscripcion.model.js';
 import { getSubscriptionPayPal } from '../../../services/paypal.service.js';
 import { Plan } from '../../plan/plan.model.js';
@@ -177,6 +177,8 @@ export const signup = catchAsync(async (req, res, next) => {
 
 export const login = catchAsync(async (req, res, next) => {
   const { correo, password } = req.body;
+
+  console.log(correo);
 
   const user = await User.findOne({
     where: {
@@ -366,8 +368,6 @@ export const finRegistrarTarjeta = catchAsync(async (req, res, next) => {
     where: { id: sessionUser.id },
   });
 
-  const cliente = await datosCliente({ customerId: sessionUser.customerId });
-
   const resTarjeta = await registrarTarjeta({
     customerId: sessionUser.customerId,
   });
@@ -400,6 +400,7 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
   const responseSus = await createSubscriptionFlow({
     planId: suscripcion?.dataValues?.plan_id_flow,
     customerId: response.customerId,
+    subscription_start: startDate,
   });
 
   await suscripcion.update({

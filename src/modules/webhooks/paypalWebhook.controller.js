@@ -5,11 +5,8 @@ import { Suscripcion } from '../usuario/suscripcion/suscripcion.model.js';
 import { Plan } from '../plan/plan.model.js';
 import logger from '../../utils/logger.js';
 
-const webhookID = PAYPAL_WEBHOOK_ID; // ⚠️ debe estar en tu .env
+const webhookID = PAYPAL_WEBHOOK_ID;
 
-/**
- * ✅ Verifica la firma del webhook PayPal
- */
 export async function verifyWebhookSignature(req) {
   try {
     const token = await getAccessTokenPaypal();
@@ -35,22 +32,19 @@ export async function verifyWebhookSignature(req) {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
 
     return data.verification_status === 'SUCCESS';
   } catch (error) {
     logger.error(
       '❌ Error verificando firma PayPal:',
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
     return false;
   }
 }
 
-/**
- * 🧠 Procesa el evento webhook de PayPal
- */
 export const paypalWebhook = async (req, res) => {
   try {
     const isValid = await verifyWebhookSignature(req);
@@ -112,13 +106,10 @@ async function actualizarSuscripcion(subscriptionId, nuevoEstado) {
 
   await suscripcionActual.update({ status: nuevoEstado });
   logger.info(
-    `✅ Suscripción ${subscriptionId} actualizada a "${nuevoEstado}"`
+    `✅ Suscripción ${subscriptionId} actualizada a "${nuevoEstado}"`,
   );
 }
 
-/**
- * 🔁 Crea una nueva suscripción cuando se renueva el pago automáticamente
- */
 async function crearNuevaRenovacion(event) {
   const subscriptionId =
     event.resource.billing_agreement_id || event.resource.id;
@@ -129,7 +120,7 @@ async function crearNuevaRenovacion(event) {
 
   if (!suscripcionActual) {
     logger.warn(
-      `⚠️ No se encontró suscripción para renovación (${subscriptionId})`
+      `⚠️ No se encontró suscripción para renovación (${subscriptionId})`,
     );
     return;
   }

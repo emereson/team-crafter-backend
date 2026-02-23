@@ -4,11 +4,11 @@ import { Plan } from '../../plan/plan.model.js';
 import cron from 'node-cron';
 import { User } from '../user/user.model.js';
 import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
-import {
-  cancelarSuscripcionFlow,
-  migrarPlanSuscripcion,
-  suscripcionId,
-} from '../../../services/flow.service.js';
+// import {
+//   cancelarSuscripcionFlow,
+//   migrarPlanSuscripcion,
+//   suscripcionId,
+// } from '../../../services/flow.service.js';
 import { AppError } from '../../../utils/AppError.js';
 import {
   cancelSubscriptionPayPal,
@@ -18,6 +18,7 @@ import {
 } from '../../../services/paypal.service.js';
 import logger from '../../../utils/logger.js';
 import { Op, fn, col, literal } from 'sequelize';
+import { createSubscriptionMP } from '../../../services/mercadoPago.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
@@ -197,8 +198,8 @@ export const getDashboardStats = catchAsync(async (req, res) => {
 
 export const crearSuscripcion = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
+  const { reason, payer_email, card_token_id } = req.body;
 
-  // Verificar si ya existe una suscripción activa
   const suscripcionActiva = await Suscripcion.findOne({
     where: {
       user_id: sessionUser.id,
@@ -214,18 +215,28 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
     });
   }
 
-  const suscripcion = await Suscripcion.create({
-    user_id: sessionUser.id,
-    customerId: sessionUser.customerId,
-    plan_id: plan.id,
-    plan_id_flow: plan.flow_plan_id,
-    precio: plan.precio_plan,
-    status: 'pendiente',
+  const resSuscription = await createSubscriptionMP({
+    planId: plan.mercado_pago_id,
+    reason,
+    payer_email,
+    card_token_id,
   });
+
+  console.log(resSuscription);
+  if (resSuscription) {
+    const suscripcion = await Suscripcion.create({
+      user_id: sessionUser.id,
+      customerId: sessionUser.customerId,
+      plan_id: plan.id,
+      suscripcion_mp_id: plan.flow_plan_id,
+      precio: plan.precio_plan_soles,
+      status: 'pendiente',
+    });
+  }
 
   return res.status(200).json({
     status: 'success',
-    suscripcion,
+    // suscripcion,
   });
 });
 

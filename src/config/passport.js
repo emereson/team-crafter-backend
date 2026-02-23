@@ -4,7 +4,6 @@ import crypto from 'crypto';
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../../config.js';
 import { User } from '../modules/usuario/user/user.model.js';
 import { generateJWT } from '../utils/jwt.js';
-import { createCustomerFlow } from '../services/flow.service.js';
 
 passport.use(
   new GoogleStrategy(
@@ -29,14 +28,6 @@ passport.use(
             verificationToken: crypto.randomBytes(32).toString('hex'),
             emailVerified: true,
           });
-
-          const resFlow = await createCustomerFlow({
-            name: `${user.nombre} ${user.apellidos}`,
-            email: user.correo,
-            external_id: user.id,
-          });
-
-          await user.update({ customerId: resFlow.customerId });
         }
 
         // ✅ Generar JWT
@@ -46,8 +37,8 @@ passport.use(
       } catch (err) {
         return done(err, null);
       }
-    }
-  )
+    },
+  ),
 );
 
 export default passport;

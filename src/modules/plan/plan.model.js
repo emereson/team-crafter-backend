@@ -17,11 +17,15 @@ const Plan = db.define('planes', {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  precio_plan_soles: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+  },
   interval_count: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
-  flow_plan_id: {
+  mercado_pago_id: {
     type: DataTypes.STRING,
     allowNull: true,
   },
