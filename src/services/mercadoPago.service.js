@@ -49,6 +49,7 @@ export const createSubscriptionMP = async ({
   reason,
   payer_email,
   card_token_id,
+  user_id,
 }) => {
   // Construimos el body con los datos mínimos obligatorios
   // para atar un usuario a un plan existente
@@ -57,9 +58,8 @@ export const createSubscriptionMP = async ({
     reason: reason,
     payer_email: payer_email,
     card_token_id: card_token_id,
-    external_reference: sessionUser.id.toString(),
+    external_reference: user_id,
     back_url: 'https://app.team-crafter.com/compra-completada',
-    status: 'authorized',
   };
 
   try {
@@ -141,27 +141,30 @@ export const createSubscriptionMP = async ({
 //   }
 // };
 
-// export const suscripcionId = async ({ subscription_id }) => {
-//   const params = {
-//     apiKey: MP_URL,
-//     subscriptionId: subscription_id,
-//   };
+export const suscripcionId = async ({ subscription_id }) => {
+  console.log('Consultando suscripción MP:', subscription_id);
 
-//   console.log(subscription_id);
-//   const s = signParams(params);
-//   const queryString = new URLSearchParams({ ...params, s }).toString();
+  try {
+    const response = await axios.get(
+      `${MP_URL}/preapproval/${subscription_id}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${MP_ACCESS_TOKEN}`,
+        },
+      },
+    );
 
-//   try {
-//     const response = await axios.get(
-//       `${MP_URL}/subscription/get?${queryString}`,
-//     );
-
-//     return response.data;
-//   } catch (err) {
-//     logger.error('❌ Error :', err.response?.data || err.message);
-//     throw err.response?.data || err;
-//   }
-// };
+    console.log(response.data);
+    return response.data;
+  } catch (err) {
+    logger.error(
+      '❌ Error en suscripcionId:',
+      err.response?.data || err.message,
+    );
+    throw err.response?.data || err;
+  }
+};
 
 // export const datosCliente = async ({ customerId }) => {
 //   const params = {

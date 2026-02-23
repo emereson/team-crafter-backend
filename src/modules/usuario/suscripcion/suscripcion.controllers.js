@@ -18,7 +18,10 @@ import {
 } from '../../../services/paypal.service.js';
 import logger from '../../../utils/logger.js';
 import { Op, fn, col, literal } from 'sequelize';
-import { createSubscriptionMP } from '../../../services/mercadoPago.service.js';
+import {
+  createSubscriptionMP,
+  suscripcionId,
+} from '../../../services/mercadoPago.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
@@ -199,6 +202,7 @@ export const getDashboardStats = catchAsync(async (req, res) => {
 export const crearSuscripcion = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
   const { reason, payer_email, card_token_id } = req.body;
+  console.log(req.body);
 
   const suscripcionActiva = await Suscripcion.findOne({
     where: {
@@ -218,17 +222,19 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
   const resSuscription = await createSubscriptionMP({
     planId: plan.mercado_pago_id,
     reason,
-    payer_email,
+    payer_email: payer_email || sessionUser.correo,
     card_token_id,
+    user_id: sessionUser.id,
   });
 
-  console.log(resSuscription);
+  let suscripcion;
+
   if (resSuscription) {
-    const suscripcion = await Suscripcion.create({
+    suscripcion = await Suscripcion.create({
       user_id: sessionUser.id,
       customerId: sessionUser.customerId,
       plan_id: plan.id,
-      suscripcion_mp_id: plan.flow_plan_id,
+      suscripcion_mp_id: resSuscription.id,
       precio: plan.precio_plan_soles,
       status: 'pendiente',
     });
@@ -236,7 +242,7 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
 
   return res.status(200).json({
     status: 'success',
-    // suscripcion,
+    suscripcion,
   });
 });
 
@@ -281,33 +287,6 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
   });
 });
 
-// Cron job para actualizar suscripciones expiradas
-export const actualizarSuscripcionesExpiradas = () => {
-  cron.schedule('0 0 * * *', async () => {
-    const hoy = new Date();
-    const expiradas = await Suscripcion.findAll({
-      where: {
-        endDate: { [Op.lt]: hoy },
-        status: 'activa',
-      },
-      include: [
-        { model: User, as: 'usuario' },
-        { model: Plan, as: 'plan' },
-      ],
-    });
-
-    for (const suscripcion of expiradas) {
-      await suscripcion.update({ status: 'expirada' });
-      await Notificaciones.create({
-        usuario_id: suscripcion.usuario.id,
-        tipo_notificacion: 'noticias',
-        titulo: `Tu suscripción  ${suscripcion.plan.nombre_plan} a expirado `,
-        contenido: `La suscripción al plan ${suscripcion.plan.nombre_plan} expiró el día ${suscripcion.endDate}.`,
-      });
-    }
-  });
-};
-// Acceso a contenido premium
 export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   const { sessionUser } = req;
 
@@ -324,16 +303,15 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   for (const suscripcion of suscripciones) {
     const esValida = await verificarValidezSuscripcion(suscripcion);
 
-    if (esValida === 1 || esValida === 'ACTIVE') {
+    console.log(esValida);
+
+    if (esValida === 'authorized' || esValida === 'ACTIVE') {
       suscripcionActiva = await suscripcion.update({ status: 'activa' });
 
       break; // ⛔ CORTA el loop
     }
-    if (esValida === 0 || esValida === 'INACTIVE') {
+    if (esValida === 'cancelled' || esValida === 'INACTIVE') {
       await suscripcion.update({ status: 'expirada' });
-    }
-    if (esValida === 4 || esValida === 'INACTIVE') {
-      await suscripcion.update({ status: 'cancelada' });
     } else {
       await suscripcion.update({ status: 'pendiente' });
     }
@@ -477,9 +455,9 @@ const verificarValidezSuscripcion = async (suscripcion) => {
     }
 
     // Si tiene ID de Flow, verificar con Flow
-    if (suscripcion.flow_subscription_id) {
+    if (suscripcion.suscripcion_mp_id) {
       const resFlow = await suscripcionId({
-        subscription_id: suscripcion.flow_subscription_id,
+        subscription_id: suscripcion.suscripcion_mp_id,
       });
 
       return resFlow.status;

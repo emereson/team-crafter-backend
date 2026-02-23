@@ -8,7 +8,6 @@ export const webhookMercadoPago = async (req, res) => {
 
   // Extraemos qué tipo de evento nos está notificando MP
   const { type, data } = req.body;
-  console.log(req.body, req.query, req.params);
 
   // 2. Procesamos en segundo plano (try/catch interno para no afectar el res.send anterior)
   try {
