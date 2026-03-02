@@ -22,7 +22,7 @@ export async function getAccessTokenPaypal() {
         username: PAYPAL_CLIENT_ID,
         password: PAYPAL_SECRET,
       },
-    }
+    },
   );
 
   return data.access_token;
@@ -66,11 +66,13 @@ export const createProductPayPal = async ({ name, description }) => {
         'Content-Type': 'application/json',
         Prefer: 'return=representation',
       },
-    }
+    },
   );
 
+  console.log(data);
   return data; // Devuelve el producto
 };
+
 // createProductPayPal({
 //   name: 'Team Crafter Web',
 //   description:
@@ -122,16 +124,18 @@ export const createPlanPayPal = async ({
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-    }
+    },
   );
+
+  console.log(data);
 
   return data; // Devuelve el plan creado
 };
 
 // createPlanPayPal({
-//   product_id: 'PROD-34W534599M8489241',
-//   name: 'Plan Básico',
-//   interval_count: 5,
+//   product_id: 'PROD-5XU44665T7615310T',
+//   name: 'Plan Básico 1 dolar',
+//   interval_count: 1,
 //   amount: 1,
 // });
 
@@ -169,14 +173,14 @@ export const createSubscriptionPayPal = async ({
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
 
     return response.data; // Devuelve un objeto { url, token }
   } catch (err) {
     logger.error(
       '❌ Error en createSubscription:',
-      err.response?.data || err.message
+      err.response?.data || err.message,
     );
     throw err.response?.data || err;
   }
@@ -209,14 +213,14 @@ export const reviseSubscriptionPayPal = async ({
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
 
     return response.data; // 👉 Devuelve un nuevo "approval_url"
   } catch (err) {
     logger.error(
       '❌ Error en reviseSubscriptionPayPal:',
-      err.response?.data || err.message
+      err.response?.data || err.message,
     );
     throw err.response?.data || err;
   }
@@ -239,7 +243,7 @@ export const cancelSubscriptionPayPal = async ({ subscription_id }) => {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
 
     // PayPal responde con 204 No Content cuando la cancelación es exitosa
@@ -251,7 +255,7 @@ export const cancelSubscriptionPayPal = async ({ subscription_id }) => {
   } catch (err) {
     logger.error(
       '❌ Error al cancelar suscripción PayPal:',
-      err.response?.data || err.message
+      err.response?.data || err.message,
     );
     throw err.response?.data || err;
   }
@@ -269,7 +273,7 @@ export const getSubscriptionPayPal = async ({ subscription_id }) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   return data;

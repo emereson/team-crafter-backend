@@ -80,7 +80,7 @@ export const create = catchAsync(async (req, res, next) => {
   });
 
   const planPaypal = await createPlanPayPal({
-    product_id: 'PROD-34W534599M8489241',
+    product_id: 'PROD-5XU44665T7615310T',
     name: nombre_plan,
     amount: precio_plan,
     interval_count: intervalo,
