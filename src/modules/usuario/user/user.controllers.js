@@ -9,13 +9,7 @@ import {
   sendPasswordRecoveryEmail,
 } from '../../../utils/nodemailer.js';
 import { ConfigNotificaciones } from '../configNotificaciones/configNotificaciones.model.js';
-// import {
-//   createCustomerFlow,
-//   createSubscriptionFlow,
-//   datosCliente,
-//   registrarTarjeta,
-//   resultadoRegistroTarjeta,
-// } from '../../../services/mercadoPago.service.js';
+
 import { Suscripcion } from '../suscripcion/suscripcion.model.js';
 import { getSubscriptionPayPal } from '../../../services/paypal.service.js';
 import { Plan } from '../../plan/plan.model.js';
@@ -252,14 +246,6 @@ export const verificarCorreo = catchAsync(async (req, res) => {
 
   user.emailVerified = true;
   user.verificationToken = null;
-
-  const resFlow = await createCustomerFlow({
-    name: `${user.nombre} ${user.apellidos}`,
-    email: user.correo,
-    external_id: user.id,
-  });
-
-  user.customerId = resFlow.customerId;
 
   await user.save();
 

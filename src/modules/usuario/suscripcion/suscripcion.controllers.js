@@ -263,9 +263,6 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
   const { paypalSubscriptionId } = req.body;
 
-  console.log(paypalSubscriptionId);
-
-  // Verificar si ya existe una suscripción activa
   const suscripcionActiva = await Suscripcion.findOne({
     where: {
       user_id: sessionUser.id,
@@ -291,6 +288,19 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
     });
   }
 
+  const start = new Date(resPayal.start_time);
+  const end = new Date(start);
+
+  if (plan.id === 1) {
+    end.setMonth(end.getMonth() + 1);
+  } else if (plan.id === 2) {
+    end.setMonth(end.getMonth() + 6);
+  } else if (plan.id === 3) {
+    end.setMonth(end.getMonth() + 12);
+  } else if (plan.id === 4) {
+    end.setMonth(end.getMonth() + 1);
+  }
+
   await Suscripcion.create({
     user_id: sessionUser.id,
     customerId: sessionUser.customerId,
@@ -298,6 +308,8 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
     suscripcion_id_paypal: paypalSubscriptionId,
     precio: plan.precio_plan,
     status: 'pendiente',
+    startDate: start,
+    endDate: end,
   });
 
   return res.status(200).json({
