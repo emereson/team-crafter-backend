@@ -37,6 +37,8 @@ export async function verifyWebhookSignature(req) {
 
     return data.verification_status === 'SUCCESS';
   } catch (error) {
+    console.log(error.response.data);
+
     logger.error(
       '❌ Error verificando firma PayPal:',
       error.response?.data || error.message,
