@@ -277,6 +277,7 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
       suscripcion: suscripcionActiva,
     });
   }
+  let resPayal = null;
 
   if (paypalSubscriptionId) {
     resPayal = await getSubscriptionPayPal({
