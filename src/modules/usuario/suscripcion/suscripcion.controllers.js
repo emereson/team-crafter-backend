@@ -288,6 +288,8 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
     });
   }
 
+  console.log(resPayal);
+
   const start = new Date(resPayal.start_time);
   const end = new Date(start);
 
