@@ -264,6 +264,7 @@ export const cancelSubscriptionPayPal = async ({ subscription_id }) => {
 /**
  * Obtiene información de una suscripción
  */
+
 export const getSubscriptionPayPal = async ({ subscription_id }) => {
   const token = await getAccessTokenPaypal();
 
@@ -275,6 +276,7 @@ export const getSubscriptionPayPal = async ({ subscription_id }) => {
       },
     },
   );
+  console.log(data);
 
   return data;
 };

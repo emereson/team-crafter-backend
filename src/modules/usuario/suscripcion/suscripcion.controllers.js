@@ -280,15 +280,10 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
   let resPayal = null;
 
   if (paypalSubscriptionId.length === 0) {
-    resPayal = await createSubscriptionPayPal({
-      plan_id: plan.paypal_plan_id,
-      custom_id: sessionUser.id,
-      given_name: sessionUser.nombre,
-      email_address: sessionUser.correo,
+    resPayal = await getSubscriptionPayPal({
+      subscription_id: paypalSubscriptionId,
     });
   }
-
-  console.log(resPayal);
 
   const start = new Date(resPayal.start_time);
   const end = new Date(start);
