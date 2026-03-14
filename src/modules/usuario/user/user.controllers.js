@@ -16,6 +16,7 @@ import { Plan } from '../../plan/plan.model.js';
 import { uploadImage, deleteImage } from '../../../utils/serverImage.js';
 import { fn, col, Op, literal, where } from 'sequelize';
 import {
+  cancelarSuscripcionFlow,
   createCustomerFlow,
   createSubscriptionFlow,
   registrarTarjeta,
@@ -357,17 +358,48 @@ export const finRegistrarTarjeta = catchAsync(async (req, res, next) => {
   const { plan } = req.query;
   const { sessionUser } = req;
 
-  if (!sessionUser.customerId) {
+  // 1. Usamos una variable local para asegurar que siempre tengamos el ID correcto
+  let customerId = sessionUser.customerId;
+
+  if (!customerId) {
     const resFlow = await createCustomerFlow({
       name: `${sessionUser.nombre} ${sessionUser.apellidos}`,
       email: sessionUser.correo,
       external_id: sessionUser.id,
     });
-    await sessionUser.update({ customerId: resFlow.customerId });
+
+    customerId = resFlow.customerId; // Actualizamos la variable local
+    await sessionUser.update({ customerId }); // Actualizamos la BD
   }
 
+  // 2. Buscar suscripciones pendientes
+  const suscripciones = await Suscripcion.findAll({
+    where: {
+      user_id: sessionUser.id,
+      status: 'pendiente',
+    },
+    order: [['createdAt', 'DESC']],
+  });
+
+  for (const suscripcion of suscripciones) {
+    if (suscripcion.flow_subscription_id) {
+      try {
+        await cancelarSuscripcionFlow({
+          subscriptionId: suscripcion.flow_subscription_id,
+        });
+        await suscripcion.destroy();
+      } catch (error) {
+        console.warn(
+          `⚠️ No se pudo cancelar en Flow la suscripción ${suscripcion.id}. Puede que ya esté inactiva.`,
+          error.message,
+        );
+      }
+    }
+  }
+
+  // 4. Registrar la nueva tarjeta con el ID asegurado
   const resTarjeta = await registrarTarjeta({
-    customerId: sessionUser.customerId,
+    customerId, // Usamos la variable que sabemos que sí tiene el ID
     plan,
   });
 

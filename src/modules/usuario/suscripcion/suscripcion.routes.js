@@ -12,11 +12,11 @@ router.post('/compra-completada', async (req, res) => {
 });
 router.use(authMiddleware.protect);
 
-router.post(
-  '/:id',
-  planMiddleware.validExistPlan,
-  suscripcionController.crearSuscripcion,
-);
+// router.post(
+//   '/:id',
+//   planMiddleware.validExistPlan,
+//   suscripcionController.crearSuscripcion,
+// );
 router.post(
   '/paypal/:id',
   planMiddleware.validExistPlan,

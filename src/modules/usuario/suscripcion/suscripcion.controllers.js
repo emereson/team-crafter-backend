@@ -17,6 +17,7 @@ import logger from '../../../utils/logger.js';
 import { Op, fn, col, literal } from 'sequelize';
 import {
   cancelarSuscripcionFlow,
+  retryInvoice,
   suscripcionId,
 } from '../../../services/flow.service.js';
 
@@ -196,65 +197,6 @@ export const getDashboardStats = catchAsync(async (req, res) => {
   });
 });
 
-export const crearSuscripcion = catchAsync(async (req, res) => {
-  const { sessionUser, plan } = req;
-  const { reason, payer_email, card_token_id } = req.body;
-
-  const suscripcionActiva = await Suscripcion.findOne({
-    where: {
-      user_id: sessionUser.id,
-      status: 'activa',
-    },
-  });
-
-  if (suscripcionActiva) {
-    return res.status(403).json({
-      status: 'fail',
-      message: 'Ya tienes una suscripción activa',
-      suscripcion: suscripcionActiva,
-    });
-  }
-
-  let start = new Date();
-  let end = new Date(start);
-
-  if (plan.id === 1 || plan.id-- - 4) {
-    end.setMonth(end.getMonth() + 1);
-  } else if (plan.id === 2) {
-    end.setMonth(end.getMonth() + 6);
-  } else if (plan.id === 3) {
-    end.setMonth(end.getMonth() + 12);
-  }
-
-  const resSuscription = await createSubscriptionMP({
-    planId: plan.mercado_pago_id,
-    reason,
-    payer_email: payer_email || sessionUser.correo,
-    card_token_id,
-    user_id: sessionUser.id,
-    start,
-    end,
-  });
-
-  let suscripcion;
-
-  if (resSuscription) {
-    suscripcion = await Suscripcion.create({
-      user_id: sessionUser.id,
-      customerId: sessionUser.customerId,
-      plan_id: plan.id,
-      flow_subscription_id: resSuscription.id,
-      precio: plan.precio_plan_soles,
-      status: 'pendiente',
-    });
-  }
-
-  return res.status(200).json({
-    status: 'success',
-    suscripcion,
-  });
-});
-
 export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
   const { paypalSubscriptionId } = req.body;
@@ -317,6 +259,7 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   const suscripciones = await Suscripcion.findAll({
     where: {
       user_id: sessionUser.id,
+      status: 'pendiente',
     },
     order: [['createdAt', 'DESC']],
   });
@@ -327,12 +270,18 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   for (const suscripcion of suscripciones) {
     const esValida = await verificarValidezSuscripcion(suscripcion);
 
-    if (esValida === 'authorized' || esValida === 'ACTIVE') {
-      suscripcionActiva = await suscripcion.update({ status: 'activa' });
+    // Opcional: un log más descriptivo para debugear
+    console.log(
+      `Verificando suscripción ${suscripcion.id} - Estado devuelto:`,
+      esValida,
+    );
 
-      break; // ⛔ CORTA el loop
-    }
-    if (esValida === 'cancelled' || esValida === 'INACTIVE') {
+    if (esValida === 0 || esValida === 'ACTIVE') {
+      suscripcionActiva = await suscripcion.update({ status: 'activa' });
+      break; // Si encontramos una activa, detenemos el bucle y la guardamos
+    } else if (esValida === 4 || esValida === 'CANCELLED') {
+      await suscripcion.update({ status: 'cancelada' });
+    } else if (esValida === 1 || esValida === 'INACTIVE') {
       await suscripcion.update({ status: 'expirada' });
     } else {
       await suscripcion.update({ status: 'pendiente' });
@@ -467,28 +416,56 @@ export const cancelarSuscripcion = catchAsync(async (req, res, next) => {
 
 const verificarValidezSuscripcion = async (suscripcion) => {
   try {
-    // Si tiene ID de PayPal, verificar con PayPal
+    // 1. Verificación con PayPal
     if (suscripcion.suscripcion_id_paypal) {
       const resPaypal = await getSubscriptionPayPal({
         subscription_id: suscripcion.suscripcion_id_paypal,
       });
-
       return resPaypal.status;
     }
 
-    // Si tiene ID de Flow, verificar con Flow
+    // 2. Verificación con Flow
     if (suscripcion.flow_subscription_id) {
       const resFlow = await suscripcionId({
-        subscription_id: suscripcion.flow_subscription_id,
+        subscriptionId: suscripcion.flow_subscription_id,
       });
 
-      return resFlow.status;
+      const isActiva = resFlow.status === 1;
+
+      // Buscamos si hay alguna factura pendiente usando Optional Chaining por seguridad
+      const pendiente = resFlow.invoices?.find((i) => i.status === 0);
+
+      // Solo intentamos cobrar si EFECTIVAMENTE hay una factura pendiente
+      if (pendiente?.id) {
+        try {
+          const retry = await retryInvoice({ invoiceId: pendiente.id });
+
+          // Si el reintento funcionó y se pagó (asumiendo que status 1 es pagado)
+          if (retry?.status === 1) {
+            return 1; // Suscripción válida/activa
+          }
+        } catch (retryError) {
+          logger.error(
+            '❌ Error al intentar cobrar factura atrasada:',
+            retryError,
+          );
+          // Si falla el cobro, no detenemos la función, dejamos que devuelva el estado real abajo
+        }
+      }
+
+      // Evaluamos el estado final a devolver
+      if (!isActiva) {
+        return 4; // 4 = Estado inactivo o cancelado (según tu lógica anterior)
+      }
+
+      // Si está activa, devolvemos morose si existe, o 1 (activa) por defecto
+      return resFlow.morose ? resFlow.morose : 1;
     }
 
     // Si no tiene ningún proveedor, considerar como inválida
-    return false;
+    return 4;
   } catch (error) {
-    logger.error('Error al verificar suscripción:', error);
-    return false;
+    logger.error('❌ Error al verificar suscripción:', error);
+    return 4;
   }
 };

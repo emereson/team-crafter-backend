@@ -320,6 +320,35 @@ export const invoiceGet = async ({ invoiceId }) => {
   }
 };
 
+export const retryInvoice = async ({ invoiceId }) => {
+  const params = {
+    apiKey: FLOW_API_KEY,
+    invoiceId: invoiceId,
+  };
+
+  const s = signParams(params);
+  const formData = new URLSearchParams({ ...params, s });
+
+  try {
+    const response = await axios.post(
+      `${FLOW_URL}/invoice/retryToCollect`,
+      formData.toString(),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+    );
+
+    return response.data;
+  } catch (err) {
+    logger.error(
+      '❌ Error en retryInvoice:',
+      err.response?.data || err.message,
+    );
+
+    // Si Flow devuelve un error específico (ej. el invoice ya fue pagado o no existe),
+    // podrías manejar el código de error aquí igual que en tu createCustomerFlow.
+    throw err.response?.data || err;
+  }
+};
+
 export const migrarPlanSuscripcion = async ({ subscriptionId, newPlanId }) => {
   const params = {
     apiKey: FLOW_API_KEY,
@@ -359,6 +388,8 @@ export const cancelarSuscripcionFlow = async ({ subscriptionId }) => {
       formData.toString(),
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
     );
+
+    console.log(response.data);
 
     return response.data;
   } catch (err) {
