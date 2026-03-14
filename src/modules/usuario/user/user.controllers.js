@@ -385,19 +385,6 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
 
   const response = await resultadoRegistroTarjeta({ token });
 
-  const suscripcion = await Suscripcion.findOne({
-    where: { status: 'pendiente', customerId: response.customerId },
-
-    order: [['createdAt', 'DESC']],
-  });
-
-  if (!suscripcion) {
-    return res.status(404).json({
-      status: 'Error',
-      message: 'No se encontró una suscripción pendiente para este cliente',
-    });
-  }
-
   const responseSus = await createSubscriptionFlow({
     planId: plan,
     customerId: response.customerId,
@@ -405,7 +392,7 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
 
   console.log(plan, responseSus);
 
-  await suscripcion.create({
+  await Suscripcion.create({
     startDate: responseSus.period_start,
     endDate: responseSus.period_end,
     flow_subscription_id: responseSus.subscriptionId,

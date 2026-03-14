@@ -169,6 +169,8 @@ export const resultadoRegistroTarjeta = async ({ token }) => {
 
     return response.data;
   } catch (err) {
+    console.log(err);
+
     logger.error('❌ Error :', err.response?.data || err.message);
     throw err.response?.data || err;
   }
