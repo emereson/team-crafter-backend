@@ -14,7 +14,7 @@ import { Suscripcion } from '../suscripcion/suscripcion.model.js';
 import { getSubscriptionPayPal } from '../../../services/paypal.service.js';
 import { Plan } from '../../plan/plan.model.js';
 import { uploadImage, deleteImage } from '../../../utils/serverImage.js';
-import { fn, col, Op, literal } from 'sequelize';
+import { fn, col, Op, literal, where } from 'sequelize';
 import {
   createCustomerFlow,
   createSubscriptionFlow,
@@ -385,17 +385,28 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
 
   const response = await resultadoRegistroTarjeta({ token });
 
+  const user = await User.findOne({
+    where: { customerId: response.customerId },
+  });
+
+  const planDB = await Plan.findOne({
+    where: {
+      flow_plan_id: plan,
+    },
+  });
+
   const responseSus = await createSubscriptionFlow({
     planId: plan,
     customerId: response.customerId,
   });
 
-  console.log(plan, responseSus, token);
-
   await Suscripcion.create({
+    user_id: user.id,
+    plan_id: planDB.id,
     startDate: responseSus.period_start,
     endDate: responseSus.period_end,
     flow_subscription_id: responseSus.subscriptionId,
+    precio: planDB.precio_plan,
     status:
       responseSus.status === 1
         ? 'activa'
