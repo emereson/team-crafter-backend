@@ -390,7 +390,7 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
     customerId: response.customerId,
   });
 
-  console.log(plan, responseSus);
+  console.log(plan, responseSus, token);
 
   await Suscripcion.create({
     startDate: responseSus.period_start,
@@ -403,6 +403,7 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
           ? 'cancelada'
           : 'pendiente',
   });
+
   res.redirect('https://app.team-crafter.com/compra-completada');
 });
 
