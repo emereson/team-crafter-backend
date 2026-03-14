@@ -69,7 +69,6 @@ export const createProductPayPal = async ({ name, description }) => {
     },
   );
 
-  console.log(data);
   return data; // Devuelve el producto
 };
 
@@ -126,8 +125,6 @@ export const createPlanPayPal = async ({
       },
     },
   );
-
-  console.log(data);
 
   return data; // Devuelve el plan creado
 };

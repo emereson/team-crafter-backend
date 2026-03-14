@@ -22,6 +22,7 @@ import {
   registrarTarjeta,
   resultadoRegistroTarjeta,
 } from '../../../services/flow.service.js';
+import logger from '../../../utils/logger.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
@@ -178,8 +179,6 @@ export const signup = catchAsync(async (req, res, next) => {
 
 export const login = catchAsync(async (req, res, next) => {
   const { correo, password } = req.body;
-
-  console.log(correo);
 
   const user = await User.findOne({
     where: {
@@ -389,7 +388,7 @@ export const finRegistrarTarjeta = catchAsync(async (req, res, next) => {
         });
         await suscripcion.destroy();
       } catch (error) {
-        console.warn(
+        logger.warn(
           `⚠️ No se pudo cancelar en Flow la suscripción ${suscripcion.id}. Puede que ya esté inactiva.`,
           error.message,
         );
