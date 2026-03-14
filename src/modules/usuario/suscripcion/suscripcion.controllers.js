@@ -269,14 +269,13 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
 
   for (const suscripcion of suscripciones) {
     const esValida = await verificarValidezSuscripcion(suscripcion);
-    console.log(esValida);
 
-    if (esValida === 0 || esValida === 'ACTIVE') {
+    if (esValida === 1 || esValida === 'ACTIVE') {
       suscripcionActiva = await suscripcion.update({ status: 'activa' });
       break; // Si encontramos una activa, detenemos el bucle y la guardamos
     } else if (esValida === 4 || esValida === 'CANCELLED') {
       await suscripcion.update({ status: 'cancelada' });
-    } else if (esValida === 1 || esValida === 'INACTIVE') {
+    } else if (esValida === 0 || esValida === 'INACTIVE') {
       await suscripcion.update({ status: 'expirada' });
     } else {
       await suscripcion.update({ status: 'pendiente' });
