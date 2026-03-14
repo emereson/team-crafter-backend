@@ -269,6 +269,7 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
 
   for (const suscripcion of suscripciones) {
     const esValida = await verificarValidezSuscripcion(suscripcion);
+    console.log(esValida);
 
     if (esValida === 0 || esValida === 'ACTIVE') {
       suscripcionActiva = await suscripcion.update({ status: 'activa' });
