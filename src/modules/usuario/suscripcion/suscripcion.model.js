@@ -37,7 +37,7 @@ const Suscripcion = db.define('suscripciones', {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  suscripcion_mp_id: {
+  flow_subscription_id: {
     type: DataTypes.STRING,
     allowNull: true,
   },

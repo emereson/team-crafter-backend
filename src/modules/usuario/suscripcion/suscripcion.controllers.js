@@ -15,6 +15,10 @@ import {
 } from '../../../services/paypal.service.js';
 import logger from '../../../utils/logger.js';
 import { Op, fn, col, literal } from 'sequelize';
+import {
+  cancelarSuscripcionFlow,
+  suscripcionId,
+} from '../../../services/flow.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
@@ -239,7 +243,7 @@ export const crearSuscripcion = catchAsync(async (req, res) => {
       user_id: sessionUser.id,
       customerId: sessionUser.customerId,
       plan_id: plan.id,
-      suscripcion_mp_id: resSuscription.id,
+      flow_subscription_id: resSuscription.id,
       precio: plan.precio_plan_soles,
       status: 'pendiente',
     });
@@ -473,9 +477,9 @@ const verificarValidezSuscripcion = async (suscripcion) => {
     }
 
     // Si tiene ID de Flow, verificar con Flow
-    if (suscripcion.suscripcion_mp_id) {
+    if (suscripcion.flow_subscription_id) {
       const resFlow = await suscripcionId({
-        subscription_id: suscripcion.suscripcion_mp_id,
+        subscription_id: suscripcion.flow_subscription_id,
       });
 
       return resFlow.status;
