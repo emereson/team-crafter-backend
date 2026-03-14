@@ -1,9 +1,7 @@
 import { Suscripcion } from './suscripcion.model.js';
 import { catchAsync } from '../../../utils/catchAsync.js';
 import { Plan } from '../../plan/plan.model.js';
-import cron from 'node-cron';
 import { User } from '../user/user.model.js';
-import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
 // import {
 //   cancelarSuscripcionFlow,
 //   migrarPlanSuscripcion,
@@ -12,16 +10,11 @@ import { Notificaciones } from '../../notificaciones/notificaciones.model.js';
 import { AppError } from '../../../utils/AppError.js';
 import {
   cancelSubscriptionPayPal,
-  createSubscriptionPayPal,
   getSubscriptionPayPal,
   reviseSubscriptionPayPal,
 } from '../../../services/paypal.service.js';
 import logger from '../../../utils/logger.js';
 import { Op, fn, col, literal } from 'sequelize';
-import {
-  createSubscriptionMP,
-  suscripcionId,
-} from '../../../services/mercadoPago.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const { sessionUser } = req;
@@ -202,7 +195,6 @@ export const getDashboardStats = catchAsync(async (req, res) => {
 export const crearSuscripcion = catchAsync(async (req, res) => {
   const { sessionUser, plan } = req;
   const { reason, payer_email, card_token_id } = req.body;
-  console.log(card_token_id);
 
   const suscripcionActiva = await Suscripcion.findOne({
     where: {

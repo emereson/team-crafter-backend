@@ -25,7 +25,7 @@ const Plan = db.define('planes', {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
-  mercado_pago_id: {
+  flow_plan_id: {
     type: DataTypes.STRING,
     allowNull: true,
   },

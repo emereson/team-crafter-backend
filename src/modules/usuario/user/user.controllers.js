@@ -15,6 +15,12 @@ import { getSubscriptionPayPal } from '../../../services/paypal.service.js';
 import { Plan } from '../../plan/plan.model.js';
 import { uploadImage, deleteImage } from '../../../utils/serverImage.js';
 import { fn, col, Op, literal } from 'sequelize';
+import {
+  createCustomerFlow,
+  createSubscriptionFlow,
+  registrarTarjeta,
+  resultadoRegistroTarjeta,
+} from '../../../services/flow.service.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const users = await User.findAll({});
@@ -348,24 +354,33 @@ export const deleteUser = catchAsync(async (req, res) => {
 });
 
 export const finRegistrarTarjeta = catchAsync(async (req, res, next) => {
+  const { plan } = req.query;
   const { sessionUser } = req;
 
-  const perfil = await User.findOne({
-    where: { id: sessionUser.id },
-  });
+  if (!sessionUser.customerId) {
+    const resFlow = await createCustomerFlow({
+      name: `${sessionUser.nombre} ${sessionUser.apellidos}`,
+      email: sessionUser.correo,
+      external_id: sessionUser.id,
+    });
+    await sessionUser.update({ customerId: resFlow.customerId });
+  }
 
   const resTarjeta = await registrarTarjeta({
     customerId: sessionUser.customerId,
+    plan,
   });
 
   return res.status(200).json({
     status: 'Success',
     url: `${resTarjeta.url}?token=${resTarjeta.token}`,
-    perfil,
+    sessionUser,
   });
 });
 
 export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
+  const { plan } = req.query;
+
   const { token } = req.body;
 
   const response = await resultadoRegistroTarjeta({ token });
@@ -384,13 +399,13 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
   }
 
   const responseSus = await createSubscriptionFlow({
-    planId: suscripcion?.dataValues?.plan_id_flow,
+    planId: plan,
     customerId: response.customerId,
-    subscription_start: startDate,
   });
 
-  await suscripcion.update({
-    status: 'activa',
+  console.log(plan, responseSus);
+
+  await suscripcion.create({
     startDate: responseSus.period_start,
     endDate: responseSus.period_end,
     flow_subscription_id: responseSus.subscriptionId,
@@ -437,7 +452,6 @@ export const resultadoPaypal = catchAsync(async (req, res, next) => {
   }
 
   res.redirect('https://app.team-crafter.com/compra-completada');
-  // res.redirect('http://localhost:3000/compra-completada');
 });
 
 export const datosClienteFlow = catchAsync(async (req, res, next) => {

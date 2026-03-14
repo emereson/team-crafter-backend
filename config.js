@@ -22,4 +22,6 @@ export const {
   PAYPAL_WEBHOOK_ID,
   SECRET_JWT_SEED,
   KEY_MAIL,
+  FLOW_API_KEY,
+  FLOW_SECRET,
 } = process.env;
