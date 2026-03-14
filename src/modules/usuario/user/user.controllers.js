@@ -438,7 +438,12 @@ export const resultadoRegistrarTarjeta = catchAsync(async (req, res, next) => {
     endDate: responseSus.period_end,
     flow_subscription_id: responseSus.subscriptionId,
     precio: planDB.precio_plan,
-    status: 'pendiente',
+    status:
+      responseSus.status === 1
+        ? 'pendiente'
+        : responseSus.status === 4
+          ? 'cancelada'
+          : 'pendiente',
   });
 
   res.redirect('https://app.team-crafter.com/compra-completada');
