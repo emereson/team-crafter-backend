@@ -95,8 +95,10 @@ export const paypalWebhook = async (req, res) => {
  * 📌 Actualiza estado de una suscripción existente
  */
 async function actualizarSuscripcion(subscriptionId, nuevoEstado) {
+  // 🛡️ Agregamos el order DESC para asegurarnos de actualizar siempre la fila más reciente
   const suscripcionActual = await Suscripcion.findOne({
     where: { suscripcion_id_paypal: subscriptionId },
+    order: [['createdAt', 'DESC']],
   });
 
   if (!suscripcionActual) {
@@ -110,30 +112,61 @@ async function actualizarSuscripcion(subscriptionId, nuevoEstado) {
   );
 }
 
+/**
+ * 📌 Maneja pagos completados (Diferenciando compra inicial de renovaciones)
+ */
 async function crearNuevaRenovacion(event) {
   const subscriptionId =
     event.resource.billing_agreement_id || event.resource.id;
 
+  // 1. Buscamos la suscripción original
   const suscripcionActual = await Suscripcion.findOne({
     where: { suscripcion_id_paypal: subscriptionId },
+    order: [['createdAt', 'DESC']],
   });
 
   if (!suscripcionActual) {
-    logger.warn(
-      `⚠️ No se encontró suscripción para renovación (${subscriptionId})`,
-    );
+    logger.warn(`⚠️ No se encontró suscripción base para (${subscriptionId})`);
     return;
   }
 
+  // 2. EL FILTRO DE 5 MINUTOS (Evita duplicados en la compra inicial)
+  const ahora = new Date();
+  const fechaCreacionBase = new Date(suscripcionActual.createdAt);
+  const diferenciaMinutos = (ahora - fechaCreacionBase) / (1000 * 60);
+
+  if (diferenciaMinutos < 5) {
+    logger.info(
+      `ℹ️ El pago de ${subscriptionId} es la compra inicial. Ignorando creación duplicada.`,
+    );
+
+    // Por seguridad, si el controlador 'resultadoPaypal' falló, la activamos aquí
+    if (suscripcionActual.status !== 'activa') {
+      await suscripcionActual.update({ status: 'activa' });
+    }
+    return; // Detenemos la ejecución. NO se crea fila nueva.
+  }
+
+  // 3. SI PASÓ EL FILTRO, ES UNA RENOVACIÓN REAL (Meses después)
+  logger.info(
+    `🔄 Procesando renovación real para la suscripción ${subscriptionId}`,
+  );
+
+  // Apagamos la suscripción del mes viejo
+  await suscripcionActual.update({ status: 'expirada' });
+
+  // Calculamos las fechas del nuevo ciclo
   const plan = await Plan.findByPk(suscripcionActual.plan_id);
 
   const start = new Date();
   const end = new Date(start);
 
-  if (plan.id === 1) end.setMonth(end.getMonth() + 1);
-  else if (plan.id === 2) end.setMonth(end.getMonth() + 6);
-  else if (plan.id === 3) end.setMonth(end.getMonth() + 12);
+  if (plan && plan.id === 1) end.setMonth(end.getMonth() + 1);
+  else if (plan && plan.id === 2) end.setMonth(end.getMonth() + 6);
+  else if (plan && plan.id === 3) end.setMonth(end.getMonth() + 12);
+  else end.setMonth(end.getMonth() + 1); // Fallback de 1 mes por defecto
 
+  // Creamos la nueva fila para el nuevo mes
   const nuevaSuscripcion = await Suscripcion.create({
     user_id: suscripcionActual.user_id,
     customerId: suscripcionActual.customerId,
@@ -145,5 +178,7 @@ async function crearNuevaRenovacion(event) {
     status: 'activa',
   });
 
-  logger.info(`🔁 Nueva suscripción creada: ${nuevaSuscripcion.id}`);
+  logger.info(
+    `🔁 Renovación exitosa. Nueva suscripción creada: ${nuevaSuscripcion.id}`,
+  );
 }

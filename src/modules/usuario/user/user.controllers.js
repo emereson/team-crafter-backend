@@ -456,9 +456,12 @@ export const resultadoPaypal = catchAsync(async (req, res, next) => {
 
   const suscripcion = await Suscripcion.findOne({
     where: { suscripcion_id_paypal: subscription_id },
-
     order: [['createdAt', 'DESC']],
   });
+
+  if (!suscripcion) {
+    return res.redirect('https://app.team-crafter.com/error-pago');
+  }
 
   const start = new Date(resPayal.start_time);
   const end = new Date(start);

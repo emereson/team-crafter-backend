@@ -2,11 +2,7 @@ import { Suscripcion } from './suscripcion.model.js';
 import { catchAsync } from '../../../utils/catchAsync.js';
 import { Plan } from '../../plan/plan.model.js';
 import { User } from '../user/user.model.js';
-// import {
-//   cancelarSuscripcionFlow,
-//   migrarPlanSuscripcion,
-//   suscripcionId,
-// } from '../../../services/flow.service.js';
+import cron from 'node-cron';
 import { AppError } from '../../../utils/AppError.js';
 import {
   cancelSubscriptionPayPal,
@@ -94,7 +90,7 @@ export const findAnalytics = catchAsync(async (req, res) => {
     attributes,
     where: {
       status: 'activa',
-      createdAt: {
+      startDate: {
         [Op.between]: [new Date(from), new Date(to)],
       },
     },
@@ -111,8 +107,22 @@ export const findAnalytics = catchAsync(async (req, res) => {
     data,
   });
 });
+
 export const findPlanAllAnalytics = catchAsync(async (req, res, next) => {
-  const currentYear = new Date().getFullYear();
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+
+  const lastDayOfMonth = new Date(
+    currentYear,
+    currentMonth + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
 
   const planes = await Plan.findAll({
     attributes: ['id', 'nombre_plan', 'precio_plan'],
@@ -125,11 +135,8 @@ export const findPlanAllAnalytics = catchAsync(async (req, res, next) => {
         as: 'suscripciones',
         where: {
           status: 'activa',
-          createdAt: {
-            [Op.between]: [
-              new Date(`${currentYear}-01-01 00:00:00`),
-              new Date(`${currentYear}-12-31 23:59:59`),
-            ],
+          startDate: {
+            [Op.between]: [firstDayOfMonth, lastDayOfMonth],
           },
         },
         required: false, // LEFT JOIN
@@ -151,9 +158,24 @@ export const findPlanAllAnalytics = catchAsync(async (req, res, next) => {
 
 // Añadir al controlador de suscripciones
 export const getDashboardStats = catchAsync(async (req, res) => {
-  const currentYear = new Date().getFullYear();
+  limpiarSuscripcionesDuplicadas();
 
-  // 1. Ingresos y conteo total (Usando nombres correctos del modelo)
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+
+  const lastDayOfMonth = new Date(
+    currentYear,
+    currentMonth + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
+
+  // 2. Ingresos y conteo total mensual
   const stats = await Suscripcion.findOne({
     attributes: [
       [fn('SUM', col('precio')), 'totalRevenue'],
@@ -161,24 +183,26 @@ export const getDashboardStats = catchAsync(async (req, res) => {
     ],
     where: {
       status: 'activa',
-      createdAt: {
-        [Op.between]: [
-          new Date(`${currentYear}-01-01 00:00:00`),
-          new Date(`${currentYear}-12-31 23:59:59`),
-        ],
+      startDate: {
+        [Op.between]: [firstDayOfMonth, lastDayOfMonth],
       },
     },
     raw: true,
   });
 
-  // 2. Usuarios únicos usando 'user_id' (como está en tu modelo)
+  // 3. Usuarios únicos usando 'user_id' (filtrado también por el mes actual)
   const totalUsers = await Suscripcion.count({
     distinct: true,
     col: 'user_id',
-    where: { status: 'activa' },
+    where: {
+      status: 'activa',
+      startDate: {
+        [Op.between]: [firstDayOfMonth, lastDayOfMonth],
+      },
+    },
   });
 
-  // 3. Extra: Últimas 5 suscripciones para llenar el dashboard
+  // 4. Extra: Últimas 5 suscripciones (se mantiene igual, traerá las más recientes)
   const recentSubscriptions = await Suscripcion.findAll({
     limit: 5,
     order: [['createdAt', 'DESC']],
@@ -461,5 +485,80 @@ const verificarValidezSuscripcion = async (suscripcion) => {
   } catch (error) {
     logger.error('❌ Error al verificar suscripción:', error);
     return 4;
+  }
+};
+
+export const inicializarCronSuscripciones = () => {
+  // Se ejecuta todos los días a las 00:00 (Medianoche)
+  cron.schedule('0 0 * * *', async () => {
+    try {
+      console.log(
+        '⏳ [CRON] Verificando y actualizando suscripciones expiradas...',
+      );
+
+      const fechaActual = new Date();
+
+      const [updatedRows] = await Suscripcion.update(
+        { status: 'expirada' },
+        {
+          where: {
+            status: 'activa', // Solo busca las que siguen marcadas como activas
+            endDate: {
+              [Op.lt]: fechaActual, // Que su endDate sea menor a hoy
+            },
+          },
+        },
+      );
+
+      if (updatedRows > 0) {
+        console.log(
+          `✅ [CRON] Éxito: Se marcaron ${updatedRows} suscripciones como expiradas.`,
+        );
+      } else {
+        console.log(
+          '✅ [CRON] Todo al día: No se encontraron suscripciones expiradas hoy.',
+        );
+      }
+    } catch (error) {
+      console.error('❌ [CRON] Error al actualizar suscripciones:', error);
+    }
+  });
+
+  console.log('⚙️  Cron job de suscripciones inicializado correctamente.');
+};
+
+export const limpiarSuscripcionesDuplicadas = async () => {
+  try {
+    // 1. Buscamos a los usuarios con el problema (la misma consulta de antes)
+    const usuariosDuplicados = await Suscripcion.findAll({
+      attributes: ['user_id'],
+      where: { status: 'activa' },
+      group: ['user_id'],
+      having: literal('COUNT(id) > 1'),
+      raw: true,
+    });
+
+    let totalDesactivadas = 0;
+
+    // 2. Arreglamos a cada usuario uno por uno
+    for (const usuario of usuariosDuplicados) {
+      // Obtenemos todas sus suscripciones activas, ordenadas de la más NUEVA a la más VIEJA
+      const suscripciones = await Suscripcion.findAll({
+        where: {
+          user_id: usuario.user_id,
+          status: 'activa',
+        },
+        order: [['createdAt', 'DESC']],
+      });
+
+      // El índice 0 es la más nueva, esa la dejamos quieta.
+      // Empezamos el bucle desde el índice 1 para cancelar todas las anteriores.
+      for (let i = 1; i < suscripciones.length; i++) {
+        await suscripciones[i].update({ status: 'cancelada' }); // o 'expirada'
+        totalDesactivadas++;
+      }
+    }
+  } catch (error) {
+    console.error('Error limpiando duplicados:', error);
   }
 };
