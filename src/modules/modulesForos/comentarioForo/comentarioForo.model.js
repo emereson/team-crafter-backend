@@ -19,7 +19,7 @@ const ComentarioForo = db.define(
       allowNull: false,
     },
     comentario: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     likes_comentario_foro: {
@@ -31,7 +31,7 @@ const ComentarioForo = db.define(
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-  }
+  },
 );
 
 export { ComentarioForo };
