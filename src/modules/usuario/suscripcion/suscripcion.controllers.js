@@ -492,7 +492,7 @@ export const inicializarCronSuscripciones = () => {
   // Se ejecuta todos los días a las 00:00 (Medianoche)
   cron.schedule('0 0 * * *', async () => {
     try {
-      console.log(
+      logger.info(
         '⏳ [CRON] Verificando y actualizando suscripciones expiradas...',
       );
 
@@ -511,20 +511,20 @@ export const inicializarCronSuscripciones = () => {
       );
 
       if (updatedRows > 0) {
-        console.log(
+        logger.info(
           `✅ [CRON] Éxito: Se marcaron ${updatedRows} suscripciones como expiradas.`,
         );
       } else {
-        console.log(
+        logger.info(
           '✅ [CRON] Todo al día: No se encontraron suscripciones expiradas hoy.',
         );
       }
     } catch (error) {
-      console.error('❌ [CRON] Error al actualizar suscripciones:', error);
+      logger.error('❌ [CRON] Error al actualizar suscripciones:', error);
     }
   });
 
-  console.log('⚙️  Cron job de suscripciones inicializado correctamente.');
+  logger.info('⚙️  Cron job de suscripciones inicializado correctamente.');
 };
 
 export const limpiarSuscripcionesDuplicadas = async () => {
@@ -559,6 +559,6 @@ export const limpiarSuscripcionesDuplicadas = async () => {
       }
     }
   } catch (error) {
-    console.error('Error limpiando duplicados:', error);
+    logger.error('❌ Error limpiando duplicados:', error);
   }
 };
