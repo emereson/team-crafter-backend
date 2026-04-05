@@ -260,13 +260,15 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
     end.setMonth(end.getMonth() + 1);
   }
 
+  console.log(resPayal);
+
   await Suscripcion.create({
     user_id: sessionUser.id,
     customerId: sessionUser.customerId,
     plan_id: plan.id,
     suscripcion_id_paypal: paypalSubscriptionId,
     precio: plan.precio_plan,
-    status: 'pendiente',
+    status: resPayal.status === 'ACTIVE' ? 'activa' : 'pendiente',
     startDate: start,
     endDate: end,
   });
