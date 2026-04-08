@@ -228,15 +228,14 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
   const suscripcionActiva = await Suscripcion.findOne({
     where: {
       user_id: sessionUser.id,
-      status: 'activa',
+      suscripcion_id_paypal: paypalSubscriptionId,
     },
   });
 
   if (suscripcionActiva) {
-    return res.status(403).json({
-      status: 'fail',
-      message: 'Ya tienes una suscripción activa',
-      suscripcion: suscripcionActiva,
+    return res.status(200).json({
+      status: 'success',
+      // link_pago: resPayal.links[0].href,
     });
   }
   let resPayal = null;
