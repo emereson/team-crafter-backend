@@ -273,8 +273,9 @@ export const getSubscriptionPayPal = async ({ subscription_id }) => {
       },
     },
   );
+  console.log(data);
 
   return data;
 };
 
-// getSubscriptionPayPal({ subscription_id: 'I-8CWF40VPDFSB' });
+// getSubscriptionPayPal({ subscription_id: 'I-S1UB4C4246D2' });

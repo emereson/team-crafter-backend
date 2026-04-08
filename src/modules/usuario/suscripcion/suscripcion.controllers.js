@@ -260,8 +260,6 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
     end.setMonth(end.getMonth() + 1);
   }
 
-  console.log(resPayal);
-
   await Suscripcion.create({
     user_id: sessionUser.id,
     customerId: sessionUser.customerId,
