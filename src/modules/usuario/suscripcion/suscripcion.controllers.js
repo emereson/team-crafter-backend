@@ -158,7 +158,7 @@ export const findPlanAllAnalytics = catchAsync(async (req, res, next) => {
 
 // Añadir al controlador de suscripciones
 export const getDashboardStats = catchAsync(async (req, res) => {
-  limpiarSuscripcionesDuplicadas();
+  // limpiarSuscripcionesDuplicadas();
 
   const now = new Date();
   const currentYear = now.getFullYear();
