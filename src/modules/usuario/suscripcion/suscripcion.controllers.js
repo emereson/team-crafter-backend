@@ -279,7 +279,8 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
 export const obtenerContenidoPremium = catchAsync(async (req, res) => {
   const { sessionUser } = req;
 
-  const suscripciones = await Suscripcion.findAll({
+  // 1. Buscamos suscripciones que el sistema cree que están vigentes
+  let suscripciones = await Suscripcion.findAll({
     where: {
       user_id: sessionUser.id,
       status: ['pendiente', 'activa'],
@@ -287,21 +288,74 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
     order: [['createdAt', 'DESC']],
   });
 
-  // sadd
   let suscripcionActiva = null;
 
+  // 2. Si existen, validamos su estado real con el proveedor (PayPal/Flow)
   for (const suscripcion of suscripciones) {
     const esValida = await verificarValidezSuscripcion(suscripcion);
 
     if (esValida === 1 || esValida === 'ACTIVE') {
       suscripcionActiva = await suscripcion.update({ status: 'activa' });
-      break; // Si encontramos una activa, detenemos el bucle y la guardamos
+      break;
     } else if (esValida === 4 || esValida === 'CANCELLED') {
       await suscripcion.update({ status: 'cancelada' });
     } else if (esValida === 0 || esValida === 'INACTIVE') {
       await suscripcion.update({ status: 'expirada' });
-    } else {
-      await suscripcion.update({ status: 'pendiente' });
+    }
+  }
+
+  // 3. SI NO HAY ACTIVA: Verificamos si Flow tiene facturas pagadas que no hemos registrado
+  if (!suscripcionActiva) {
+    const ultimaSuscripcion = await Suscripcion.findOne({
+      where: { user_id: sessionUser.id, status: 'expirada' },
+
+      order: [['createdAt', 'DESC']],
+    });
+
+    if (ultimaSuscripcion?.flow_subscription_id) {
+      const resFlow = await suscripcionId({
+        subscriptionId: ultimaSuscripcion.flow_subscription_id,
+      });
+
+      const invoices = resFlow.invoices || [];
+
+      for (const invoice of invoices) {
+        // Solo nos interesan facturas PAGADAS (status 1 en Flow)
+        if (invoice.status !== 1) continue;
+
+        const fechaInicio = new Date(invoice.period_start);
+        // Normalizamos a medianoche para comparar con la DB
+        fechaInicio.setUTCHours(0, 0, 0, 0);
+
+        const fechaFinal = new Date(invoice.period_end);
+        fechaFinal.setUTCHours(0, 0, 0, 0);
+
+        // ¿Ya registramos este periodo en nuestra DB?
+        const existSuscripcion = await Suscripcion.findOne({
+          where: {
+            flow_subscription_id: ultimaSuscripcion.flow_subscription_id,
+            startDate: fechaInicio,
+          },
+        });
+
+        if (!existSuscripcion) {
+          // Si no existe y está pagada en Flow, creamos el nuevo periodo
+          suscripcionActiva = await Suscripcion.create({
+            user_id: ultimaSuscripcion.user_id,
+            plan_id: ultimaSuscripcion.plan_id,
+            precio: ultimaSuscripcion.precio,
+            status: 'activa',
+            startDate: fechaInicio,
+            endDate: fechaFinal,
+            flow_subscription_id: ultimaSuscripcion.flow_subscription_id,
+          });
+
+          break;
+        } else if (existSuscripcion.status === 'activa') {
+          suscripcionActiva = existSuscripcion;
+          break;
+        }
+      }
     }
   }
 
@@ -311,12 +365,6 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
     tieneAcceso: Boolean(suscripcionActiva),
   });
 });
-
-/**
- * Verifica si una suscripción sigue siendo válida
- * según su proveedor de pago (PayPal o Flow)
- */
-
 export const migrarPlan = catchAsync(async (req, res, next) => {
   const { suscripcion } = req;
   const { planExternalId } = req.body;

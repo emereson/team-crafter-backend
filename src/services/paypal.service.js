@@ -273,7 +273,6 @@ export const getSubscriptionPayPal = async ({ subscription_id }) => {
       },
     },
   );
-  console.log(data);
 
   return data;
 };
