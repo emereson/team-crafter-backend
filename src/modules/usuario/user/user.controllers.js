@@ -25,7 +25,44 @@ import {
 import logger from '../../../utils/logger.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
-  const users = await User.findAll({});
+  const { busqueda, fecha_inicio, fecha_final, estado } = req.query;
+  const whereClause = {};
+  if (estado) {
+    whereClause.status = estado;
+  }
+
+  if (busqueda) {
+    whereClause[Op.or] = [
+      { nombre: { [Op.like]: `%${busqueda}%` } },
+      { apellidos: { [Op.like]: `%${busqueda}%` } },
+      { correo: { [Op.like]: `%${busqueda}%` } },
+    ];
+  }
+
+  if (fecha_inicio && fecha_final) {
+    const endDate = new Date(fecha_final);
+    endDate.setHours(23, 59, 59, 999);
+
+    whereClause.createdAt = {
+      [Op.between]: [new Date(fecha_inicio), endDate],
+    };
+  } else if (fecha_inicio) {
+    whereClause.createdAt = {
+      [Op.gte]: new Date(fecha_inicio),
+    };
+  } else if (fecha_final) {
+    const endDate = new Date(fecha_final);
+    endDate.setHours(23, 59, 59, 999);
+
+    whereClause.createdAt = {
+      [Op.lte]: endDate,
+    };
+  }
+
+  const users = await User.findAll({
+    where: whereClause,
+    order: [['createdAt', 'DESC']],
+  });
 
   return res.status(200).json({
     status: 'Success',
@@ -338,6 +375,72 @@ export const update = catchAsync(async (req, res) => {
   return res.status(200).json({
     status: 'success',
     message: 'User information has been updated',
+    user: updatedUser,
+  });
+});
+
+// Asegúrate de importar tu modelo User y bcrypt si no lo has hecho
+// import { User } from '../models/user.model.js';
+// import bcrypt from 'bcryptjs';
+
+export const updateAdminUser = catchAsync(async (req, res, next) => {
+  const { user } = req;
+
+  // 2. Extraemos todos los campos posibles que el admin puede mandar
+  const {
+    nombre,
+    apellidos,
+    correo,
+    telefono,
+    codigo_pais,
+    zona_horaria,
+    dni_id_ce,
+    pais,
+    status,
+    emailVerified,
+    newPassword, // Opcional, por si el admin le cambia la contraseña
+  } = req.body;
+
+  const updateData = {
+    nombre,
+    apellidos,
+    correo, // El admin puede corregir el correo
+    telefono,
+    codigo_pais,
+    zona_horaria,
+    dni_id_ce,
+    pais,
+    status, // "active", "disabled", "bloqued"
+    emailVerified, // true o false
+  };
+
+  // --- LÓGICA DE IMAGEN (Mantenida por si acaso) ---
+  const fileAnterior = userToUpdate.foto_perfil;
+  if (req.file) {
+    updateData.foto_perfil = await uploadImage(req.file);
+  }
+
+  // --- LÓGICA DE CONTRASEÑA ---
+  if (newPassword && newPassword.length > 3) {
+    const salt = await bcrypt.genSalt(12);
+    const encryptedPassword = await bcrypt.hash(newPassword, salt);
+    updateData.password = encryptedPassword;
+  }
+
+  // 5. Ejecutamos la actualización
+  await userToUpdate.update(updateData);
+
+  // 6. Si se subió una imagen nueva, borramos la vieja
+  if (req.file && fileAnterior) {
+    await deleteImage(fileAnterior);
+  }
+
+  // Opcional: recargar los datos frescos de la BD
+  const updatedUser = await userToUpdate.reload();
+
+  return res.status(200).json({
+    status: 'success',
+    message: 'La información del usuario ha sido actualizada',
     user: updatedUser,
   });
 });

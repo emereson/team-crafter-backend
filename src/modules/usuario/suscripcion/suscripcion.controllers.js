@@ -36,6 +36,138 @@ export const findAll = catchAsync(async (req, res, next) => {
   });
 });
 
+export const findAllTable = catchAsync(async (req, res, next) => {
+  const { fecha_inicio, fecha_final, estado, plan_id, user_id } = req.query;
+
+  const whereClause = {};
+
+  if (estado) whereClause.status = estado;
+  if (plan_id) whereClause.plan_id = plan_id;
+  if (user_id) whereClause.user_id = user_id;
+
+  // Filtro por rango de fechas utilizando 'startDate'
+  if (fecha_inicio && fecha_final) {
+    whereClause.startDate = {
+      [Op.between]: [new Date(fecha_inicio), new Date(fecha_final)],
+    };
+  } else if (fecha_inicio) {
+    whereClause.startDate = {
+      [Op.gte]: new Date(fecha_inicio),
+    };
+  } else if (fecha_final) {
+    whereClause.startDate = {
+      [Op.lte]: new Date(fecha_final),
+    };
+  }
+  const suscripciones = await Suscripcion.findAll({
+    where: whereClause,
+    include: [
+      { model: Plan, as: 'plan' },
+      { model: User, as: 'usuario' },
+    ],
+    order: [['id', 'desc']],
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    suscripciones,
+  });
+});
+
+// CREAR SUSCRIPCIÓN
+export const createSuscripcion = catchAsync(async (req, res, next) => {
+  const {
+    user_id,
+    plan_id,
+    precio,
+    status,
+    startDate,
+    endDate,
+    suscripcion_id_paypal,
+    flow_subscription_id,
+  } = req.body;
+
+  const nuevaSuscripcion = await Suscripcion.create({
+    user_id,
+    plan_id,
+    precio,
+    status,
+    startDate,
+    endDate,
+    suscripcion_id_paypal,
+    flow_subscription_id,
+  });
+
+  return res.status(201).json({
+    status: 'success',
+    suscripcion: nuevaSuscripcion,
+  });
+});
+
+// ACTUALIZAR SUSCRIPCIÓN
+export const updateSuscripcion = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const {
+    plan_id,
+    precio,
+    status,
+    startDate,
+    endDate,
+    motivo_cancelacion,
+    fecha_cancelacion,
+    suscripcion_id_paypal,
+    flow_subscription_id,
+  } = req.body;
+
+  const suscripcion = await Suscripcion.findByPk(id);
+
+  if (!suscripcion) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Suscripción no encontrada',
+    });
+  }
+
+  // Actualiza solo los campos permitidos
+  await suscripcion.update({
+    plan_id,
+    precio,
+    status,
+    startDate,
+    endDate,
+    motivo_cancelacion,
+    fecha_cancelacion,
+    suscripcion_id_paypal,
+    flow_subscription_id,
+  });
+
+  return res.status(200).json({
+    status: 'success',
+    suscripcion,
+  });
+});
+
+// ELIMINAR SUSCRIPCIÓN
+export const deleteSuscripcion = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  const suscripcion = await Suscripcion.findByPk(id);
+
+  if (!suscripcion) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'Suscripción no encontrada',
+    });
+  }
+
+  await suscripcion.destroy();
+
+  return res.status(200).json({
+    status: 'success',
+    message: 'Suscripción eliminada correctamente',
+  });
+});
+
 export const findAnalytics = catchAsync(async (req, res) => {
   const { type, from, to } = req.query;
 

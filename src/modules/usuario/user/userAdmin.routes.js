@@ -7,6 +7,12 @@ const router = express.Router();
 router.use(authAdminMiddleware.protect);
 
 router.get('/analytics', userController.findAllAnalytics);
+router.get('/', userController.findAll);
+router.patch(
+  '/user-admin/:id',
+  userMiddleware.validExistUser,
+  userController.updateAdminUser,
+);
 
 // router
 //   .use('/:id', recursoMiddleware.validExistRecurso)

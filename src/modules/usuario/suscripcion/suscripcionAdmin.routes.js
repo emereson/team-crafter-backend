@@ -8,6 +8,9 @@ router.use(authAdminMiddleware.protect);
 router.get('/analytics', suscripcionController.findAnalytics);
 router.get('/analytics-planes', suscripcionController.findPlanAllAnalytics);
 router.get('/stats', suscripcionController.getDashboardStats);
+router.get('/', suscripcionController.findAllTable);
+router.post('/', suscripcionController.createSuscripcion);
+router.delete('/:id', suscripcionController.deleteSuscripcion);
 
 // router
 //   .use('/:id', recursoMiddleware.validExistRecurso)

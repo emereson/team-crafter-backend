@@ -68,7 +68,7 @@ const User = db.define(
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM('active', 'disabled'),
+      type: DataTypes.ENUM('active', 'disabled', 'bloqued'),
       allowNull: false,
       defaultValue: 'active',
     },
