@@ -217,22 +217,45 @@ export const signup = catchAsync(async (req, res, next) => {
 export const login = catchAsync(async (req, res, next) => {
   const { correo, password } = req.body;
 
+  // 1. Buscamos al usuario ÚNICAMENTE por el correo
   const user = await User.findOne({
     where: {
       correo: correo.toLowerCase(),
-      status: 'active',
     },
   });
+
+  // 2. Si no hay usuario, lanzamos error 404
   if (!user) {
     return next(new AppError('El usuario no se encuentra registrado', 404));
   }
 
+  // 3. Evaluamos el estado de la cuenta ANTES de verificar la contraseña
+  if (user.status === 'disabled') {
+    return next(
+      new AppError(
+        'Tu cuenta ha sido deshabilitada. Por favor, contacta a soporte técnico.',
+        403,
+      ),
+    );
+  }
+
+  if (user.status === 'bloqued') {
+    return next(
+      new AppError(
+        'Tu cuenta se encuentra bloqueada por motivos de seguridad o incumplimiento de normas.',
+        403,
+      ),
+    );
+  }
+
+  // 4. Llegados a este punto, sabemos que el status es 'active'. Verificamos contraseña.
   if (
     !(await bcrypt.compare(password, user.password ? user.password : 'asd'))
   ) {
     return next(new AppError('Contraseña incorrecta', 401));
   }
 
+  // 5. Generamos el JWT y damos acceso
   const token = await generateJWT(user.id);
 
   res.status(201).json({
