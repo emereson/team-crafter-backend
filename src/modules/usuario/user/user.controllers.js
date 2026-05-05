@@ -230,23 +230,23 @@ export const login = catchAsync(async (req, res, next) => {
   }
 
   // 3. Evaluamos el estado de la cuenta ANTES de verificar la contraseña
-  if (user.status === 'disabled') {
-    return next(
-      new AppError(
-        'Tu cuenta ha sido deshabilitada. Por favor, contacta a soporte técnico.',
-        403,
-      ),
-    );
-  }
+  // if (user.status === 'disabled') {
+  //   return next(
+  //     new AppError(
+  //       'Tu cuenta ha sido deshabilitada. Por favor, contacta a soporte técnico.',
+  //       403,
+  //     ),
+  //   );
+  // }
 
-  if (user.status === 'bloqued') {
-    return next(
-      new AppError(
-        'Tu cuenta se encuentra bloqueada por motivos de seguridad o incumplimiento de normas.',
-        403,
-      ),
-    );
-  }
+  // if (user.status === 'bloqued') {
+  //   return next(
+  //     new AppError(
+  //       'Tu cuenta se encuentra bloqueada por motivos de seguridad o incumplimiento de normas.',
+  //       403,
+  //     ),
+  //   );
+  // }
 
   // 4. Llegados a este punto, sabemos que el status es 'active'. Verificamos contraseña.
   if (
