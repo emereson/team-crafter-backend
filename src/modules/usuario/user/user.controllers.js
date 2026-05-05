@@ -402,14 +402,20 @@ export const update = catchAsync(async (req, res) => {
   });
 });
 
-// Asegúrate de importar tu modelo User y bcrypt si no lo has hecho
-// import { User } from '../models/user.model.js';
-// import bcrypt from 'bcryptjs';
-
 export const updateAdminUser = catchAsync(async (req, res, next) => {
-  const { user } = req;
+  // 1. ERROR CRÍTICO CORREGIDO: Buscar por ID, no por req.user
+  const { id } = req.params;
 
-  // 2. Extraemos todos los campos posibles que el admin puede mandar
+  const userToUpdate = await User.findByPk(id);
+
+  if (!userToUpdate) {
+    return res.status(404).json({
+      status: 'error',
+      message: 'El usuario que intentas editar no existe',
+    });
+  }
+
+  // 2. Extraemos los campos
   const {
     nombre,
     apellidos,
@@ -421,24 +427,37 @@ export const updateAdminUser = catchAsync(async (req, res, next) => {
     pais,
     status,
     emailVerified,
-    newPassword, // Opcional, por si el admin le cambia la contraseña
+    newPassword,
   } = req.body;
 
+  // 3. LIMPIEZA DE STATUS PARA EVITAR EL ERROR "DATA TRUNCATED"
+  let statusLimpio = userToUpdate.status; // Por defecto, mantenemos el que ya tiene
+  const validStatuses = ['active', 'disabled', 'bloqued'];
+
+  // Si HeroUI manda un array ej: ["active"], sacamos el primer valor
+  const parsedStatus = Array.isArray(status) ? status[0] : status;
+
+  // Solo lo actualizamos si nos enviaron un valor válido
+  if (parsedStatus && validStatuses.includes(parsedStatus)) {
+    statusLimpio = parsedStatus;
+  }
+
+  // 4. Preparamos la data a actualizar
   const updateData = {
     nombre,
     apellidos,
-    correo, // El admin puede corregir el correo
+    correo,
     telefono,
     codigo_pais,
     zona_horaria,
     dni_id_ce,
     pais,
-    status, // "active", "disabled", "bloqued"
-    emailVerified, // true o false
+    status: statusLimpio, // Usamos el status validado
+    emailVerified,
   };
 
-  // --- LÓGICA DE IMAGEN (Mantenida por si acaso) ---
-  const fileAnterior = user.foto_perfil;
+  // --- LÓGICA DE IMAGEN ---
+  const fileAnterior = userToUpdate.foto_perfil;
   if (req.file) {
     updateData.foto_perfil = await uploadImage(req.file);
   }
@@ -450,16 +469,15 @@ export const updateAdminUser = catchAsync(async (req, res, next) => {
     updateData.password = encryptedPassword;
   }
 
-  // 5. Ejecutamos la actualización
-  await user.update(updateData);
+  // 5. Ejecutamos la actualización SOBRE EL USUARIO CORRECTO
+  await userToUpdate.update(updateData);
 
-  // 6. Si se subió una imagen nueva, borramos la vieja
+  // 6. Borramos imagen vieja si aplica
   if (req.file && fileAnterior) {
     await deleteImage(fileAnterior);
   }
 
-  // Opcional: recargar los datos frescos de la BD
-  const updatedUser = await user.reload();
+  const updatedUser = await userToUpdate.reload();
 
   return res.status(200).json({
     status: 'success',
@@ -467,7 +485,6 @@ export const updateAdminUser = catchAsync(async (req, res, next) => {
     user: updatedUser,
   });
 });
-
 export const deleteUser = catchAsync(async (req, res) => {
   const { user } = req;
 

@@ -37,11 +37,11 @@ export const findAll = catchAsync(async (req, res, next) => {
 });
 
 export const findAllTable = catchAsync(async (req, res, next) => {
-  const { fecha_inicio, fecha_final, estado, plan_id, user_id } = req.query;
+  const { fecha_inicio, fecha_final, status, plan_id, user_id } = req.query;
 
   const whereClause = {};
 
-  if (estado) whereClause.status = estado;
+  if (status) whereClause.status = status;
   if (plan_id) whereClause.plan_id = plan_id;
   if (user_id) whereClause.user_id = user_id;
 
