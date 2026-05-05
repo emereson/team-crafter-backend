@@ -438,7 +438,7 @@ export const updateAdminUser = catchAsync(async (req, res, next) => {
   };
 
   // --- LÓGICA DE IMAGEN (Mantenida por si acaso) ---
-  const fileAnterior = userToUpdate.foto_perfil;
+  const fileAnterior = user.foto_perfil;
   if (req.file) {
     updateData.foto_perfil = await uploadImage(req.file);
   }
@@ -451,7 +451,7 @@ export const updateAdminUser = catchAsync(async (req, res, next) => {
   }
 
   // 5. Ejecutamos la actualización
-  await userToUpdate.update(updateData);
+  await user.update(updateData);
 
   // 6. Si se subió una imagen nueva, borramos la vieja
   if (req.file && fileAnterior) {
@@ -459,7 +459,7 @@ export const updateAdminUser = catchAsync(async (req, res, next) => {
   }
 
   // Opcional: recargar los datos frescos de la BD
-  const updatedUser = await userToUpdate.reload();
+  const updatedUser = await user.reload();
 
   return res.status(200).json({
     status: 'success',
