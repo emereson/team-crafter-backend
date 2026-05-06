@@ -27,6 +27,7 @@ import logger from '../../../utils/logger.js';
 export const findAll = catchAsync(async (req, res, next) => {
   const { busqueda, fecha_inicio, fecha_final, estado } = req.query;
   const whereClause = {};
+
   if (estado) {
     whereClause.status = estado;
   }
@@ -59,10 +60,19 @@ export const findAll = catchAsync(async (req, res, next) => {
     };
   }
 
-  const users = await User.findAll({
+  // 1. Configuramos las opciones base de la consulta
+  const queryOptions = {
     where: whereClause,
     order: [['createdAt', 'DESC']],
-  });
+  };
+
+  // 2. Si no viene NINGUNA fecha en los query params, limitamos a 40
+  if (!fecha_inicio && !fecha_final) {
+    queryOptions.limit = 40;
+  }
+
+  // 3. Pasamos el objeto de opciones al método findAll
+  const users = await User.findAll(queryOptions);
 
   return res.status(200).json({
     status: 'Success',

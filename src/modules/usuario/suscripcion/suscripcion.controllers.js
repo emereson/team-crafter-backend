@@ -328,9 +328,6 @@ export const getDashboardStats = catchAsync(async (req, res) => {
     col: 'user_id',
     where: {
       status: 'activa',
-      startDate: {
-        [Op.between]: [firstDayOfMonth, lastDayOfMonth],
-      },
     },
   });
 
