@@ -25,7 +25,7 @@ import {
 import logger from '../../../utils/logger.js';
 
 export const findAll = catchAsync(async (req, res, next) => {
-  const { busqueda, fecha_inicio, fecha_final, estado } = req.query;
+  const { busqueda, fecha_inicio, fecha_final, estado, no_limit } = req.query;
   const whereClause = {};
 
   if (estado) {
@@ -67,7 +67,7 @@ export const findAll = catchAsync(async (req, res, next) => {
   };
 
   // 2. Si no viene NINGUNA fecha en los query params, limitamos a 40
-  if (!fecha_inicio && !fecha_final) {
+  if (!fecha_inicio && !fecha_final && !no_limit) {
     queryOptions.limit = 40;
   }
 
