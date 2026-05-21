@@ -37,14 +37,21 @@ export const findAll = catchAsync(async (req, res, next) => {
 });
 
 export const findAllTable = catchAsync(async (req, res, next) => {
-  const { fecha_inicio, fecha_final, status, plan_id, user_id } = req.query;
+  const { fecha_inicio, fecha_final, status, plan_id, busqueda } = req.query;
 
   const whereClause = {};
+  const whereUser = {};
 
   if (status) whereClause.status = status;
   if (plan_id) whereClause.plan_id = plan_id;
-  if (user_id) whereClause.user_id = user_id;
 
+  if (busqueda) {
+    whereUser[Op.or] = [
+      { nombre: { [Op.like]: `%${busqueda}%` } },
+      { apellidos: { [Op.like]: `%${busqueda}%` } },
+      { correo: { [Op.like]: `%${busqueda}%` } },
+    ];
+  }
   // Filtro por rango de fechas utilizando 'startDate'
   if (fecha_inicio && fecha_final) {
     whereClause.startDate = {
@@ -59,11 +66,12 @@ export const findAllTable = catchAsync(async (req, res, next) => {
       [Op.lte]: new Date(fecha_final),
     };
   }
+
   const suscripciones = await Suscripcion.findAll({
     where: whereClause,
     include: [
       { model: Plan, as: 'plan' },
-      { model: User, as: 'usuario' },
+      { model: User, as: 'usuario', where: whereUser, required: true },
     ],
     order: [['id', 'desc']],
   });
