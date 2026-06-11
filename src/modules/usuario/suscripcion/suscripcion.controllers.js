@@ -427,8 +427,15 @@ export const obtenerContenidoPremium = catchAsync(async (req, res) => {
 
   let suscripcionActiva = null;
 
-  // 2. Si existen, validamos su estado real con el proveedor (PayPal/Flow)
   for (const suscripcion of suscripciones) {
+    if (
+      suscripcion.status === 'activa' &&
+      suscripcion.suscripcion_id_paypal === 'free'
+    ) {
+      suscripcionActiva = suscripcion;
+      break;
+    }
+
     const esValida = await verificarValidezSuscripcion(suscripcion);
 
     if (esValida === 1 || esValida === 'ACTIVE') {
