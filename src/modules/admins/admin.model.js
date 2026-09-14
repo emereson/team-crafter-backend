@@ -39,7 +39,7 @@ const Admin = db.define(
   {
     tableName: 'admins',
     timestamps: true,
-  }
+  },
 );
 
 export { Admin };
