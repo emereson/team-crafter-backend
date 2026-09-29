@@ -3,7 +3,6 @@ import { Admin } from './admin.model.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { generateJWT } from '../../utils/jwt.js';
 import { AppError } from '../../utils/AppError.js';
-import { where } from 'sequelize';
 
 export const findAll = catchAsync(async (req, res, next) => {
   const admins = await Admin.findAll({});
