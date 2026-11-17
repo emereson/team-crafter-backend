@@ -409,7 +409,6 @@ export const crearSuscripcionPaypal = catchAsync(async (req, res) => {
 
   return res.status(200).json({
     status: 'success',
-    // link_pago: resPayal.links[0].href,
   });
 });
 
